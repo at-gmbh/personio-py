@@ -1,12 +1,23 @@
 from datetime import datetime
-from typing import List
+from typing import Any, Dict, List, TYPE_CHECKING, Type
+
+from personio_py import PersonioError, UnsupportedMethodError
+
+if TYPE_CHECKING:
+    from personio_py import Personio
 
 
 class PersonioResource:
 
     def __init__(self):
-        # TODO how to get the client reference to do updates & stuff? 🤔
         pass
+
+    @classmethod
+    def from_dict(cls) -> Type['PersonioResource']:
+        raise UnsupportedMethodError('from_dict', cls.__class__)
+
+    def to_dict(self) -> Dict[str, Any]:
+        raise UnsupportedMethodError('to_dict', self.__class__)
 
 
 class WritablePersonioResource(PersonioResource):
@@ -15,20 +26,47 @@ class WritablePersonioResource(PersonioResource):
     can_update = True
     can_delete = True
 
-    def __init__(self):
+    def __init__(self, client: 'Personio' = None):
         super().__init__()
+        self.client = client
 
-    def create(self):
-        # TODO make a request to create this resource
-        pass
+    def create(self, client: 'Personio' = None):
+        if self.can_create:
+            client = self._check_client(client)
+            return self._create(client)
+        else:
+            raise UnsupportedMethodError('create', self.__class__)
 
-    def update(self):
-        # TODO make a request to update this resource
-        pass
+    def _create(self, client: 'Personio'):
+        raise UnsupportedMethodError('create', self.__class__)
 
-    def delete(self):
-        # TODO make a request to update this resource
-        pass
+    def update(self, client: 'Personio' = None):
+        if self.can_update:
+            client = self._check_client(client)
+            return self._update(client)
+        else:
+            raise UnsupportedMethodError('update', self.__class__)
+
+    def _update(self, client: 'Personio'):
+        UnsupportedMethodError('update', self.__class__)
+
+    def delete(self, client: 'Personio' = None):
+        if self.can_delete:
+            client = self._check_client(client)
+            return self._delete(client)
+        else:
+            raise UnsupportedMethodError('delete', self.__class__)
+
+    def _delete(self, client: 'Personio'):
+        UnsupportedMethodError('delete', self.__class__)
+
+    def _check_client(self, client: 'Personio' = None) -> 'Personio':
+        client = client or self.client
+        if not client:
+            raise PersonioError()
+        if not client.authenticated:
+            client.authenticate()
+        return client
 
 
 class AbsenceEntitlement(PersonioResource):
@@ -118,6 +156,8 @@ class WorkSchedule(PersonioResource):
 
 class Absence(WritablePersonioResource):
 
+    can_update = False
+
     def __init__(self,
                  id_: int,
                  status: str,
@@ -133,6 +173,12 @@ class Absence(WritablePersonioResource):
                  created_at: datetime):
         super().__init__()
 
+    def _create(self, client: 'Personio'):
+        pass
+
+    def _delete(self, client: 'Personio'):
+        pass
+
 
 class Attendance(WritablePersonioResource):
 
@@ -146,6 +192,15 @@ class Attendance(WritablePersonioResource):
                  is_holiday=False,
                  is_on_time_off=False):
         super().__init__()
+
+    def _create(self, client: 'Personio'):
+        pass
+
+    def _update(self, client: 'Personio'):
+        pass
+
+    def _delete(self, client: 'Personio'):
+        pass
 
 
 class Employee(WritablePersonioResource):
@@ -186,6 +241,18 @@ class Employee(WritablePersonioResource):
         super().__init__()
         pass
 
+    def _create(self, client: 'Personio'):
+        pass
+
+    def _update(self, client: 'Personio'):
+        pass
+
     def picture(self) -> bytes:
         # TODO request from api & cache
+        pass
+
+    def from_dict(self) -> 'Employee':
+        pass
+
+    def to_dict(self) -> Dict[str, Any]:
         pass

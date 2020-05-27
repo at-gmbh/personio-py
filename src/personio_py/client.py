@@ -61,36 +61,64 @@ class Personio:
         else:
             raise PersonioApiError.from_response(response)
 
-    def employees(self) -> List[Employee]:
+    def get_employees(self) -> List[Employee]:
         # TODO implement
         pass
 
-    def employee(self, employee_id: int) -> Employee:
+    def get_employee(self, employee_id: int) -> Employee:
         # TODO implement
         pass
 
-    def attendances(self, start_date: datetime, end_date: datetime = None,
-                    employee_ids: List[int] = None, limit: int = None,
-                    offset=0) -> List[Attendance]:
+    def get_employee_picture(self, employee_id: int) -> bytes:
         # TODO implement
         pass
 
-    def attendances_create(self, attendances: List[Attendance]):
+    def create_employee(self, employee: Employee):
+        # TODO implement
+        pass
+
+    def update_employee(self, employee: Employee):
+        # TODO implement
+        pass
+
+    def get_attendances(
+            self, start_date: datetime, end_date: datetime = None, employee_ids: List[int] = None,
+            limit: int = None, offset=0) -> List[Attendance]:
+        # TODO implement
+        pass
+
+    def create_attendances(self, attendances: List[Attendance]):
         # attendances can be created individually, but here you can push a huge bunch of items
         # in a single request, which can be significantly faster
         # TODO implement
         pass
 
-    def absence_types(self) -> List[AbsenceType]:
+    def update_attendance(self, attendance_id: int):
         # TODO implement
         pass
 
-    def absences(self, start_date: datetime, end_date: datetime = None,
-                 employee_ids: List[int] = None, limit: int = None,
-                 offset=0) -> List[Absence]:
+    def delete_attendance(self, attendance_id: int):
         # TODO implement
         pass
 
-    def absence(self, absence_id: int) -> Absence:
+    def get_absence_types(self) -> List[AbsenceType]:
+        # TODO implement
+        pass
+
+    def get_absences(
+            self, start_date: datetime, end_date: datetime = None, employee_ids: List[int] = None,
+            limit: int = None, offset=0) -> List[Absence]:
+        # TODO implement
+        pass
+
+    def get_absence(self, absence_id: int) -> Absence:
+        # TODO implement
+        pass
+
+    def create_absence(self, absence: Absence):
+        # TODO implement
+        pass
+
+    def delete_absence(self, absence_id: int):
         # TODO implement
         pass

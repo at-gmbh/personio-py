@@ -1,4 +1,4 @@
-from typing import Any, Dict
+from typing import Any, Dict, Type
 
 from requests import Response
 
@@ -51,3 +51,15 @@ class PersonioApiError(PersonioError):
                 message += '.'
             message += f" Details: {self.errors}"
         return message
+
+
+class UnsupportedMethodError(PersonioError):
+    """this method is not supported by this class (but it might be by a similar one)"""
+
+    def __init__(self, method: str, clazz: Type):
+        super().__init__()
+        self.method = method
+        self.clazz = clazz
+
+    def __str__(self):
+        return f"method '{self.method}' is not available for {self.clazz.__name__}"

@@ -12,6 +12,7 @@ from .errors import (
     PersonioError,
     MissingCredentialsError,
     PersonioApiError,
+    UnsupportedMethodError,
 )
 from .models import (
     Absence,
