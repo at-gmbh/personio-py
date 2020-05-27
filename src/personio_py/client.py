@@ -1,10 +1,12 @@
 import logging
 import os
-from typing import Any, Dict
+from datetime import datetime
+from typing import Any, Dict, List
 from urllib.parse import urljoin
 
 import requests
 
+from personio_py import Absence, AbsenceType, Attendance, Employee
 from personio_py.errors import MissingCredentialsError, PersonioApiError, PersonioError
 
 logger = logging.getLogger('personio_py')
@@ -58,3 +60,37 @@ class Personio:
                 raise PersonioError(f"Failed to parse response as json: {response.text}")
         else:
             raise PersonioApiError.from_response(response)
+
+    def employees(self) -> List[Employee]:
+        # TODO implement
+        pass
+
+    def employee(self, employee_id: int) -> Employee:
+        # TODO implement
+        pass
+
+    def attendances(self, start_date: datetime, end_date: datetime = None,
+                    employee_ids: List[int] = None, limit: int = None,
+                    offset=0) -> List[Attendance]:
+        # TODO implement
+        pass
+
+    def attendances_create(self, attendances: List[Attendance]):
+        # attendances can be created individually, but here you can push a huge bunch of items
+        # in a single request, which can be significantly faster
+        # TODO implement
+        pass
+
+    def absence_types(self) -> List[AbsenceType]:
+        # TODO implement
+        pass
+
+    def absences(self, start_date: datetime, end_date: datetime = None,
+                 employee_ids: List[int] = None, limit: int = None,
+                 offset=0) -> List[Absence]:
+        # TODO implement
+        pass
+
+    def absence(self, absence_id: int) -> Absence:
+        # TODO implement
+        pass

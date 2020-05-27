@@ -8,4 +8,23 @@ __title__ = "personio-py"
 __copyright__ = "© 2020 Alexander Thamm GmbH"
 
 from .version import __version__
+from .errors import (
+    PersonioError,
+    MissingCredentialsError,
+    PersonioApiError,
+)
+from .models import (
+    Absence,
+    AbsenceEntitlement,
+    AbsenceType,
+    Attendance,
+    CostCenter,
+    Department,
+    Employee,
+    HolidayCalendar,
+    Office,
+    ShortEmployee,
+    Team,
+    WorkSchedule,
+)
 from personio_py.client import Personio
