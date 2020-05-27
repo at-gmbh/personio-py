@@ -66,8 +66,10 @@ class Personio:
         pass
 
     def get_employee(self, employee_id: int) -> Employee:
-        # TODO implement
-        pass
+        response = self.request(f'company/employees/{employee_id}')
+        employee_dict = response['data']['attributes']
+        employee = Employee.from_dict(employee_dict, self)
+        return employee
 
     def get_employee_picture(self, employee_id: int) -> bytes:
         # TODO implement

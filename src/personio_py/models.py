@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Any, Dict, List, TYPE_CHECKING, Type
+from typing import Any, Dict, List, NamedTuple, TYPE_CHECKING, Type
 
 from personio_py import PersonioError, UnsupportedMethodError
 
@@ -13,7 +13,7 @@ class PersonioResource:
         pass
 
     @classmethod
-    def from_dict(cls) -> Type['PersonioResource']:
+    def from_dict(cls, d: Dict[str, Any]) -> Type['PersonioResource']:
         raise UnsupportedMethodError('from_dict', cls.__class__)
 
     def to_dict(self) -> Dict[str, Any]:
@@ -26,9 +26,14 @@ class WritablePersonioResource(PersonioResource):
     can_update = True
     can_delete = True
 
-    def __init__(self, client: 'Personio' = None):
+    def __init__(self, client: 'Personio' = None, dynamic: List['DynamicAttr'] = None):
         super().__init__()
         self.client = client
+        self.dynamic = {d.label: d for d in dynamic} if dynamic else {}
+
+    @classmethod
+    def from_dict(cls, d: Dict[str, Any], client: 'Personio' = None) -> Type['PersonioResource']:
+        raise UnsupportedMethodError('from_dict', cls.__class__)
 
     def create(self, client: 'Personio' = None):
         if self.can_create:
@@ -67,6 +72,31 @@ class WritablePersonioResource(PersonioResource):
         if not client.authenticated:
             client.authenticate()
         return client
+
+
+class DynamicAttr(NamedTuple):
+    field_id: int
+    label: str
+    value: str
+
+    @classmethod
+    def from_attributes(cls, d: Dict[str, Dict[str, Any]]) -> List['DynamicAttr']:
+        return [DynamicAttr.from_dict(k, v) for k, v in d.items() if k.startswith('dynamic_')]
+
+    @classmethod
+    def to_attributes(cls, dyn_attrs: List['DynamicAttr']) -> Dict[str, Dict[str, Any]]:
+        return {f'dynamic_{d.field_id}': d.to_dict() for d in dyn_attrs}
+
+    @classmethod
+    def from_dict(cls, key: str, d: Dict[str, Any]) -> 'DynamicAttr':
+        if key.startswith('dynamic_'):
+            _, field_id = key.split('_', maxsplit=1)
+            return DynamicAttr(field_id=int(field_id), label=d['label'], value=d['value'])
+        else:
+            raise ValueError(f"dynamic attribute '{key}' does not start with 'dynamic_'")
+
+    def to_dict(self) -> Dict[str, Any]:
+        return {'label': self.label, 'value': self.value}
 
 
 class AbsenceEntitlement(PersonioResource):
@@ -251,8 +281,10 @@ class Employee(WritablePersonioResource):
         # TODO request from api & cache
         pass
 
-    def from_dict(self) -> 'Employee':
-        pass
+    @classmethod
+    def from_dict(cls, d: Dict[str, Any], client: 'Personio' = None) -> 'Employee':
+        # TODO implement
+        return Employee()
 
     def to_dict(self) -> Dict[str, Any]:
         pass
