@@ -21,6 +21,7 @@ from .models import (
     Attendance,
     CostCenter,
     Department,
+    DynamicAttr,
     Employee,
     HolidayCalendar,
     Office,
