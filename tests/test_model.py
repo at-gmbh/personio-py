@@ -1,4 +1,4 @@
-from personio_py.models import DynamicAttr
+from personio_py import DynamicAttr, Employee
 
 employee_dict = {
     'id': {'label': 'ID', 'value': 42},
@@ -31,3 +31,19 @@ def test_dynamic_attr_list():
     attr_dict = DynamicAttr.to_attributes(dyn_attrs)
     assert 'dynamic_42' in attr_dict
     assert 'dynamic_43' in attr_dict
+
+
+def test_map_types():
+    kwargs = Employee._map_fields(employee_dict)
+    assert kwargs['id_'] == 42
+    assert kwargs['dynamic']
+    assert kwargs['dynamic'][1].label == 'birthday'
+
+
+def test_parse_employee():
+    employee = Employee.from_dict(employee_dict)
+    assert employee.id_ == 42
+    assert len(employee.dynamic) == 2
+    assert employee.first_name == 'Ada'
+    serialized = employee.to_dict()
+    assert serialized

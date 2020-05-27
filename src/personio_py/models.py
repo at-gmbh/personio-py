@@ -14,102 +14,73 @@ PersonioResourceType = TypeVar('PersonioResourceType', bound='PersonioResource')
 T = TypeVar('T')
 
 
-class PersonioResource:
+class FieldMapping:
 
-    _field_mapping: Dict[str, str] = {}
+    def __init__(self, api_field: str, class_field: str, field_type: Type[T]):
+        self.api_field = api_field
+        self.class_field = class_field
+        self.field_type = field_type
 
-    def __init__(self, **kwargs):
-        super().__init__()
+    def serialize(self, value: T) -> Union[str, Dict]:
+        return str(value)
 
-    @classmethod
-    def from_dict(cls, d: Dict[str, Any]) -> PersonioResourceType:
-        kwargs = cls._map_fields(d)
-        return cls(**kwargs)
+    def deserialize(self, value: Union[str, Dict]) -> T:
+        return self.field_type(value)
 
-    def to_dict(self) -> Dict[str, Any]:
-        d = {}
-        for api_field, class_field in self._field_mapping.items():
-            d[api_field] = getattr(self, class_field)
-        return d
-
-    @classmethod
-    def _map_fields(cls, d: Dict[str, Dict[str, Any]]) -> Dict[str, Any]:
-        kwargs = {}
-        dynamic = {}
-        for key, data in d.items():
-            if key in cls._field_mapping:
-                var_name = cls._field_mapping[key]
-                kwargs[var_name] = data['value']
-            elif key.startswith('dynamic_'):
-                dyn = DynamicAttr.from_dict(key, data)
-                dynamic[dyn.field_id] = dyn
-            else:
-                log_once(logging.WARNING,
-                         f"unexpected field '{key}' in class {cls.__class__.__name__}")
-        if dynamic:
-            kwargs['dynamic'] = dynamic
-        return kwargs
+    def __str__(self):
+        return f"{self.__class__.__name__} {self.__dict__}"
 
 
-class WritablePersonioResource(PersonioResource):
+class NumericFieldMapping(FieldMapping):
+    # don't touch numeric types, unless they are strings...
 
-    can_create = True
-    can_update = True
-    can_delete = True
+    def __init__(self, api_field: str, class_field: str, field_type=float):
+        super().__init__(api_field, class_field, field_type=field_type)
 
-    def __init__(self, client: 'Personio' = None, dynamic: List['DynamicAttr'] = None, **kwargs):
-        super().__init__()
-        self.client = client
-        self.dynamic: Dict[int, DynamicAttr] = {d.field_id: d for d in dynamic} if dynamic else {}
+    def serialize(self, value: Union[int, float, str]) -> Union[int, float, str]:
+        return value
 
-    @classmethod
-    def from_dict(cls, d: Dict[str, Any], client: 'Personio' = None) -> PersonioResourceType:
-        kwargs = cls._map_fields(d)
-        return cls(client=client, **kwargs)
+    def deserialize(self, value: Union[int, float, str]) -> Union[int, float, str]:
+        return self.field_type(value) if isinstance(value, str) else value
 
-    def to_dict(self) -> Dict[str, Any]:
-        d = super().to_dict()
-        for dyn in self.dynamic.values():
-            d[f'dynamic_{dyn.field_id}'] = dyn.to_dict()
-        return d
 
-    def create(self, client: 'Personio' = None):
-        if self.can_create:
-            client = self._check_client(client)
-            return self._create(client)
-        else:
-            raise UnsupportedMethodError('create', self.__class__)
+class DateFieldMapping(FieldMapping):
 
-    def _create(self, client: 'Personio'):
-        raise UnsupportedMethodError('create', self.__class__)
+    def __init__(self, api_field: str, class_field: str):
+        super().__init__(api_field, class_field, field_type=datetime)
 
-    def update(self, client: 'Personio' = None):
-        if self.can_update:
-            client = self._check_client(client)
-            return self._update(client)
-        else:
-            raise UnsupportedMethodError('update', self.__class__)
+    def serialize(self, value: datetime) -> str:
+        return value.isoformat()[:10]
 
-    def _update(self, client: 'Personio'):
-        UnsupportedMethodError('update', self.__class__)
+    def deserialize(self, value: str) -> datetime:
+        return datetime.fromisoformat(value)
 
-    def delete(self, client: 'Personio' = None):
-        if self.can_delete:
-            client = self._check_client(client)
-            return self._delete(client)
-        else:
-            raise UnsupportedMethodError('delete', self.__class__)
 
-    def _delete(self, client: 'Personio'):
-        UnsupportedMethodError('delete', self.__class__)
+class ObjectFieldMapping(FieldMapping):
 
-    def _check_client(self, client: 'Personio' = None) -> 'Personio':
-        client = client or self.client
-        if not client:
-            raise PersonioError()
-        if not client.authenticated:
-            client.authenticate()
-        return client
+    def __init__(self, api_field: str, class_field: str, field_type: Type[PersonioResourceType]):
+        super().__init__(api_field, class_field, field_type)
+
+    def serialize(self, value: 'PersonioResource') -> Dict:
+        return value.to_dict()
+
+    def deserialize(self, value: Dict) -> 'PersonioResource':
+        return self.field_type.from_dict(value)
+
+
+class ListFieldMapping(FieldMapping):
+    # wraps another field mapping, to handle list types
+    # e.g. ``ListFieldMapping(ObjectFieldMapping('cost_centers', 'cost_centers', CostCenter))``
+
+    def __init__(self, item_mapping: FieldMapping):
+        super().__init__(item_mapping.api_field, item_mapping.class_field, field_type=List)
+        self.item_mapping = item_mapping
+
+    def serialize(self, values: List[Any]) -> List[Any]:
+        return [self.item_mapping.serialize(item) for item in values]
+
+    def deserialize(self, values: List[Any]) -> List[Any]:
+        return [self.item_mapping.deserialize(item) for item in values]
 
 
 class DynamicAttr(NamedTuple):
@@ -137,57 +108,131 @@ class DynamicAttr(NamedTuple):
         return {'label': self.label, 'value': self.value}
 
 
-class FieldMapping:
+class PersonioResource:
 
-    def __init__(self, api_field: str, class_field: str, field_type: T):
-        self.api_field = api_field
-        self.class_field = class_field
-        self.field_type = field_type
+    _field_mapping_list: List[FieldMapping] = []
+    """all known API fields and their type definitions that are mapped to this PersonioResource"""
+    __field_mapping: Dict[str, FieldMapping] = None
+    """see ``_field_mapping()``"""
+    __label_mapping: Dict[str, str] = None
+    """see ``_label_mapping()``"""
 
-    def serialize(self, value: T) -> Union[str, Dict]:
-        return str(value)
+    def __init__(self, **kwargs):
+        super().__init__()
 
-    def deserialize(self, value: Union[str, Dict]) -> T:
-        raise self.field_type(value)
+    @classmethod
+    def _field_mapping(cls) -> Dict[str, FieldMapping]:
+        # the field mapping as dictionary
+        if cls.__field_mapping is None:
+            cls.__field_mapping = {fm.api_field: fm for fm in cls._field_mapping_list}
+        return cls.__field_mapping
+
+    @classmethod
+    def _label_mapping(cls) -> Dict[str, str]:
+        # mapping from api field name to pretty label name
+        if cls.__label_mapping is None:
+            cls.__label_mapping = {}
+        return cls.__label_mapping
+
+    @classmethod
+    def from_dict(cls, d: Dict[str, Any]) -> PersonioResourceType:
+        kwargs = cls._map_fields(d)
+        return cls(**kwargs)
+
+    def to_dict(self) -> Dict[str, Any]:
+        d = {}
+        label_mapping = self._label_mapping()
+        for mapping in self._field_mapping_list:
+            value = getattr(self, mapping.class_field)
+            if value is not None:
+                label = label_mapping.get(mapping.api_field)
+                d[mapping.api_field] = {'label': label, 'value': value}
+        return d
+
+    @classmethod
+    def _map_fields(cls, d: Dict[str, Dict[str, Any]]) -> Dict[str, Any]:
+        kwargs = {}
+        dynamic = []
+        field_mapping_dict = cls._field_mapping()
+        label_mapping = cls._label_mapping()
+        for key, data in d.items():
+            label_mapping[key] = data['label']
+            if key in field_mapping_dict:
+                field_mapping = field_mapping_dict[key]
+                value = field_mapping.deserialize(data['value'])
+                kwargs[field_mapping.class_field] = value
+            elif key.startswith('dynamic_'):
+                # TODO add mapping support for dynamic fields
+                dyn = DynamicAttr.from_dict(key, data)
+                dynamic.append(dyn)
+            else:
+                log_once(logging.WARNING,
+                         f"unexpected field '{key}' in class {cls.__class__.__name__}")
+        if dynamic:
+            kwargs['dynamic'] = dynamic
+        return kwargs
 
 
-class DateFieldMapping(FieldMapping):
+class WritablePersonioResource(PersonioResource):
 
-    def __init__(self, api_field: str, class_field: str):
-        super().__init__(api_field, class_field, field_type=datetime)
+    _can_create = True
+    _can_update = True
+    _can_delete = True
 
-    def serialize(self, value: datetime) -> str:
-        return value.isoformat()[:10]
+    def __init__(self, client: 'Personio' = None, dynamic: List['DynamicAttr'] = None, **kwargs):
+        super().__init__()
+        self._client = client
+        self.dynamic: Dict[int, DynamicAttr] = {d.field_id: d for d in dynamic} if dynamic else {}
 
-    def deserialize(self, value: str) -> datetime:
-        return datetime.fromisoformat(value)
+    @classmethod
+    def from_dict(cls, d: Dict[str, Any], client: 'Personio' = None) -> PersonioResourceType:
+        kwargs = cls._map_fields(d)
+        return cls(client=client, **kwargs)
 
+    def to_dict(self) -> Dict[str, Any]:
+        d = super().to_dict()
+        for dyn in self.dynamic.values():
+            d[f'dynamic_{dyn.field_id}'] = dyn.to_dict()
+        return d
 
-class ObjectFieldMapping(FieldMapping):
+    def create(self, client: 'Personio' = None):
+        if self._can_create:
+            client = self._check_client(client)
+            return self._create(client)
+        else:
+            raise UnsupportedMethodError('create', self.__class__)
 
-    def __init__(self, api_field: str, class_field: str, field_type: PersonioResourceType):
-        super().__init__(api_field, class_field, field_type)
+    def _create(self, client: 'Personio'):
+        raise UnsupportedMethodError('create', self.__class__)
 
-    def serialize(self, value: PersonioResource) -> Dict:
-        return value.to_dict()
+    def update(self, client: 'Personio' = None):
+        if self._can_update:
+            client = self._check_client(client)
+            return self._update(client)
+        else:
+            raise UnsupportedMethodError('update', self.__class__)
 
-    def deserialize(self, value: Dict) -> PersonioResource:
-        return self.field_type.from_dict(value)
+    def _update(self, client: 'Personio'):
+        UnsupportedMethodError('update', self.__class__)
 
+    def delete(self, client: 'Personio' = None):
+        if self._can_delete:
+            client = self._check_client(client)
+            return self._delete(client)
+        else:
+            raise UnsupportedMethodError('delete', self.__class__)
 
-class ListFieldMapping(FieldMapping):
-    # wraps another field mapping, to handle list types
-    # e.g. ``ListFieldMapping(ObjectFieldMapping('cost_centers', 'cost_centers', CostCenter))``
+    def _delete(self, client: 'Personio'):
+        UnsupportedMethodError('delete', self.__class__)
 
-    def __init__(self, item_mapping: FieldMapping):
-        super().__init__(item_mapping.api_field, item_mapping.class_field, field_type=List)
-        self.item_mapping = item_mapping
+    def _check_client(self, client: 'Personio' = None) -> 'Personio':
+        client = client or self._client
+        if not client:
+            raise PersonioError()
+        if not client.authenticated:
+            client.authenticate()
+        return client
 
-    def serialize(self, values: List[Any]) -> List[Any]:
-        return [self.item_mapping.serialize(item) for item in values]
-
-    def deserialize(self, values: List[Any]) -> List[Any]:
-        return [self.item_mapping.deserialize(item) for item in values]
 
 
 class AbsenceEntitlement(PersonioResource):
@@ -277,7 +322,7 @@ class WorkSchedule(PersonioResource):
 
 class Absence(WritablePersonioResource):
 
-    can_update = False
+    _can_update = False
 
     def __init__(self,
                  client: 'Personio' = None,
@@ -330,14 +375,40 @@ class Attendance(WritablePersonioResource):
 
 class Employee(WritablePersonioResource):
 
-    can_delete = False
+    _can_delete = False
 
-    _field_mapping = {
-        'id': 'id_',
-        'first_name': 'first_name',
-        'last_name': 'last_name',
-        'email': 'email',
-    }
+    _field_mapping_list = [
+        NumericFieldMapping('id', 'id_', int),
+        FieldMapping('first_name', 'first_name', str),
+        FieldMapping('last_name', 'last_name', str),
+        FieldMapping('email', 'email', str),
+        FieldMapping('gender', 'gender', str),
+        FieldMapping('status', 'status', str),
+        FieldMapping('position', 'position', str),
+        ObjectFieldMapping('supervisor', 'supervisor', ShortEmployee),
+        FieldMapping('employment_type', 'employment_type', str),
+        FieldMapping('weekly_working_hours', 'weekly_working_hours', str),
+        DateFieldMapping('hire_date', 'hire_date'),
+        DateFieldMapping('contract_end_date', 'contract_end_date'),
+        DateFieldMapping('termination_date', 'termination_date'),
+        FieldMapping('termination_type', 'termination_type', str),
+        FieldMapping('termination_reason', 'termination_reason', str),
+        DateFieldMapping('probation_period_end', 'probation_period_end'),
+        DateFieldMapping('created_at', 'created_at'),
+        DateFieldMapping('last_modified_at', 'last_modified_at'),
+        ObjectFieldMapping('office', 'office', Office),
+        ObjectFieldMapping('department', 'department', Department),
+        ListFieldMapping(ObjectFieldMapping('cost_centers', 'cost_centers', CostCenter)),
+        NumericFieldMapping('fix_salary', 'fix_salary', float),
+        NumericFieldMapping('hourly_salary', 'hourly_salary', float),
+        NumericFieldMapping('vacation_day_balance', 'vacation_day_balance', float),
+        DateFieldMapping('last_working_day', 'last_working_day'),
+        ObjectFieldMapping('holiday_calendar', 'holiday_calendar', HolidayCalendar),
+        ObjectFieldMapping('work_schedule', 'work_schedule', WorkSchedule),
+        ObjectFieldMapping('absence_entitlement', 'absence_entitlement', AbsenceEntitlement),
+        FieldMapping('profile_picture', 'profile_picture', str),
+        ObjectFieldMapping('team', 'team', Team),
+    ]
 
     def __init__(self,
                  client: 'Personio' = None,
