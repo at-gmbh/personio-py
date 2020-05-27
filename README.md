@@ -1,6 +1,6 @@
 # personio-py
 
-a lightweight Personio API client
+a lightweight Personio API client.
 
 ## Getting Started
 
@@ -10,7 +10,7 @@ Then run:
 
     pip install -r requirements.txt -r requirements-dev.txt
 
-You can now run the module from the `src` directory with `python -m personio_py`.
+This project is intended to be used as library, so there is no command line interface or stuff like that.
 
 ### Testing
 
