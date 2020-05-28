@@ -1,6 +1,9 @@
+import json
 import logging
+from collections import namedtuple
 from datetime import datetime
-from typing import Any, Dict, List, NamedTuple, TYPE_CHECKING, Type, TypeVar, Union
+from functools import total_ordering
+from typing import Any, Dict, List, NamedTuple, TYPE_CHECKING, Tuple, Type, TypeVar, Union
 
 from personio_py import PersonioError, UnsupportedMethodError
 
@@ -61,10 +64,10 @@ class ObjectFieldMapping(FieldMapping):
     def __init__(self, api_field: str, class_field: str, field_type: Type[PersonioResourceType]):
         super().__init__(api_field, class_field, field_type)
 
-    def serialize(self, value: 'PersonioResource') -> Dict:
+    def serialize(self, value: PersonioResourceType) -> Dict:
         return value.to_dict()
 
-    def deserialize(self, value: Dict) -> 'PersonioResource':
+    def deserialize(self, value: Dict) -> PersonioResourceType:
         return self.field_type.from_dict(value)
 
 
@@ -108,6 +111,7 @@ class DynamicAttr(NamedTuple):
         return {'label': self.label, 'value': self.value}
 
 
+@total_ordering
 class PersonioResource:
 
     _field_mapping_list: List[FieldMapping] = []
@@ -116,6 +120,8 @@ class PersonioResource:
     """see ``_field_mapping()``"""
     __label_mapping: Dict[str, str] = None
     """see ``_label_mapping()``"""
+    __namedtuple: Type[tuple] = None
+    """see ``_namedtuple()``"""
 
     def __init__(self, **kwargs):
         super().__init__()
@@ -135,7 +141,7 @@ class PersonioResource:
         return cls.__label_mapping
 
     @classmethod
-    def from_dict(cls, d: Dict[str, Any]) -> PersonioResourceType:
+    def from_dict(cls, d: Dict[str, Any]) -> '__class__':
         kwargs = cls._map_fields(d)
         return cls(**kwargs)
 
@@ -148,6 +154,18 @@ class PersonioResource:
                 label = label_mapping.get(mapping.api_field)
                 d[mapping.api_field] = {'label': label, 'value': value}
         return d
+
+    @classmethod
+    def _namedtuple(cls) -> Type[Tuple]:
+        if cls.__namedtuple is None:
+            fields = [m.class_field for m in cls._field_mapping_list] + ['dynamic', 'class_name']
+            cls.__namedtuple = namedtuple(f'{cls.__name__}Tuple', fields)
+        return cls.__namedtuple
+
+    def to_tuple(self) -> Tuple:
+        values = ([getattr(self, m.class_field) for m in self._field_mapping_list] +
+                  [getattr(self, 'dynamic'), str(self.__class__)])
+        return self._namedtuple()(*values)
 
     @classmethod
     def _map_fields(cls, d: Dict[str, Dict[str, Any]]) -> Dict[str, Any]:
@@ -172,6 +190,27 @@ class PersonioResource:
             kwargs['dynamic'] = dynamic
         return kwargs
 
+    def __hash__(self):
+        return hash(json.dumps(self.to_tuple(), sort_keys=True))
+
+    def __eq__(self, other):
+        if isinstance(other, PersonioResource):
+            return self.to_tuple() == other.to_tuple()
+        else:
+            return False
+
+    def __lt__(self, other):
+        if isinstance(other, PersonioResource):
+            return self.to_tuple() < other.to_tuple()
+        else:
+            return False
+
+    def __repr__(self) -> str:
+        return f"{self.__class__.__name__} {self.__dict__}"
+
+    def __str__(self) -> str:
+        return self.__repr__()
+
 
 class WritablePersonioResource(PersonioResource):
 
@@ -185,7 +224,7 @@ class WritablePersonioResource(PersonioResource):
         self.dynamic: Dict[int, DynamicAttr] = {d.field_id: d for d in dynamic} if dynamic else {}
 
     @classmethod
-    def from_dict(cls, d: Dict[str, Any], client: 'Personio' = None) -> PersonioResourceType:
+    def from_dict(cls, d: Dict[str, Any], client: 'Personio' = None) -> '__class__':
         kwargs = cls._map_fields(d)
         return cls(client=client, **kwargs)
 
@@ -232,7 +271,6 @@ class WritablePersonioResource(PersonioResource):
         if not client.authenticated:
             client.authenticate()
         return client
-
 
 
 class AbsenceEntitlement(PersonioResource):

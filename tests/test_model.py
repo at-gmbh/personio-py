@@ -1,3 +1,5 @@
+from copy import deepcopy
+
 from personio_py import DynamicAttr, Employee
 
 employee_dict = {
@@ -47,3 +49,46 @@ def test_parse_employee():
     assert employee.first_name == 'Ada'
     serialized = employee.to_dict()
     assert serialized
+
+
+def test_tuple_view():
+    employee = Employee.from_dict(employee_dict)
+    employee_tuple = employee.to_tuple()
+    assert isinstance(employee_tuple, tuple)
+    assert len(employee_tuple) > 20
+    assert employee_tuple.id_ == 42
+
+
+def test_resource_equality():
+    employee_1 = Employee.from_dict(employee_dict)
+    employee_2 = Employee.from_dict(employee_dict)
+    assert id(employee_1) != id(employee_2)
+    assert employee_1 == employee_2
+    assert hash(employee_1) == hash(employee_2)
+
+
+def test_resource_inequality():
+    employee_1 = Employee.from_dict(employee_dict)
+    employee_dict_mod = get_employee_dict_mod(id=7, first_name='Beta')
+    employee_2 = Employee.from_dict(employee_dict_mod)
+    assert employee_2.id_ == 7
+    assert employee_2.last_name == 'Lovelace'
+    assert employee_1 != employee_2
+    assert hash(employee_1) != hash(employee_2)
+
+
+def test_resource_ordering():
+    employee_1 = Employee.from_dict(employee_dict)
+    employee_dict_mod = get_employee_dict_mod(id=7, first_name='Beta')
+    employee_2 = Employee.from_dict(employee_dict_mod)
+    assert employee_1 != employee_2
+    # id 42 > id 7
+    assert employee_1 > employee_2
+    assert employee_2 < employee_1
+
+
+def get_employee_dict_mod(**overrides):
+    employee_dict_mod = deepcopy(employee_dict)
+    for key, value in overrides.items():
+        employee_dict_mod[key]['value'] = value
+    return employee_dict_mod
