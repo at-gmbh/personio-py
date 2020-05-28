@@ -523,6 +523,10 @@ class Employee(WritablePersonioResource):
         # TODO request from api & cache
         pass
 
+    def __str__(self):
+        return f"{self.__class__.__name__}: {self.first_name} {self.last_name}, " \
+               f"{self.position or 'position undefined'} ({self.id_})"
+
 
 _unique_logs = set()
 

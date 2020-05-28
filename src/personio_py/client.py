@@ -62,8 +62,9 @@ class Personio:
             raise PersonioApiError.from_response(response)
 
     def get_employees(self) -> List[Employee]:
-        # TODO implement
-        pass
+        response = self.request('company/employees')
+        employees = [Employee.from_dict(d['attributes']) for d in response['data']]
+        return employees
 
     def get_employee(self, employee_id: int) -> Employee:
         response = self.request(f'company/employees/{employee_id}')
