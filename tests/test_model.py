@@ -1,6 +1,8 @@
 from copy import deepcopy
+from datetime import datetime
 
 from personio_py import DynamicAttr, Employee
+from personio_py.mapping import DynamicMapping
 
 employee_dict = {
     'id': {'label': 'ID', 'value': 42},
@@ -15,6 +17,10 @@ employee_dict = {
         "It can do whatever we know how to order it to perform."},
     'dynamic_43': {'label': 'birthday', 'value': '1815-12-10'},
 }
+
+dyn_mapping = [
+    DynamicMapping(field_id=43, alias='birthday', data_type=datetime)
+]
 
 
 def test_dynamic_attr():
@@ -38,17 +44,24 @@ def test_dynamic_attr_list():
 def test_map_types():
     kwargs = Employee._map_fields(employee_dict)
     assert kwargs['id_'] == 42
-    assert kwargs['dynamic']
-    assert kwargs['dynamic'][1].label == 'birthday'
+    assert kwargs['dynamic_raw']
+    assert kwargs['dynamic_raw'][1].label == 'birthday'
 
 
 def test_parse_employee():
     employee = Employee.from_dict(employee_dict)
     assert employee.id_ == 42
-    assert len(employee.dynamic) == 2
+    assert len(employee.dynamic_raw) == 2
     assert employee.first_name == 'Ada'
     serialized = employee.to_dict()
     assert serialized
+
+
+def test_parse_employee_dyn_typed():
+    employee = Employee.from_dict(employee_dict, dynamic_fields=dyn_mapping)
+    assert employee.dynamic
+    assert employee.dynamic['birthday'] == datetime(1815, 12, 10)
+    assert len(employee.dynamic_raw) == 2
 
 
 def test_tuple_view():

@@ -6,7 +6,7 @@ from urllib.parse import urljoin
 
 import requests
 
-from personio_py import Absence, AbsenceType, Attendance, Employee
+from personio_py import Absence, AbsenceType, Attendance, DynamicMapping, Employee
 from personio_py.errors import MissingCredentialsError, PersonioApiError, PersonioError
 
 logger = logging.getLogger('personio_py')
@@ -16,12 +16,14 @@ class Personio:
 
     BASE_URL = "https://api.personio.de/v1/"
 
-    def __init__(self, base_url: str = None, client_id: str = None, client_secret: str = None):
+    def __init__(self, base_url: str = None, client_id: str = None, client_secret: str = None,
+                 dynamic_fields: List[DynamicMapping] = None):
         self.base_url = base_url or self.BASE_URL
         self.client_id = client_id or os.getenv('CLIENT_ID')
         self.client_secret = client_secret or os.getenv('CLIENT_SECRET')
         self.headers = {'accept': 'application/json'}
         self.authenticated = False
+        self.dynamic_fields = dynamic_fields
 
     def authenticate(self):
         if not (self.client_id and self.client_secret):

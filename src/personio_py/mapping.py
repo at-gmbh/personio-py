@@ -1,8 +1,12 @@
+import logging
 from datetime import datetime
-from typing import Any, Dict, List, TYPE_CHECKING, Type, TypeVar, Union
+from decimal import Decimal
+from typing import Any, Dict, List, NamedTuple, TYPE_CHECKING, Type, TypeVar, Union
 
 if TYPE_CHECKING:
     from personio_py.models import PersonioResourceType
+
+logger = logging.getLogger('personio_py')
 
 T = TypeVar('T')
 
@@ -74,3 +78,33 @@ class ListFieldMapping(FieldMapping):
 
     def deserialize(self, values: List[Any]) -> List[Any]:
         return [self.item_mapping.deserialize(item) for item in values]
+
+
+FieldMappingType = TypeVar('FieldMappingType', bound=FieldMapping)
+
+
+class DynamicMapping(NamedTuple):
+    """
+    Defines a mapping from a dynamic field to a more memorable name and its actual data type,
+    so that it may be converted into a proper python type, if possible.
+
+    1. ``field_id``: the id number of the dynamic field, e.g. for 'dynamic_123456', field_id=123456
+    2. ``alias``: a more memorable name than the field_id, will be used as dictionary key
+    3. ``data_type``: the data type of the field, for automatic conversion (e.g. str to datetime)
+    """
+    field_id: int
+    alias: str
+    data_type: Type[T]
+
+    def get_field_mapping(self) -> FieldMappingType:
+        # TODO find out which types we need to handle here
+        api_field = f'dynamic_{self.field_id}'
+        if self.data_type == str:
+            return FieldMapping(api_field, self.alias, str)
+        elif self.data_type in (int, float, Decimal):
+            return NumericFieldMapping(api_field, self.alias, self.data_type)
+        elif self.data_type == datetime:
+            return DateFieldMapping(api_field, self.alias)
+        else:
+            logger.warning(f"unexpected type {self.data_type} for dynamic field {self.field_id}")
+            return FieldMapping(api_field, self.alias, self.data_type)

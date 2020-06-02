@@ -6,7 +6,7 @@ from functools import total_ordering
 from typing import Any, Dict, List, NamedTuple, TYPE_CHECKING, Tuple, Type, TypeVar
 
 from personio_py import PersonioError, UnsupportedMethodError
-from personio_py.mapping import DateFieldMapping, FieldMapping, ListFieldMapping, \
+from personio_py.mapping import DateFieldMapping, DynamicMapping, FieldMapping, ListFieldMapping, \
     NumericFieldMapping, \
     ObjectFieldMapping
 
@@ -100,10 +100,13 @@ class PersonioResource:
         return self._namedtuple()(*values)
 
     @classmethod
-    def _map_fields(cls, d: Dict[str, Dict[str, Any]]) -> Dict[str, Any]:
+    def _map_fields(cls, d: Dict[str, Dict[str, Any]],
+                    dynamic_fields: List[DynamicMapping] = None) -> Dict[str, Any]:
         kwargs = {}
-        dynamic = []
+        dynamic_raw = []
+        dynamic = {}
         field_mapping_dict = cls._field_mapping()
+        dynamic_mapping_dict = {dm.field_id: dm for dm in dynamic_fields or []}
         label_mapping = cls._label_mapping()
         for key, data in d.items():
             label_mapping[key] = data['label']
@@ -112,12 +115,19 @@ class PersonioResource:
                 value = field_mapping.deserialize(data['value'])
                 kwargs[field_mapping.class_field] = value
             elif key.startswith('dynamic_'):
-                # TODO add mapping support for dynamic fields
                 dyn = DynamicAttr.from_dict(key, data)
-                dynamic.append(dyn)
+                dynamic_raw.append(dyn)
+                if dyn.field_id in dynamic_mapping_dict:
+                    # we have a dynamic field mapping -> parse the value
+                    dm: DynamicMapping = dynamic_mapping_dict[dyn.field_id]
+                    field_mapping = dm.get_field_mapping()
+                    value = field_mapping.deserialize(dyn.value)
+                    dynamic[field_mapping.class_field] = value
             else:
                 log_once(logging.WARNING,
                          f"unexpected field '{key}' in class {cls.__class__.__name__}")
+        if dynamic_raw:
+            kwargs['dynamic_raw'] = dynamic_raw
         if dynamic:
             kwargs['dynamic'] = dynamic
         return kwargs
@@ -150,19 +160,22 @@ class WritablePersonioResource(PersonioResource):
     _can_update = True
     _can_delete = True
 
-    def __init__(self, client: 'Personio' = None, dynamic: List['DynamicAttr'] = None, **kwargs):
+    def __init__(self, client: 'Personio' = None, dynamic: Dict[str, Any] = None,
+                 dynamic_raw: List['DynamicAttr'] = None, **kwargs):
         super().__init__()
         self._client = client
-        self.dynamic: Dict[int, DynamicAttr] = {d.field_id: d for d in dynamic} if dynamic else {}
+        self.dynamic = dynamic
+        self.dynamic_raw: Dict[int, DynamicAttr] = {d.field_id: d for d in dynamic_raw or []}
 
     @classmethod
-    def from_dict(cls, d: Dict[str, Any], client: 'Personio' = None) -> '__class__':
-        kwargs = cls._map_fields(d)
+    def from_dict(cls, d: Dict[str, Any], client: 'Personio' = None,
+                  dynamic_fields: List[DynamicMapping] = None) -> '__class__':
+        kwargs = cls._map_fields(d, dynamic_fields)
         return cls(client=client, **kwargs)
 
     def to_dict(self) -> Dict[str, Any]:
         d = super().to_dict()
-        for dyn in self.dynamic.values():
+        for dyn in self.dynamic_raw.values():
             d[f'dynamic_{dyn.field_id}'] = dyn.to_dict()
         return d
 
@@ -296,7 +309,8 @@ class Absence(WritablePersonioResource):
 
     def __init__(self,
                  client: 'Personio' = None,
-                 dynamic: List['DynamicAttr'] = None,
+                 dynamic: Dict[str, Any] = None,
+                 dynamic_raw: List['DynamicAttr'] = None,
                  id_: int = None,
                  status: str = None,
                  comment: str = None,
@@ -309,7 +323,7 @@ class Absence(WritablePersonioResource):
                  employee: ShortEmployee = None,
                  certificate: str = None,
                  created_at: datetime = None):
-        super().__init__(client=client, dynamic=dynamic)
+        super().__init__(client=client, dynamic=dynamic, dynamic_raw=dynamic_raw)
 
     def _create(self, client: 'Personio'):
         pass
@@ -322,7 +336,8 @@ class Attendance(WritablePersonioResource):
 
     def __init__(self,
                  client: 'Personio' = None,
-                 dynamic: List['DynamicAttr'] = None,
+                 dynamic: Dict[str, Any] = None,
+                 dynamic_raw: List['DynamicAttr'] = None,
                  employee_id: int = None,
                  date: datetime = None,
                  start_time: str = None,
@@ -331,7 +346,7 @@ class Attendance(WritablePersonioResource):
                  comment: str = None,
                  is_holiday: bool = None,
                  is_on_time_off: bool = None):
-        super().__init__(client=client, dynamic=dynamic)
+        super().__init__(client=client, dynamic=dynamic, dynamic_raw=dynamic_raw)
 
     def _create(self, client: 'Personio'):
         pass
@@ -382,7 +397,8 @@ class Employee(WritablePersonioResource):
 
     def __init__(self,
                  client: 'Personio' = None,
-                 dynamic: List['DynamicAttr'] = None,
+                 dynamic: Dict[str, Any] = None,
+                 dynamic_raw: List['DynamicAttr'] = None,
                  id_: int = None,
                  first_name: str = None,
                  last_name: str = None,
@@ -413,7 +429,7 @@ class Employee(WritablePersonioResource):
                  absence_entitlement: AbsenceEntitlement = None,
                  profile_picture: str = None,
                  team: Team = None):
-        super().__init__(client=client, dynamic=dynamic)
+        super().__init__(client=client, dynamic=dynamic, dynamic_raw=dynamic_raw)
         self.id_ = id_
         self.first_name = first_name
         self.last_name = last_name

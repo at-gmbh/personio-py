@@ -14,6 +14,9 @@ from .errors import (
     PersonioApiError,
     UnsupportedMethodError,
 )
+from .mapping import (
+    DynamicMapping
+)
 from .models import (
     Absence,
     AbsenceEntitlement,
