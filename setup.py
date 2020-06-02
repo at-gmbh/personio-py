@@ -72,7 +72,9 @@ setup(
     package_dir={"": "src"},
     package_data={'personio_py': ['res/*']},
     long_description=read('README.md'),
-    install_requires=[],
+    install_requires=[
+        'requests~=2.23.0',
+    ],
     tests_require=[
         'pytest',
         'pytest-cov',
