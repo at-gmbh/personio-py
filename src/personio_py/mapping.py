@@ -87,14 +87,13 @@ class DynamicMapping(NamedTuple):
     """
     Defines a mapping from a dynamic field to a more memorable name and its actual data type,
     so that it may be converted into a proper python type, if possible.
-
-    1. ``field_id``: the id number of the dynamic field, e.g. for 'dynamic_123456', field_id=123456
-    2. ``alias``: a more memorable name than the field_id, will be used as dictionary key
-    3. ``data_type``: the data type of the field, for automatic conversion (e.g. str to datetime)
     """
     field_id: int
+    """the id number of the dynamic field, e.g. for 'dynamic_123456', field_id=123456"""
     alias: str
+    """a more memorable name than the field_id, will be used as dictionary key"""
     data_type: Type[T]
+    """the data type of the field, for automatic conversion (e.g. str to datetime)"""
 
     def get_field_mapping(self) -> FieldMappingType:
         # TODO find out which types we need to handle here

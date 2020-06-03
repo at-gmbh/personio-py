@@ -1,3 +1,6 @@
+"""
+Types of Errors specified by personio-py
+"""
 from typing import Any, Dict, Type
 
 from requests import Response

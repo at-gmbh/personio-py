@@ -13,6 +13,17 @@ logger = logging.getLogger('personio_py')
 
 
 class Personio:
+    """
+    the Personio API client.
+
+    :param base_url: use this custom base URL instead of the default https://api.personio.de/v1/
+    :param client_id: the client id for API authentication
+           (if not provided, defaults to the ``CLIENT_ID`` environment variable)
+    :param client_secret: the client secret for API authentication
+           (if not provided, defaults to the ``CLIENT_SECRET`` environment variable)
+    :param dynamic_fields: definition of expected dynamic fields.
+           List of :py:class:`DynamicMapping` tuples.
+    """
 
     BASE_URL = "https://api.personio.de/v1/"
 
@@ -64,6 +75,11 @@ class Personio:
             raise PersonioApiError.from_response(response)
 
     def get_employees(self) -> List[Employee]:
+        """
+        get employees
+
+        :return: list of ``Employee`` instances
+        """
         response = self.request('company/employees')
         employees = [Employee.from_dict(d['attributes']) for d in response['data']]
         return employees
