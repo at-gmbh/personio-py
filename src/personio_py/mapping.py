@@ -1,7 +1,7 @@
 import logging
 from datetime import datetime
 from decimal import Decimal
-from typing import Any, Dict, List, NamedTuple, TYPE_CHECKING, Type, TypeVar, Union
+from typing import Any, Dict, List, NamedTuple, Optional, TYPE_CHECKING, Type, TypeVar, Union
 
 if TYPE_CHECKING:
     from personio_py.models import PersonioResourceType
@@ -61,8 +61,11 @@ class ObjectFieldMapping(FieldMapping):
     def serialize(self, value: 'PersonioResourceType') -> Dict:
         return value.to_dict()
 
-    def deserialize(self, value: Dict) -> 'PersonioResourceType':
-        return self.field_type.from_dict(value)
+    def deserialize(self, value: Dict) -> Optional['PersonioResourceType']:
+        if value and isinstance(value, dict):
+            return self.field_type.from_dict(value['attributes'])
+        else:
+            return None
 
 
 class ListFieldMapping(FieldMapping):

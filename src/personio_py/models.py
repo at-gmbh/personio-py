@@ -124,8 +124,7 @@ class PersonioResource:
                     value = field_mapping.deserialize(dyn.value)
                     dynamic[field_mapping.class_field] = value
             else:
-                log_once(logging.WARNING,
-                         f"unexpected field '{key}' in class {cls.__class__.__name__}")
+                log_once(logging.WARNING, f"unexpected field '{key}' in class {cls.__name__}")
         if dynamic_raw:
             kwargs['dynamic_raw'] = dynamic_raw
         if dynamic:
@@ -162,7 +161,7 @@ class WritablePersonioResource(PersonioResource):
 
     def __init__(self, client: 'Personio' = None, dynamic: Dict[str, Any] = None,
                  dynamic_raw: List['DynamicAttr'] = None, **kwargs):
-        super().__init__()
+        super().__init__(**kwargs)
         self._client = client
         self.dynamic = dynamic
         self.dynamic_raw: Dict[int, DynamicAttr] = {d.field_id: d for d in dynamic_raw or []}
@@ -218,20 +217,42 @@ class WritablePersonioResource(PersonioResource):
         return client
 
 
-class AbsenceEntitlement(PersonioResource):
+class SimplePersonioResource(PersonioResource):
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
+    @classmethod
+    def from_dict(cls, d: Dict[str, Any]) -> '__class__':
+        kwargs = {}
+        field_mapping_dict = cls._field_mapping()
+        for key, raw_value in d.items():
+            if key in field_mapping_dict:
+                field_mapping = field_mapping_dict[key]
+                value = field_mapping.deserialize(raw_value)
+                kwargs[field_mapping.class_field] = value
+            else:
+                log_once(logging.WARNING, f"unexpected field '{key}' in class {cls.__name__}")
+        return cls(**kwargs)
+
+    def __str__(self):
+        return f"{self.__class__.__name__} {getattr(self, 'name', '')}"
+
+
+class AbsenceEntitlement(SimplePersonioResource):
 
     def __init__(self):
         super().__init__()
         # TODO implement
 
 
-class AbsenceType(PersonioResource):
+class AbsenceType(SimplePersonioResource):
 
     def __init__(self, id_: int, name: str):
         super().__init__()
 
 
-class CostCenter(PersonioResource):
+class CostCenter(SimplePersonioResource):
 
     def __init__(self, id_: int, name: str, percentage: float):
         super().__init__()
@@ -240,14 +261,20 @@ class CostCenter(PersonioResource):
         self.percentage = percentage
 
 
-class Department(PersonioResource):
+class Department(SimplePersonioResource):
 
-    def __init__(self, name: str):
+    _field_mapping_list = [
+        NumericFieldMapping('id', 'id_', int),
+        FieldMapping('name', 'name', str),
+    ]
+
+    def __init__(self, id_: int, name: str):
         super().__init__()
+        self.id_ = id_
         self.name = name
 
 
-class HolidayCalendar(PersonioResource):
+class HolidayCalendar(SimplePersonioResource):
 
     def __init__(self, id_: int, name: str, country: str, state: str):
         super().__init__()
@@ -257,14 +284,27 @@ class HolidayCalendar(PersonioResource):
         self.state = state
 
 
-class Office(PersonioResource):
+class Office(SimplePersonioResource):
 
-    def __init__(self, name: str):
+    _field_mapping_list = [
+        NumericFieldMapping('id', 'id_', int),
+        FieldMapping('name', 'name', str),
+    ]
+
+    def __init__(self, id_: int, name: str):
         super().__init__()
+        self.id_ = id_
         self.name = name
 
 
 class ShortEmployee(PersonioResource):
+
+    _field_mapping_list = [
+        NumericFieldMapping('id', 'id_', int),
+        FieldMapping('first_name', 'first_name', str),
+        FieldMapping('last_name', 'last_name', str),
+        FieldMapping('email', 'email', str),
+    ]
 
     def __init__(self, id_: int, first_name: str, last_name: str, email: str):
         super().__init__()
@@ -278,7 +318,12 @@ class ShortEmployee(PersonioResource):
         pass
 
 
-class Team(PersonioResource):
+class Team(SimplePersonioResource):
+
+    _field_mapping_list = [
+        NumericFieldMapping('id', 'id_', int),
+        FieldMapping('name', 'name', str),
+    ]
 
     def __init__(self, id_: int, name: str):
         super().__init__()
@@ -359,6 +404,8 @@ class Attendance(WritablePersonioResource):
 
 
 class Employee(WritablePersonioResource):
+
+    # standort, abteilung, geburtstag, gesellschaft
 
     _can_delete = False
 
