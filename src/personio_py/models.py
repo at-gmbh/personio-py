@@ -1,13 +1,13 @@
 import json
 import logging
-import re
 from collections import namedtuple
-from datetime import datetime
+from datetime import datetime, timedelta
 from functools import total_ordering
 from typing import Any, Dict, List, NamedTuple, TYPE_CHECKING, Tuple, Type, TypeVar
 
 from personio_py import PersonioError, UnsupportedMethodError
-from personio_py.mapping import DateFieldMapping, DynamicMapping, FieldMapping, ListFieldMapping, \
+from personio_py.mapping import DateFieldMapping, DurationFieldMapping, DynamicMapping, \
+    FieldMapping, ListFieldMapping, \
     NumericFieldMapping, \
     ObjectFieldMapping
 
@@ -17,52 +17,6 @@ if TYPE_CHECKING:
 logger = logging.getLogger('personio_py')
 
 PersonioResourceType = TypeVar('PersonioResourceType', bound='PersonioResource')
-
-
-@total_ordering
-class Duration:
-    """
-    A Duration with minute resolution, e.g. "06:30" for 6 hours and 30 minutes.
-    """
-
-    pattern = re.compile(r"\d\d?:\d\d")
-
-    def __init__(self, hours=0, minutes=0):
-        self.hours = hours
-        self.minutes = minutes
-
-    @classmethod
-    def from_str(cls, s: str) -> 'Duration':
-        if not isinstance(s, str):
-            raise TypeError(f"expected a string, but got {type(s)}")
-        trimmed = s.strip()
-        if cls.pattern.fullmatch(trimmed):
-            hh, mm = trimmed.split(':')
-            return Duration(hours=int(hh), minutes=int(mm))
-        else:
-            raise ValueError(f"the string '{s}' does not represent a valid duration. "
-                             f"Expected format is 'hh:mm', e.g. '06:30'.")
-
-    def __str__(self):
-        return f"{self.hours:02d}:{self.minutes:02d}"
-
-    def __repr__(self) -> str:
-        return f"{self.__class__.__name__} {self.hours:02d}:{self.minutes:02d}"
-
-    def __hash__(self):
-        return hash((self.hours, self.minutes))
-
-    def __eq__(self, other):
-        if isinstance(other, Duration):
-            return (self.hours, self.minutes) == (other.hours, other.minutes)
-        else:
-            return False
-
-    def __lt__(self, other):
-        if isinstance(other, Duration):
-            return (self.hours, self.minutes) < (other.hours, other.minutes)
-        else:
-            return False
 
 
 class DynamicAttr(NamedTuple):
@@ -211,6 +165,9 @@ class PersonioResource:
         return self.__repr__()
 
 
+PersonioResourceType = TypeVar('PersonioResourceType', bound=PersonioResource)
+
+
 class WritablePersonioResource(PersonioResource):
 
     _can_create = True
@@ -284,10 +241,11 @@ class SimplePersonioResource(PersonioResource):
     def from_dict(cls, d: Dict[str, Any]) -> '__class__':
         kwargs = {}
         field_mapping_dict = cls._field_mapping()
-        for key, raw_value in d.items():
+        for key, value in d.items():
             if key in field_mapping_dict:
                 field_mapping = field_mapping_dict[key]
-                value = field_mapping.deserialize(raw_value)
+                if not cls._is_empty(value):
+                    value = field_mapping.deserialize(value)
                 kwargs[field_mapping.class_field] = value
             else:
                 log_once(logging.WARNING, f"unexpected field '{key}' in class {cls.__name__}")
@@ -396,21 +354,28 @@ class Team(SimplePersonioResource):
         self.name = name
 
 
-class WorkSchedule(PersonioResource):
+class WorkSchedule(SimplePersonioResource):
 
     _field_mapping_list = [
         NumericFieldMapping('id', 'id_', int),
         FieldMapping('name', 'name', str),
-        FieldMapping('country', 'country', str),
-        FieldMapping('state', 'state', str),
+        DateFieldMapping('valid_from', 'valid_from'),
+        DurationFieldMapping('monday', 'monday'),
+        DurationFieldMapping('tuesday', 'tuesday'),
+        DurationFieldMapping('wednesday', 'wednesday'),
+        DurationFieldMapping('thursday', 'thursday'),
+        DurationFieldMapping('friday', 'friday'),
+        DurationFieldMapping('saturday', 'saturday'),
+        DurationFieldMapping('sunday', 'sunday'),
     ]
 
-    def __init__(self, id_: int, name: str, monday: str, tuesday: str, wednesday: str,
-                 thursday: str, friday: str, saturday: str, sunday: str):
+    def __init__(self, id_: int, name: str, valid_from: datetime = None, monday: timedelta = None,
+                 tuesday: timedelta = None, wednesday: timedelta = None, thursday: timedelta = None,
+                 friday: timedelta = None, saturday: timedelta = None, sunday: timedelta = None):
         super().__init__()
         self.id_ = id_
         self.name = name
-        # pattern: ^\d\d:\d\d$
+        self.valid_from = valid_from
         self.monday = monday
         self.tuesday = tuesday
         self.wednesday = wednesday

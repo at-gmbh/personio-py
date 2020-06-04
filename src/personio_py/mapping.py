@@ -1,5 +1,6 @@
 import logging
-from datetime import datetime
+import re
+from datetime import datetime, timedelta
 from decimal import Decimal
 from typing import Any, Dict, List, NamedTuple, Optional, TYPE_CHECKING, Type, TypeVar, Union
 
@@ -51,6 +52,34 @@ class DateFieldMapping(FieldMapping):
 
     def deserialize(self, value: str) -> datetime:
         return datetime.fromisoformat(value)
+
+
+class DurationFieldMapping(FieldMapping):
+
+    pattern = re.compile(r"\d\d?:\d\d")
+
+    def __init__(self, api_field: str, class_field: str):
+        super().__init__(api_field, class_field, field_type=timedelta)
+
+    def serialize(self, value: timedelta) -> str:
+        mm, ss = divmod(value.total_seconds(), 60)
+        hh, mm = divmod(mm, 60)
+        return f"{int(hh):02d}:{int(mm):02d}"
+
+    def deserialize(self, value: str) -> timedelta:
+        return self.str_to_timedelta(value)
+
+    @classmethod
+    def str_to_timedelta(cls, s: str) -> timedelta:
+        if not isinstance(s, str):
+            raise TypeError(f"expected a string, but got {type(s)}")
+        trimmed = s.strip()
+        if cls.pattern.fullmatch(trimmed):
+            hh, mm = trimmed.split(':')
+            return timedelta(hours=int(hh), minutes=int(mm))
+        else:
+            raise ValueError(f"the string '{s}' does not represent a valid duration. "
+                             f"Expected format is 'hh:mm', e.g. '06:30'.")
 
 
 class ObjectFieldMapping(FieldMapping):
