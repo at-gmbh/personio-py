@@ -10,6 +10,7 @@ pytest-cov~=2.8.0
 sphinx~=3.0.4
 sphinx_rtd_theme~=0.4.3
 recommonmark~=0.6.0
+m2r~=0.2.1
 
 # git hooks
 pre-commit~=2.2.0

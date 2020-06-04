@@ -4,6 +4,7 @@
 # list see the documentation:
 # https://www.sphinx-doc.org/en/master/usage/configuration.html
 from recommonmark.transform import AutoStructify
+from m2r import MdInclude
 
 # -- Path setup --------------------------------------------------------------
 
@@ -75,9 +76,17 @@ html_theme_options = {
 
 
 def setup(app):
+    # recommonmark & autostructify (enables fancy stuff like `eval_rst`)
     app.add_config_value('recommonmark_config', {
         'enable_eval_rst': True,
         'enable_auto_toc_tree': True,
-        #'auto_toc_tree_section': 'Contents',
     }, True)
     app.add_transform(AutoStructify)
+
+    # m2r and mdinclude, allow us to reference markdown files in the root folder
+    # all those settings are necessary because m2r has not been updated in a while...
+    app.add_config_value('no_underscore_emphasis', False, 'env')
+    app.add_config_value('m2r_parse_relative_links', False, 'env')
+    app.add_config_value('m2r_anonymous_references', False, 'env')
+    app.add_config_value('m2r_disable_inline_math', False, 'env')
+    app.add_directive('mdinclude', MdInclude)
