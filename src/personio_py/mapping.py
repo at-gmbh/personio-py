@@ -5,6 +5,7 @@ from decimal import Decimal
 from typing import Any, Dict, List, NamedTuple, Optional, TYPE_CHECKING, Type, TypeVar, Union
 
 if TYPE_CHECKING:
+    from personio_py import Personio
     from personio_py.models import PersonioResourceType
 
 logger = logging.getLogger('personio_py')
@@ -22,7 +23,7 @@ class FieldMapping:
     def serialize(self, value: T) -> Union[str, Dict]:
         return str(value)
 
-    def deserialize(self, value: Union[str, Dict]) -> T:
+    def deserialize(self, value: Union[str, Dict], **kwargs) -> T:
         return self.field_type(value)
 
     def __str__(self):
@@ -38,7 +39,7 @@ class NumericFieldMapping(FieldMapping):
     def serialize(self, value: Union[int, float, str]) -> Union[int, float, str]:
         return value
 
-    def deserialize(self, value: Union[int, float, str]) -> Union[int, float, str]:
+    def deserialize(self, value: Union[int, float, str], **kwargs) -> Union[int, float, str]:
         return self.field_type(value) if isinstance(value, str) else value
 
 
@@ -50,7 +51,7 @@ class DateFieldMapping(FieldMapping):
     def serialize(self, value: datetime) -> str:
         return value.isoformat()[:10]
 
-    def deserialize(self, value: str) -> datetime:
+    def deserialize(self, value: str, **kwargs) -> datetime:
         return datetime.fromisoformat(value)
 
 
@@ -66,7 +67,7 @@ class DurationFieldMapping(FieldMapping):
         hh, mm = divmod(mm, 60)
         return f"{int(hh):02d}:{int(mm):02d}"
 
-    def deserialize(self, value: str) -> timedelta:
+    def deserialize(self, value: str, **kwargs) -> timedelta:
         return self.str_to_timedelta(value)
 
     @classmethod
@@ -90,9 +91,10 @@ class ObjectFieldMapping(FieldMapping):
     def serialize(self, value: 'PersonioResourceType') -> Dict:
         return value.to_dict()
 
-    def deserialize(self, value: Dict) -> Optional['PersonioResourceType']:
+    def deserialize(self, value: Dict, client: 'Personio' = None) \
+            -> Optional['PersonioResourceType']:
         if value and isinstance(value, dict):
-            return self.field_type.from_dict(value['attributes'])
+            return self.field_type.from_dict(value['attributes'], client=client)
         else:
             return None
 
@@ -108,8 +110,8 @@ class ListFieldMapping(FieldMapping):
     def serialize(self, values: List[Any]) -> List[Any]:
         return [self.item_mapping.serialize(item) for item in values]
 
-    def deserialize(self, values: List[Any]) -> List[Any]:
-        return [self.item_mapping.deserialize(item) for item in values]
+    def deserialize(self, values: List[Any], client: 'Personio' = None) -> List[Any]:
+        return [self.item_mapping.deserialize(item, client=client) for item in values]
 
 
 FieldMappingType = TypeVar('FieldMappingType', bound=FieldMapping)

@@ -16,8 +16,6 @@ if TYPE_CHECKING:
 
 logger = logging.getLogger('personio_py')
 
-PersonioResourceType = TypeVar('PersonioResourceType', bound='PersonioResource')
-
 
 class DynamicAttr(NamedTuple):
     field_id: int
@@ -56,8 +54,9 @@ class PersonioResource:
     __namedtuple: Type[tuple] = None
     """see ``_namedtuple()``"""
 
-    def __init__(self, **kwargs):
+    def __init__(self, client: 'Personio' = None, **kwargs):
         super().__init__()
+        self._client = client
 
     @classmethod
     def _field_mapping(cls) -> Dict[str, FieldMapping]:
@@ -74,9 +73,9 @@ class PersonioResource:
         return cls.__label_mapping
 
     @classmethod
-    def from_dict(cls, d: Dict[str, Any]) -> '__class__':
-        kwargs = cls._map_fields(d)
-        return cls(**kwargs)
+    def from_dict(cls, d: Dict[str, Any], client: 'Personio' = None) -> '__class__':
+        kwargs = cls._map_fields(d, client)
+        return cls(client=client, **kwargs)
 
     def to_dict(self) -> Dict[str, Any]:
         d = {}
@@ -101,7 +100,7 @@ class PersonioResource:
         return self._namedtuple()(*values)
 
     @classmethod
-    def _map_fields(cls, d: Dict[str, Dict[str, Any]],
+    def _map_fields(cls, d: Dict[str, Dict[str, Any]], client: 'Personio' = None,
                     dynamic_fields: List[DynamicMapping] = None) -> Dict[str, Any]:
         kwargs = {}
         dynamic_raw = []
@@ -115,7 +114,7 @@ class PersonioResource:
                 field_mapping = field_mapping_dict[key]
                 value = data['value']
                 if not cls._is_empty(value):
-                    value = field_mapping.deserialize(value)
+                    value = field_mapping.deserialize(value, client=client)
                 kwargs[field_mapping.class_field] = value
             elif key.startswith('dynamic_'):
                 dyn = DynamicAttr.from_dict(key, data)
@@ -126,7 +125,7 @@ class PersonioResource:
                     field_mapping = dm.get_field_mapping()
                     value = dyn.value
                     if not cls._is_empty(value):
-                        value = field_mapping.deserialize(value)
+                        value = field_mapping.deserialize(value, client=client)
                     dynamic[field_mapping.class_field] = value
             else:
                 log_once(logging.WARNING, f"unexpected field '{key}' in class {cls.__name__}")
@@ -176,15 +175,14 @@ class WritablePersonioResource(PersonioResource):
 
     def __init__(self, client: 'Personio' = None, dynamic: Dict[str, Any] = None,
                  dynamic_raw: List['DynamicAttr'] = None, **kwargs):
-        super().__init__(**kwargs)
-        self._client = client
+        super().__init__(client, **kwargs)
         self.dynamic = dynamic
         self.dynamic_raw: Dict[int, DynamicAttr] = {d.field_id: d for d in dynamic_raw or []}
 
     @classmethod
     def from_dict(cls, d: Dict[str, Any], client: 'Personio' = None,
                   dynamic_fields: List[DynamicMapping] = None) -> '__class__':
-        kwargs = cls._map_fields(d, dynamic_fields)
+        kwargs = cls._map_fields(d, client, dynamic_fields)
         return cls(client=client, **kwargs)
 
     def to_dict(self) -> Dict[str, Any]:
@@ -238,18 +236,24 @@ class SimplePersonioResource(PersonioResource):
         super().__init__(**kwargs)
 
     @classmethod
-    def from_dict(cls, d: Dict[str, Any]) -> '__class__':
+    def from_dict(cls, d: Dict[str, Any], client: 'Personio' = None) -> '__class__':
+        kwargs = cls._map_flat_fields(d, client)
+        return cls(client=client, **kwargs)
+
+    @classmethod
+    def _map_flat_fields(cls, d: Dict[str, Dict[str, Any]],
+                         client: 'Personio' = None) -> Dict[str, Any]:
         kwargs = {}
         field_mapping_dict = cls._field_mapping()
         for key, value in d.items():
             if key in field_mapping_dict:
                 field_mapping = field_mapping_dict[key]
                 if not cls._is_empty(value):
-                    value = field_mapping.deserialize(value)
+                    value = field_mapping.deserialize(value, client=client)
                 kwargs[field_mapping.class_field] = value
             else:
                 log_once(logging.WARNING, f"unexpected field '{key}' in class {cls.__name__}")
-        return cls(**kwargs)
+        return kwargs
 
     def __str__(self):
         return f"{self.__class__.__name__} {getattr(self, 'name', '')}"
@@ -257,21 +261,28 @@ class SimplePersonioResource(PersonioResource):
 
 class AbsenceEntitlement(SimplePersonioResource):
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
         # TODO implement
 
 
 class AbsenceType(SimplePersonioResource):
 
-    def __init__(self, id_: int, name: str):
-        super().__init__()
+    def __init__(self, id_: int, name: str, **kwargs):
+        super().__init__(**kwargs)
+        # TODO implement
 
 
 class CostCenter(SimplePersonioResource):
 
-    def __init__(self, id_: int, name: str, percentage: float):
-        super().__init__()
+    _field_mapping_list = [
+        NumericFieldMapping('id', 'id_', int),
+        FieldMapping('name', 'name', str),
+        NumericFieldMapping('percentage', 'percentage', float),
+    ]
+
+    def __init__(self, id_: int, name: str, percentage: float, **kwargs):
+        super().__init__(**kwargs)
         self.id_ = id_
         self.name = name
         self.percentage = percentage
@@ -284,8 +295,8 @@ class Department(SimplePersonioResource):
         FieldMapping('name', 'name', str),
     ]
 
-    def __init__(self, id_: int, name: str):
-        super().__init__()
+    def __init__(self, id_: int, name: str, **kwargs):
+        super().__init__(**kwargs)
         self.id_ = id_
         self.name = name
 
@@ -299,8 +310,8 @@ class HolidayCalendar(SimplePersonioResource):
         FieldMapping('state', 'state', str),
     ]
 
-    def __init__(self, id_: int, name: str, country: str, state: str):
-        super().__init__()
+    def __init__(self, id_: int, name: str, country: str, state: str, **kwargs):
+        super().__init__(**kwargs)
         self.id_ = id_
         self.name = name
         self.country = country
@@ -314,8 +325,8 @@ class Office(SimplePersonioResource):
         FieldMapping('name', 'name', str),
     ]
 
-    def __init__(self, id_: int, name: str):
-        super().__init__()
+    def __init__(self, id_: int, name: str, **kwargs):
+        super().__init__(**kwargs)
         self.id_ = id_
         self.name = name
 
@@ -329,16 +340,24 @@ class ShortEmployee(PersonioResource):
         FieldMapping('email', 'email', str),
     ]
 
-    def __init__(self, id_: int, first_name: str, last_name: str, email: str):
-        super().__init__()
+    def __init__(self, client: 'Personio' = None, id_: int = None, first_name: str = None,
+                 last_name: str = None, email: str = None, **kwargs):
+        super().__init__(**kwargs)
+        self._client = client
         self.id_ = id_
         self.first_name = first_name
         self.last_name = last_name
         self.email = email
 
-    def resolve(self):
-        # TODO get full employee
-        pass
+    def resolve(self, client: 'Personio' = None) -> 'Employee':
+        client = client or self._client
+        if client:
+            return client.get_employee(self.id_)
+        else:
+            raise PersonioError(
+                f"no Personio client is is available in this {self.__class__.__name__} instance "
+                f"to make a request for the full employee profile of "
+                f"{self.first_name} {self.last_name} ({self.id_})")
 
 
 class Team(SimplePersonioResource):
@@ -348,8 +367,8 @@ class Team(SimplePersonioResource):
         FieldMapping('name', 'name', str),
     ]
 
-    def __init__(self, id_: int, name: str):
-        super().__init__()
+    def __init__(self, id_: int, name: str, **kwargs):
+        super().__init__(**kwargs)
         self.id_ = id_
         self.name = name
 
@@ -371,8 +390,9 @@ class WorkSchedule(SimplePersonioResource):
 
     def __init__(self, id_: int, name: str, valid_from: datetime = None, monday: timedelta = None,
                  tuesday: timedelta = None, wednesday: timedelta = None, thursday: timedelta = None,
-                 friday: timedelta = None, saturday: timedelta = None, sunday: timedelta = None):
-        super().__init__()
+                 friday: timedelta = None, saturday: timedelta = None, sunday: timedelta = None,
+                 **kwargs):
+        super().__init__(**kwargs)
         self.id_ = id_
         self.name = name
         self.valid_from = valid_from
@@ -386,6 +406,8 @@ class WorkSchedule(SimplePersonioResource):
 
 
 class Absence(WritablePersonioResource):
+
+    # TODO implement
 
     _can_update = False
 
@@ -404,8 +426,9 @@ class Absence(WritablePersonioResource):
                  time_off_type: List[AbsenceType] = None,
                  employee: ShortEmployee = None,
                  certificate: str = None,
-                 created_at: datetime = None):
-        super().__init__(client=client, dynamic=dynamic, dynamic_raw=dynamic_raw)
+                 created_at: datetime = None,
+                 **kwargs):
+        super().__init__(client=client, dynamic=dynamic, dynamic_raw=dynamic_raw, **kwargs)
 
     def _create(self, client: 'Personio'):
         pass
@@ -415,6 +438,8 @@ class Absence(WritablePersonioResource):
 
 
 class Attendance(WritablePersonioResource):
+
+    # TODO implement
 
     def __init__(self,
                  client: 'Personio' = None,
@@ -427,8 +452,9 @@ class Attendance(WritablePersonioResource):
                  break_duration: int = None,
                  comment: str = None,
                  is_holiday: bool = None,
-                 is_on_time_off: bool = None):
-        super().__init__(client=client, dynamic=dynamic, dynamic_raw=dynamic_raw)
+                 is_on_time_off: bool = None,
+                 **kwargs):
+        super().__init__(client=client, dynamic=dynamic, dynamic_raw=dynamic_raw, **kwargs)
 
     def _create(self, client: 'Personio'):
         pass
@@ -441,8 +467,6 @@ class Attendance(WritablePersonioResource):
 
 
 class Employee(WritablePersonioResource):
-
-    # standort, abteilung, geburtstag, gesellschaft
 
     _can_delete = False
 
@@ -465,10 +489,12 @@ class Employee(WritablePersonioResource):
         DateFieldMapping('probation_period_end', 'probation_period_end'),
         DateFieldMapping('created_at', 'created_at'),
         DateFieldMapping('last_modified_at', 'last_modified_at'),
+        FieldMapping('subcompany', 'subcompany', str),
         ObjectFieldMapping('office', 'office', Office),
         ObjectFieldMapping('department', 'department', Department),
         ListFieldMapping(ObjectFieldMapping('cost_centers', 'cost_centers', CostCenter)),
         NumericFieldMapping('fix_salary', 'fix_salary', float),
+        FieldMapping('fix_salary_interval', 'fix_salary_interval', str),
         NumericFieldMapping('hourly_salary', 'hourly_salary', float),
         NumericFieldMapping('vacation_day_balance', 'vacation_day_balance', float),
         DateFieldMapping('last_working_day', 'last_working_day'),
@@ -501,19 +527,22 @@ class Employee(WritablePersonioResource):
                  probation_period_end: datetime = None,
                  created_at: datetime = None,
                  last_modified_at: datetime = None,
+                 subcompany: str = None,
                  office: Office = None,
                  department: Department = None,
                  cost_centers: List[CostCenter] = None,
+                 holiday_calendar: HolidayCalendar = None,
+                 absence_entitlement: AbsenceEntitlement = None,
+                 work_schedule: WorkSchedule = None,
                  fix_salary: float = None,
+                 fix_salary_interval: str = None,
                  hourly_salary: float = None,
                  vacation_day_balance: float = None,
                  last_working_day: datetime = None,
-                 holiday_calendar: HolidayCalendar = None,
-                 work_schedule: WorkSchedule = None,
-                 absence_entitlement: AbsenceEntitlement = None,
                  profile_picture: str = None,
-                 team: Team = None):
-        super().__init__(client=client, dynamic=dynamic, dynamic_raw=dynamic_raw)
+                 team: Team = None,
+                 **kwargs):
+        super().__init__(client=client, dynamic=dynamic, dynamic_raw=dynamic_raw, **kwargs)
         self.id_ = id_
         self.first_name = first_name
         self.last_name = last_name
@@ -532,16 +561,18 @@ class Employee(WritablePersonioResource):
         self.probation_period_end = probation_period_end
         self.created_at = created_at
         self.last_modified_at = last_modified_at
+        self.subcompany = subcompany
         self.office = office
         self.department = department
         self.cost_centers = cost_centers
+        self.holiday_calendar = holiday_calendar
+        self.absence_entitlement = absence_entitlement
+        self.work_schedule = work_schedule
         self.fix_salary = fix_salary
+        self.fix_salary_interval = fix_salary_interval
         self.hourly_salary = hourly_salary
         self.vacation_day_balance = vacation_day_balance
         self.last_working_day = last_working_day
-        self.holiday_calendar = holiday_calendar
-        self.work_schedule = work_schedule
-        self.absence_entitlement = absence_entitlement
         self.profile_picture = profile_picture
         self.team = team
 

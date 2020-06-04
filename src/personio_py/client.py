@@ -81,7 +81,7 @@ class Personio:
         :return: list of ``Employee`` instances
         """
         response = self.request('company/employees')
-        employees = [Employee.from_dict(d['attributes']) for d in response['data']]
+        employees = [Employee.from_dict(d['attributes'], self) for d in response['data']]
         return employees
 
     def get_employee(self, employee_id: int) -> Employee:
