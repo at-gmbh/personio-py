@@ -1,5 +1,6 @@
 import json
 import logging
+import re
 from collections import namedtuple
 from datetime import datetime
 from functools import total_ordering
@@ -16,6 +17,52 @@ if TYPE_CHECKING:
 logger = logging.getLogger('personio_py')
 
 PersonioResourceType = TypeVar('PersonioResourceType', bound='PersonioResource')
+
+
+@total_ordering
+class Duration:
+    """
+    A Duration with minute resolution, e.g. "06:30" for 6 hours and 30 minutes.
+    """
+
+    pattern = re.compile(r"\d\d?:\d\d")
+
+    def __init__(self, hours=0, minutes=0):
+        self.hours = hours
+        self.minutes = minutes
+
+    @classmethod
+    def from_str(cls, s: str) -> 'Duration':
+        if not isinstance(s, str):
+            raise TypeError(f"expected a string, but got {type(s)}")
+        trimmed = s.strip()
+        if cls.pattern.fullmatch(trimmed):
+            hh, mm = trimmed.split(':')
+            return Duration(hours=int(hh), minutes=int(mm))
+        else:
+            raise ValueError(f"the string '{s}' does not represent a valid duration. "
+                             f"Expected format is 'hh:mm', e.g. '06:30'.")
+
+    def __str__(self):
+        return f"{self.hours:02d}:{self.minutes:02d}"
+
+    def __repr__(self) -> str:
+        return f"{self.__class__.__name__} {self.hours:02d}:{self.minutes:02d}"
+
+    def __hash__(self):
+        return hash((self.hours, self.minutes))
+
+    def __eq__(self, other):
+        if isinstance(other, Duration):
+            return (self.hours, self.minutes) == (other.hours, other.minutes)
+        else:
+            return False
+
+    def __lt__(self, other):
+        if isinstance(other, Duration):
+            return (self.hours, self.minutes) < (other.hours, other.minutes)
+        else:
+            return False
 
 
 class DynamicAttr(NamedTuple):
@@ -112,7 +159,9 @@ class PersonioResource:
             label_mapping[key] = data['label']
             if key in field_mapping_dict:
                 field_mapping = field_mapping_dict[key]
-                value = field_mapping.deserialize(data['value'])
+                value = data['value']
+                if not cls._is_empty(value):
+                    value = field_mapping.deserialize(value)
                 kwargs[field_mapping.class_field] = value
             elif key.startswith('dynamic_'):
                 dyn = DynamicAttr.from_dict(key, data)
@@ -121,7 +170,9 @@ class PersonioResource:
                     # we have a dynamic field mapping -> parse the value
                     dm: DynamicMapping = dynamic_mapping_dict[dyn.field_id]
                     field_mapping = dm.get_field_mapping()
-                    value = field_mapping.deserialize(dyn.value)
+                    value = dyn.value
+                    if not cls._is_empty(value):
+                        value = field_mapping.deserialize(value)
                     dynamic[field_mapping.class_field] = value
             else:
                 log_once(logging.WARNING, f"unexpected field '{key}' in class {cls.__name__}")
@@ -130,6 +181,13 @@ class PersonioResource:
         if dynamic:
             kwargs['dynamic'] = dynamic
         return kwargs
+
+    @classmethod
+    def _is_empty(cls, value: Any):
+        # determine if this Personio API value is "empty".
+        # empty values are: None, "", []
+        # not empty values are: 0, False, "foo", [1,2,3], 42
+        return value is None or value == "" or value == []
 
     def __hash__(self):
         return hash(json.dumps(self.to_tuple(), sort_keys=True))
@@ -276,6 +334,13 @@ class Department(SimplePersonioResource):
 
 class HolidayCalendar(SimplePersonioResource):
 
+    _field_mapping_list = [
+        NumericFieldMapping('id', 'id_', int),
+        FieldMapping('name', 'name', str),
+        FieldMapping('country', 'country', str),
+        FieldMapping('state', 'state', str),
+    ]
+
     def __init__(self, id_: int, name: str, country: str, state: str):
         super().__init__()
         self.id_ = id_
@@ -332,6 +397,13 @@ class Team(SimplePersonioResource):
 
 
 class WorkSchedule(PersonioResource):
+
+    _field_mapping_list = [
+        NumericFieldMapping('id', 'id_', int),
+        FieldMapping('name', 'name', str),
+        FieldMapping('country', 'country', str),
+        FieldMapping('state', 'state', str),
+    ]
 
     def __init__(self, id_: int, name: str, monday: str, tuesday: str, wednesday: str,
                  thursday: str, friday: str, saturday: str, sunday: str):
