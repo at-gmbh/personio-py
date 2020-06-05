@@ -83,6 +83,23 @@ class DurationFieldMapping(FieldMapping):
                              f"Expected format is 'hh:mm', e.g. '06:30'.")
 
 
+class MultiTagFieldMapping(FieldMapping):
+
+    def __init__(self, api_field: str, class_field: str):
+        super().__init__(api_field, class_field, field_type=list)
+
+    def serialize(self, values: List[str]) -> str:
+        for value in values:
+            if ',' in value:
+                raise ValueError(
+                    f"Due to a restrictions at Personio, no commas are allowed in "
+                    f"multi selection fields, please adjust '{value}'")
+        return ','.join(values)
+
+    def deserialize(self, value: str, **kwargs) -> List[str]:
+        return [s.strip() for s in value.split(',')] if value else []
+
+
 class ObjectFieldMapping(FieldMapping):
 
     def __init__(self, api_field: str, class_field: str, field_type: Type['PersonioResourceType']):
@@ -130,7 +147,6 @@ class DynamicMapping(NamedTuple):
     """the data type of the field, for automatic conversion (e.g. str to datetime)"""
 
     def get_field_mapping(self) -> FieldMappingType:
-        # TODO find out which types we need to handle here
         api_field = f'dynamic_{self.field_id}'
         if self.data_type == str:
             return FieldMapping(api_field, self.alias, str)
@@ -138,6 +154,10 @@ class DynamicMapping(NamedTuple):
             return NumericFieldMapping(api_field, self.alias, self.data_type)
         elif self.data_type == datetime:
             return DateFieldMapping(api_field, self.alias)
+        elif self.data_type == timedelta:
+            return DurationFieldMapping(api_field, self.alias)
+        elif self.data_type in (list, List):
+            return MultiTagFieldMapping(api_field, self.alias)
         else:
             logger.warning(f"unexpected type {self.data_type} for dynamic field {self.field_id}")
             return FieldMapping(api_field, self.alias, self.data_type)

@@ -16,10 +16,12 @@ employee_dict = {
         "The Analytical Engine has no pretensions whatever to originate anything. "
         "It can do whatever we know how to order it to perform."},
     'dynamic_43': {'label': 'birthday', 'value': '1815-12-10'},
+    'dynamic_44': {'label': 'hobbies', 'value': 'math,analytical thinking,music'},
 }
 
 dyn_mapping = [
-    DynamicMapping(field_id=43, alias='birthday', data_type=datetime)
+    DynamicMapping(field_id=43, alias='birthday', data_type=datetime),
+    DynamicMapping(field_id=44, alias='hobbies', data_type=list),
 ]
 
 
@@ -35,7 +37,7 @@ def test_dynamic_attr():
 
 def test_dynamic_attr_list():
     dyn_attrs = DynamicAttr.from_attributes(employee_dict)
-    assert len(dyn_attrs) == 2
+    assert len(dyn_attrs) == 3
     attr_dict = DynamicAttr.to_attributes(dyn_attrs)
     assert 'dynamic_42' in attr_dict
     assert 'dynamic_43' in attr_dict
@@ -49,9 +51,9 @@ def test_map_types():
 
 
 def test_parse_employee():
-    employee = Employee.from_dict(employee_dict)
+    employee = Employee.from_dict(employee_dict, dynamic_fields=dyn_mapping)
     assert employee.id_ == 42
-    assert len(employee.dynamic_raw) == 2
+    assert len(employee.dynamic_raw) == 3
     assert employee.first_name == 'Ada'
     serialized = employee.to_dict()
     assert serialized
@@ -61,7 +63,8 @@ def test_parse_employee_dyn_typed():
     employee = Employee.from_dict(employee_dict, dynamic_fields=dyn_mapping)
     assert employee.dynamic
     assert employee.dynamic['birthday'] == datetime(1815, 12, 10)
-    assert len(employee.dynamic_raw) == 2
+    assert employee.dynamic['hobbies'] == ['math', 'analytical thinking', 'music']
+    assert len(employee.dynamic_raw) == 3
 
 
 def test_tuple_view():
