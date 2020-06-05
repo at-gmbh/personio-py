@@ -3,7 +3,7 @@ import logging
 from collections import namedtuple
 from datetime import datetime, timedelta
 from functools import total_ordering
-from typing import Any, Dict, List, NamedTuple, TYPE_CHECKING, Tuple, Type, TypeVar
+from typing import Any, Dict, List, NamedTuple, Optional, TYPE_CHECKING, Tuple, Type, TypeVar
 
 from personio_py import PersonioError, UnsupportedMethodError
 from personio_py.mapping import DateFieldMapping, DurationFieldMapping, DynamicMapping, \
@@ -20,7 +20,7 @@ logger = logging.getLogger('personio_py')
 class DynamicAttr(NamedTuple):
     field_id: int
     label: str
-    value: str
+    value: Any
 
     @classmethod
     def from_attributes(cls, d: Dict[str, Dict[str, Any]]) -> List['DynamicAttr']:
@@ -40,6 +40,10 @@ class DynamicAttr(NamedTuple):
 
     def to_dict(self) -> Dict[str, Any]:
         return {'label': self.label, 'value': self.value}
+
+    def clone(self, new_value: Optional[Any] = None):
+        return DynamicAttr(field_id=self.field_id, label=self.label,
+                           value=self.value if new_value is None else new_value)
 
 
 @total_ordering
@@ -100,13 +104,10 @@ class PersonioResource:
         return self._namedtuple()(*values)
 
     @classmethod
-    def _map_fields(cls, d: Dict[str, Dict[str, Any]], client: 'Personio' = None,
-                    dynamic_fields: List[DynamicMapping] = None) -> Dict[str, Any]:
+    def _map_fields(cls, d: Dict[str, Dict[str, Any]], client: 'Personio' = None) -> Dict[str, Any]:
         kwargs = {}
-        dynamic_raw = []
-        dynamic = {}
+        dynamic = []
         field_mapping_dict = cls._field_mapping()
-        dynamic_mapping_dict = {dm.field_id: dm for dm in dynamic_fields or []}
         label_mapping = cls._label_mapping()
         for key, data in d.items():
             label_mapping[key] = data['label']
@@ -118,19 +119,9 @@ class PersonioResource:
                 kwargs[field_mapping.class_field] = value
             elif key.startswith('dynamic_'):
                 dyn = DynamicAttr.from_dict(key, data)
-                dynamic_raw.append(dyn)
-                if dyn.field_id in dynamic_mapping_dict:
-                    # we have a dynamic field mapping -> parse the value
-                    dm: DynamicMapping = dynamic_mapping_dict[dyn.field_id]
-                    field_mapping = dm.get_field_mapping()
-                    value = dyn.value
-                    if not cls._is_empty(value):
-                        value = field_mapping.deserialize(value, client=client)
-                    dynamic[field_mapping.class_field] = value
+                dynamic.append(dyn)
             else:
                 log_once(logging.WARNING, f"unexpected field '{key}' in class {cls.__name__}")
-        if dynamic_raw:
-            kwargs['dynamic_raw'] = dynamic_raw
         if dynamic:
             kwargs['dynamic'] = dynamic
         return kwargs
@@ -173,21 +164,52 @@ class WritablePersonioResource(PersonioResource):
     _can_update = True
     _can_delete = True
 
-    def __init__(self, client: 'Personio' = None, dynamic: Dict[str, Any] = None,
-                 dynamic_raw: List['DynamicAttr'] = None, **kwargs):
+    def __init__(self, client: 'Personio' = None, dynamic: List['DynamicAttr'] = None,
+                 dynamic_fields: List[DynamicMapping] = None, **kwargs):
         super().__init__(client, **kwargs)
-        self.dynamic = dynamic
-        self.dynamic_raw: Dict[int, DynamicAttr] = {d.field_id: d for d in dynamic_raw or []}
+        self.dynamic_fields = dynamic_fields
+        self.dynamic_raw: Dict[int, DynamicAttr] = {d.field_id: d for d in dynamic or []}
+        self.dynamic = self._map_dynamic_values(dynamic, dynamic_fields, client)
+
+    @classmethod
+    def _map_dynamic_values(
+            cls, dynamic_raw: List['DynamicAttr'], dynamic_fields: List[DynamicMapping] = None,
+            client: 'Personio' = None) -> Dict[str, Any]:
+        dynamic = {}
+        if not dynamic_raw or not dynamic_fields:
+            return dynamic
+        dynamic_mapping_dict = {dm.field_id: dm for dm in dynamic_fields or []}
+        for dyn in dynamic_raw:
+            if dyn.field_id in dynamic_mapping_dict:
+                # we have a dynamic field mapping -> parse the value
+                dm: DynamicMapping = dynamic_mapping_dict[dyn.field_id]
+                field_mapping = dm.get_field_mapping()
+                value = dyn.value
+                if not cls._is_empty(value):
+                    value = field_mapping.deserialize(value, client=client)
+                dynamic[field_mapping.class_field] = value
+        return dynamic
 
     @classmethod
     def from_dict(cls, d: Dict[str, Any], client: 'Personio' = None,
                   dynamic_fields: List[DynamicMapping] = None) -> '__class__':
-        kwargs = cls._map_fields(d, client, dynamic_fields)
-        return cls(client=client, **kwargs)
+        kwargs = cls._map_fields(d, client)
+        return cls(client=client, dynamic_fields=dynamic_fields, **kwargs)
 
     def to_dict(self) -> Dict[str, Any]:
+        # we prefer typed values from the dynamic dict over the raw values
         d = super().to_dict()
+        dynamic_mapping_dict = {dyn.field_id: dyn for dyn in self.dynamic_fields or []}
         for dyn in self.dynamic_raw.values():
+            if dyn.field_id in dynamic_mapping_dict:
+                raw_value = dyn.value
+                dm: DynamicMapping = dynamic_mapping_dict[dyn.field_id]
+                rich_value = self.dynamic[dm.alias]
+                if raw_value != rich_value:
+                    field_mapping = dm.get_field_mapping()
+                    serialized = field_mapping.serialize(rich_value)
+                    if raw_value != serialized:
+                        dyn = dyn.clone(new_value=serialized)
             d[f'dynamic_{dyn.field_id}'] = dyn.to_dict()
         return d
 

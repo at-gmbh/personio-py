@@ -46,12 +46,12 @@ def test_dynamic_attr_list():
 def test_map_types():
     kwargs = Employee._map_fields(employee_dict)
     assert kwargs['id_'] == 42
-    assert kwargs['dynamic_raw']
-    assert kwargs['dynamic_raw'][1].label == 'birthday'
+    assert kwargs['dynamic']
+    assert kwargs['dynamic'][1].label == 'birthday'
 
 
 def test_parse_employee():
-    employee = Employee.from_dict(employee_dict, dynamic_fields=dyn_mapping)
+    employee = Employee.from_dict(employee_dict)
     assert employee.id_ == 42
     assert len(employee.dynamic_raw) == 3
     assert employee.first_name == 'Ada'
@@ -65,6 +65,14 @@ def test_parse_employee_dyn_typed():
     assert employee.dynamic['birthday'] == datetime(1815, 12, 10)
     assert employee.dynamic['hobbies'] == ['math', 'analytical thinking', 'music']
     assert len(employee.dynamic_raw) == 3
+
+
+def test_parse_employee_dyn_changes():
+    employee = Employee.from_dict(employee_dict, dynamic_fields=dyn_mapping)
+    employee.dynamic['hobbies'].append('horse races')
+    assert 'horse races' in employee.dynamic['hobbies']
+    d = employee.to_dict()
+    assert d['dynamic_44']['value'] == 'math,analytical thinking,music,horse races'
 
 
 def test_tuple_view():
