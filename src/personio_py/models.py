@@ -597,16 +597,19 @@ class Employee(WritablePersonioResource):
         self.last_working_day = last_working_day
         self.profile_picture = profile_picture
         self.team = team
+        self._picture = None
 
-    def _create(self, client: 'Personio'):
+    def _create(self, client: 'Personio' = None):
         pass
 
-    def _update(self, client: 'Personio'):
+    def _update(self, client: 'Personio' = None):
         pass
 
-    def picture(self) -> bytes:
-        # TODO request from api & cache
-        pass
+    def picture(self, client: 'Personio' = None) -> bytes:
+        if self._picture is None:
+            client = get_client(self, client)
+            self._picture = client.get_employee_picture(self.id_)
+        return self._picture
 
     def __str__(self):
         return f"{self.__class__.__name__}: {self.first_name} {self.last_name}, " \
@@ -620,3 +623,10 @@ def log_once(level: int, message: str):
     if message not in _unique_logs:
         logger.log(level, message)
         _unique_logs.add(message)
+
+
+def get_client(resource: PersonioResource, client: 'Personio' = None):
+    if resource._client or client:
+        return resource._client or client
+    raise PersonioError(f"no Personio client reference is available, please provide it to "
+                        f"your {type(resource).__name__} or as function parameter")

@@ -51,7 +51,7 @@ class Personio:
         else:
             raise PersonioApiError.from_response(response)
 
-    def request(self, path: str, method='GET', params: Dict[str, Any] = None):
+    def request(self, path: str, method='GET', params: Dict[str, Any] = None, auth_rotation=True):
         # check if we are already authenticated
         if not self.authenticated:
             self.authenticate()
@@ -62,7 +62,7 @@ class Personio:
         authorization = response.headers.get('Authorization')
         if authorization:
             self.headers['Authorization'] = authorization
-        else:
+        elif auth_rotation:
             raise PersonioError("Missing Authorization Header in response")
         # handle the response
         if response.ok:
@@ -91,6 +91,8 @@ class Personio:
         return employee
 
     def get_employee_picture(self, employee_id: int) -> bytes:
+        # /company/employees/42/profile-picture/
+        response = self.request(f'company/employees/{employee_id}/profile-picture', auth_rotation=False)
         # TODO implement
         pass
 
