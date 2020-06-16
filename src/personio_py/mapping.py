@@ -43,13 +43,13 @@ class NumericFieldMapping(FieldMapping):
         return self.field_type(value) if isinstance(value, str) else value
 
 
-class DateFieldMapping(FieldMapping):
+class DateTimeFieldMapping(FieldMapping):
 
     def __init__(self, api_field: str, class_field: str):
         super().__init__(api_field, class_field, field_type=datetime)
 
     def serialize(self, value: datetime) -> str:
-        return value.isoformat()[:10]
+        return value.isoformat()
 
     def deserialize(self, value: str, **kwargs) -> datetime:
         return datetime.fromisoformat(value)
@@ -106,12 +106,17 @@ class ObjectFieldMapping(FieldMapping):
         super().__init__(api_field, class_field, field_type)
 
     def serialize(self, value: 'PersonioResourceType') -> Dict:
-        return value.to_dict()
+        if self.field_type._flat_dict:
+            return value.to_dict()
+        else:
+            return {'type': self.field_type.api_type_name, 'attributes': value.to_dict()}
 
     def deserialize(self, value: Dict, client: 'Personio' = None) \
             -> Optional['PersonioResourceType']:
         if value and isinstance(value, dict):
-            return self.field_type.from_dict(value['attributes'], client=client)
+            if not self.field_type._flat_dict:
+                value = value['attributes']
+            return self.field_type.from_dict(value, client=client)
         else:
             return None
 
@@ -153,7 +158,7 @@ class DynamicMapping(NamedTuple):
         elif self.data_type in (int, float, Decimal):
             return NumericFieldMapping(api_field, self.alias, self.data_type)
         elif self.data_type == datetime:
-            return DateFieldMapping(api_field, self.alias)
+            return DateTimeFieldMapping(api_field, self.alias)
         elif self.data_type == timedelta:
             return DurationFieldMapping(api_field, self.alias)
         elif self.data_type in (list, List):

@@ -1,7 +1,7 @@
 import logging
 import os
 from datetime import datetime
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Union
 from urllib.parse import urljoin
 
 import requests
@@ -128,11 +128,28 @@ class Personio:
         # TODO implement
         pass
 
-    def get_absences(
-            self, start_date: datetime, end_date: datetime = None, employee_ids: List[int] = None,
-            limit: int = None, offset=0) -> List[Absence]:
-        # TODO implement
-        pass
+    def get_absences(self, employee_ids: Union[int, List[int]], start_date: datetime = None,
+                     end_date: datetime = None) -> List[Absence]:
+        # TODO automatically resolve paginated requests
+
+        if not employee_ids:
+            raise ValueError("need at least one employee ID")
+        if start_date is None:
+            start_date = datetime(1900, 1, 1)
+        if end_date is None:
+            end_date = datetime(datetime.now().year + 10, 1, 1)
+        if not isinstance(employee_ids, list):
+            employee_ids = [employee_ids]
+        params = {
+            "start_date": start_date.isoformat()[:10],
+            "end_date": end_date.isoformat()[:10],
+            "employees[]": employee_ids,
+            "limit": 200,
+            "offset": 0
+        }
+        response = self.request('company/time-offs', params=params)
+        absences = [Absence.from_dict(d['attributes'], self) for d in response['data']]
+        return absences
 
     def get_absence(self, absence_id: int) -> Absence:
         # TODO implement

@@ -12,7 +12,7 @@ personio = Personio(client_id=CLIENT_ID, client_secret=CLIENT_SECRET)
 def test_raw_api_employees():
     response = personio.request('company/employees')
     employees = response['data']
-    assert len(employees) > 100
+    assert len(employees) > 0
     id_0 = employees[0]['attributes']['id']['value']
     employee_0 = personio.request(f'company/employees/{id_0}')
     assert employee_0
@@ -22,7 +22,7 @@ def test_raw_api_attendances():
     params = {
         "start_date": "2020-01-01",
         "end_date": "2020-06-01",
-        "employees": "1142212,1142211",
+        "employees[]": [1142212, 1142211],
         "limit": 200,
         "offset": 0
     }
@@ -37,7 +37,13 @@ def test_raw_api_absence_types():
 
 
 def test_raw_api_absences():
-    params = {"start_date": "2020-01-01", "end_date": "2020-06-01", "employees": [2007207], "limit": 200, "offset": 0}
+    params = {
+        "start_date": "2020-01-01",
+        "end_date": "2020-06-01",
+        "employees[]": [1142212],  # [2007207, 2007248]
+        "limit": 200,
+        "offset": 0
+    }
     absences = personio.request('company/time-offs', params=params)
     assert absences
 
@@ -54,6 +60,7 @@ def test_get_employee():
     assert d
     response = personio.request(f'company/employees/2007207')
     api_attr = response['data']['attributes']
+    # TODO handle none values
     assert d == api_attr
 
 
@@ -61,3 +68,8 @@ def test_get_employee_picture():
     employee = Employee(client=personio, id_=2007207)
     picture = employee.picture()
     assert picture
+
+
+def test_get_absences():
+    absences = personio.get_absences(1142212)
+    assert len(absences) > 0

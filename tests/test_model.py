@@ -1,7 +1,7 @@
 from copy import deepcopy
-from datetime import datetime
+from datetime import datetime, timezone
 
-from personio_py import DynamicAttr, Employee
+from personio_py import Absence, DynamicAttr, Employee
 from personio_py.mapping import DynamicMapping
 
 employee_dict = {
@@ -12,10 +12,11 @@ employee_dict = {
     'gender': {'label': 'Gender', 'value': 'female'},
     'status': {'label': 'Status', 'value': 'deceased'},
     'position': {'label': 'Position', 'value': 'first programmer ever'},
+    'created_at': {'label': 'created_at', 'value': '1835-01-02T13:00:00+00:00'},
     'dynamic_42': {'label': 'quote', 'value':
         "The Analytical Engine has no pretensions whatever to originate anything. "
         "It can do whatever we know how to order it to perform."},
-    'dynamic_43': {'label': 'birthday', 'value': '1815-12-10'},
+    'dynamic_43': {'label': 'birthday', 'value': '1815-12-10T00:00:00+00:00'},
     'dynamic_44': {'label': 'hobbies', 'value': 'math,analytical thinking,music'},
 }
 
@@ -24,13 +25,37 @@ dyn_mapping = [
     DynamicMapping(field_id=44, alias='hobbies', data_type=list),
 ]
 
+absence_dict = {
+    'id': 42,
+    'status': 'approved',
+    'comment': 'Christmas <3',
+    'start_date': '1835-12-24T00:00:00+00:00',
+    'end_date': '1835-12-31T00:00:00+00:00',
+    'days_count': 5,
+    'half_day_start': 0,
+    'half_day_end': 0,
+    'time_off_type': {'type': 'TimeOffType', 'attributes': {'id': 1, 'name': 'vacation'}},
+    'employee': {
+        'type': 'Employee',
+        'attributes': {
+            'id': {'label': 'ID', 'value': 42},
+            'first_name': {'label': 'First name', 'value': 'Ada'},
+            'last_name': {'label': 'Last name', 'value': 'Lovelace'},
+            'email': {'label': 'Email', 'value': 'ada@example.org'}
+        }
+    },
+    'created_by': 'Ada Lovelace',
+    'certificate': {'status': 'not-required'},
+    'created_at': '1835-12-01T13:15:00+00:00'
+}
+
 
 def test_dynamic_attr():
     dyn_43_dict = employee_dict['dynamic_43']
     dyn_attr = DynamicAttr.from_dict('dynamic_43', dyn_43_dict)
     assert dyn_attr.field_id == 43
     assert dyn_attr.label == 'birthday'
-    assert dyn_attr.value == '1815-12-10'
+    assert dyn_attr.value == '1815-12-10T00:00:00+00:00'
     d = dyn_attr.to_dict()
     assert d == dyn_43_dict
 
@@ -55,6 +80,7 @@ def test_parse_employee():
     assert employee.id_ == 42
     assert len(employee.dynamic_raw) == 3
     assert employee.first_name == 'Ada'
+    assert employee.created_at == datetime(1835, 1, 2, 13, 0, 0, tzinfo=timezone.utc)
     serialized = employee.to_dict()
     assert serialized
 
@@ -62,7 +88,7 @@ def test_parse_employee():
 def test_parse_employee_dyn_typed():
     employee = Employee.from_dict(employee_dict, dynamic_fields=dyn_mapping)
     assert employee.dynamic
-    assert employee.dynamic['birthday'] == datetime(1815, 12, 10)
+    assert employee.dynamic['birthday'] == datetime(1815, 12, 10, 0, 0, 0, tzinfo=timezone.utc)
     assert employee.dynamic['hobbies'] == ['math', 'analytical thinking', 'music']
     assert len(employee.dynamic_raw) == 3
 
@@ -73,6 +99,12 @@ def test_parse_employee_dyn_changes():
     assert 'horse races' in employee.dynamic['hobbies']
     d = employee.to_dict()
     assert d['dynamic_44']['value'] == 'math,analytical thinking,music,horse races'
+
+
+def test_serialize_employee():
+    employee = Employee.from_dict(employee_dict, dynamic_fields=dyn_mapping)
+    d = employee.to_dict()
+    assert d == employee_dict
 
 
 def test_tuple_view():
@@ -109,6 +141,23 @@ def test_resource_ordering():
     # id 42 > id 7
     assert employee_1 > employee_2
     assert employee_2 < employee_1
+
+
+def test_parse_absence():
+    absence = Absence.from_dict(absence_dict)
+    assert absence
+    assert absence.comment == 'Christmas <3'
+    assert absence.created_by == 'Ada Lovelace'
+    assert absence.start_date == datetime(1835, 12, 24, tzinfo=timezone.utc)
+    assert absence.certificate.status == 'not-required'
+    assert absence.time_off_type.name == 'vacation'
+    assert absence.employee.id_ == 42
+
+
+def test_serialize_absence():
+    absence = Absence.from_dict(absence_dict)
+    d = absence.to_dict()
+    assert d == absence_dict
 
 
 def get_employee_dict_mod(**overrides):
