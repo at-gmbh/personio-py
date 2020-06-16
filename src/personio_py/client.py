@@ -1,7 +1,7 @@
 import logging
 import os
 from datetime import datetime
-from typing import Any, Dict, List, Union
+from typing import Any, Dict, List, Tuple, Union
 from urllib.parse import urljoin
 
 import requests
@@ -104,11 +104,22 @@ class Personio:
         # TODO implement
         pass
 
-    def get_attendances(
-            self, start_date: datetime, end_date: datetime = None, employee_ids: List[int] = None,
-            limit: int = None, offset=0) -> List[Attendance]:
-        # TODO implement
-        pass
+    def get_attendances(self, employee_ids: Union[int, List[int]], start_date: datetime = None,
+                        end_date: datetime = None) -> List[Attendance]:
+        # TODO automatically resolve paginated requests
+
+        employee_ids, start_date, end_date = self._normalize_timeframe_params(
+            employee_ids, start_date, end_date)
+        params = {
+            "start_date": start_date.isoformat()[:10],
+            "end_date": end_date.isoformat()[:10],
+            "employees[]": employee_ids,
+            "limit": 200,
+            "offset": 0
+        }
+        response = self.request('company/attendances', params=params)
+        attendances = [Attendance.from_dict(d, self) for d in response['data']]
+        return attendances
 
     def create_attendances(self, attendances: List[Attendance]):
         # attendances can be created individually, but here you can push a huge bunch of items
@@ -132,14 +143,8 @@ class Personio:
                      end_date: datetime = None) -> List[Absence]:
         # TODO automatically resolve paginated requests
 
-        if not employee_ids:
-            raise ValueError("need at least one employee ID")
-        if start_date is None:
-            start_date = datetime(1900, 1, 1)
-        if end_date is None:
-            end_date = datetime(datetime.now().year + 10, 1, 1)
-        if not isinstance(employee_ids, list):
-            employee_ids = [employee_ids]
+        employee_ids, start_date, end_date = self._normalize_timeframe_params(
+            employee_ids, start_date, end_date)
         params = {
             "start_date": start_date.isoformat()[:10],
             "end_date": end_date.isoformat()[:10],
@@ -162,3 +167,17 @@ class Personio:
     def delete_absence(self, absence_id: int):
         # TODO implement
         pass
+
+    @classmethod
+    def _normalize_timeframe_params(
+            cls, employee_ids: Union[int, List[int]], start_date: datetime = None,
+            end_date: datetime = None) -> Tuple[List[int], datetime, datetime]:
+        if not employee_ids:
+            raise ValueError("need at least one employee ID, got nothing")
+        if start_date is None:
+            start_date = datetime(1900, 1, 1)
+        if end_date is None:
+            end_date = datetime(datetime.now().year + 10, 1, 1)
+        if not isinstance(employee_ids, list):
+            employee_ids = [employee_ids]
+        return employee_ids, start_date, end_date

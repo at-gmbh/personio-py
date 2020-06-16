@@ -6,8 +6,8 @@ from functools import total_ordering
 from typing import Any, Dict, List, NamedTuple, Optional, TYPE_CHECKING, Tuple, Type, TypeVar
 
 from personio_py import PersonioError, UnsupportedMethodError
-from personio_py.mapping import DateTimeFieldMapping, DurationFieldMapping, DynamicMapping, \
-    FieldMapping, ListFieldMapping, NumericFieldMapping, ObjectFieldMapping
+from personio_py.mapping import DateFieldMapping, DateTimeFieldMapping, DurationFieldMapping, \
+    DynamicMapping, FieldMapping, ListFieldMapping, NumericFieldMapping, ObjectFieldMapping
 
 if TYPE_CHECKING:
     from personio_py import Personio
@@ -80,6 +80,7 @@ class PersonioResource:
 
     @classmethod
     def from_dict(cls, d: Dict[str, Any], client: 'Personio' = None) -> '__class__':
+        # TODO from/to dict should probably always serialize from/to the full dict, not a subset like d['attributes']
         kwargs = cls._map_fields(d, client)
         return cls(client=client, **kwargs)
 
@@ -530,12 +531,25 @@ class Absence(WritablePersonioResource):
 
 class Attendance(WritablePersonioResource):
 
-    # TODO implement
+    _api_type_name = "AttendancePeriod"
+    _field_mapping_list = [
+        # note: the id is not in the attributes dict, but one level higher
+        NumericFieldMapping('id', 'id_', int),
+        NumericFieldMapping('employee', 'employee_id', int),
+        DateFieldMapping('date', 'date'),
+        DurationFieldMapping('start_time', 'start_time'),
+        DurationFieldMapping('end_time', 'end_time'),
+        NumericFieldMapping('break', 'break_duration', int),
+        FieldMapping('comment', 'comment', str),
+        FieldMapping('is_holiday', 'is_holiday', bool),
+        FieldMapping('is_on_time_off', 'is_on_time_off', bool),
+    ]
 
     def __init__(self,
                  client: 'Personio' = None,
                  dynamic: Dict[str, Any] = None,
                  dynamic_raw: List['DynamicAttr'] = None,
+                 id_: int = None,
                  employee_id: int = None,
                  date: datetime = None,
                  start_time: str = None,
@@ -546,6 +560,22 @@ class Attendance(WritablePersonioResource):
                  is_on_time_off: bool = None,
                  **kwargs):
         super().__init__(client=client, dynamic=dynamic, dynamic_raw=dynamic_raw, **kwargs)
+        self.id_ = id_
+        self.employee_id = employee_id
+        self.date = date
+        self.start_time = start_time
+        self.end_time = end_time
+        self.break_duration = break_duration
+        self.comment = comment
+        self.is_holiday = is_holiday
+        self.is_on_time_off = is_on_time_off
+
+    @classmethod
+    def from_dict(cls, d: Dict[str, Any], client: 'Personio' = None,
+                  dynamic_fields: List[DynamicMapping] = None) -> '__class__':
+        attendance: Attendance = super().from_dict(d['attributes'], client, dynamic_fields)
+        attendance.id_ = d['id']
+        return attendance
 
     def _create(self, client: 'Personio'):
         pass

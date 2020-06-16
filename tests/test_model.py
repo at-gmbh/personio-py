@@ -1,7 +1,7 @@
 from copy import deepcopy
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 
-from personio_py import Absence, DynamicAttr, Employee
+from personio_py import Absence, Attendance, DynamicAttr, Employee
 from personio_py.mapping import DynamicMapping
 
 employee_dict = {
@@ -26,7 +26,7 @@ dyn_mapping = [
 ]
 
 absence_dict = {
-    'id': 42,
+    'id': 42100,
     'status': 'approved',
     'comment': 'Christmas <3',
     'start_date': '1835-12-24T00:00:00+00:00',
@@ -47,6 +47,21 @@ absence_dict = {
     'created_by': 'Ada Lovelace',
     'certificate': {'status': 'not-required'},
     'created_at': '1835-12-01T13:15:00+00:00'
+}
+
+attendance_dict = {
+    'id': 42200,
+    'type': 'AttendancePeriod',
+    'attributes': {
+        'employee': 42,
+        'date': '1835-06-01',
+        'start_time': '09:00',
+        'end_time': '17:00',
+        'break': 60,
+        'comment': 'great progress today :)',
+        'is_holiday': False,
+        'is_on_time_off': False
+    }
 }
 
 
@@ -158,6 +173,24 @@ def test_serialize_absence():
     absence = Absence.from_dict(absence_dict)
     d = absence.to_dict()
     assert d == absence_dict
+
+
+def test_parse_attendance():
+    attendance = Attendance.from_dict(attendance_dict)
+    assert attendance
+    assert attendance.id_ == 42200
+    assert attendance.employee_id == 42
+    assert attendance.comment == 'great progress today :)'
+    assert attendance.date == datetime(1835, 6, 1)
+    assert attendance.start_time == timedelta(hours=9, minutes=0)
+    assert attendance.end_time == timedelta(hours=17, minutes=0)
+
+
+def test_serialize_attendance():
+    # TODO needs fixing. should probably change the way from/to dict works
+    attendance = Attendance.from_dict(attendance_dict)
+    d = attendance.to_dict()
+    assert d == attendance_dict
 
 
 def get_employee_dict_mod(**overrides):

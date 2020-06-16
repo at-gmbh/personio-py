@@ -55,6 +55,15 @@ class DateTimeFieldMapping(FieldMapping):
         return datetime.fromisoformat(value)
 
 
+class DateFieldMapping(DateTimeFieldMapping):
+
+    def __init__(self, api_field: str, class_field: str):
+        super().__init__(api_field, class_field)
+
+    def serialize(self, value: datetime) -> str:
+        return value.isoformat()[:10]
+
+
 class DurationFieldMapping(FieldMapping):
 
     pattern = re.compile(r"\d\d?:\d\d")
@@ -109,7 +118,7 @@ class ObjectFieldMapping(FieldMapping):
         if self.field_type._flat_dict:
             return value.to_dict()
         else:
-            return {'type': self.field_type.api_type_name, 'attributes': value.to_dict()}
+            return {'type': self.field_type._api_type_name, 'attributes': value.to_dict()}
 
     def deserialize(self, value: Dict, client: 'Personio' = None) \
             -> Optional['PersonioResourceType']:

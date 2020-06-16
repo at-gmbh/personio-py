@@ -71,5 +71,10 @@ def test_get_employee_picture():
 
 
 def test_get_absences():
-    absences = personio.get_absences(1142212)
+    absences = personio.get_absences(1460609)
     assert len(absences) > 0
+
+
+def test_get_attendances():
+    attendances = personio.get_attendances(2007207)
+    assert len(attendances) > 0
