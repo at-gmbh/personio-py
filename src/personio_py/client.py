@@ -1,10 +1,11 @@
 import logging
 import os
 from datetime import datetime
-from typing import Any, Dict, List, Tuple, Union
+from typing import Any, Dict, List, Optional, Tuple, Union
 from urllib.parse import urljoin
 
 import requests
+from requests import Response
 
 from personio_py import Absence, AbsenceType, Attendance, DynamicMapping, Employee
 from personio_py.errors import MissingCredentialsError, PersonioApiError, PersonioError
@@ -51,27 +52,76 @@ class Personio:
         else:
             raise PersonioApiError.from_response(response)
 
-    def request(self, path: str, method='GET', params: Dict[str, Any] = None, auth_rotation=True):
+    def request(self, path: str, method='GET', params: Dict[str, Any] = None,
+                headers: Dict[str, str] = None, auth_rotation=True) -> Response:
         # check if we are already authenticated
         if not self.authenticated:
             self.authenticate()
+        # define headers
+        _headers = self.headers
+        if headers:
+            _headers.update(headers)
         # make the request
         url = urljoin(self.base_url, path)
-        response = requests.request(method, url, headers=self.headers, params=params)
+        response = requests.request(method, url, headers=_headers, params=params)
         # re-new the authorization header
         authorization = response.headers.get('Authorization')
         if authorization:
             self.headers['Authorization'] = authorization
         elif auth_rotation:
             raise PersonioError("Missing Authorization Header in response")
-        # handle the response
+        # return the response, let the caller handle any issues
+        return response
+
+    def request_json(self, path: str, method='GET', params: Dict[str, Any] = None,
+                     auth_rotation=True) -> Dict[str, Any]:
+        """
+        Make a request against the Personio API, expecting a json response.
+        Returns the parsed json response as dictionary. Will raise a PersonioApiError if the
+        request fails.
+
+        :param path: the URL path for this request (relative to the Personio API base URL)
+        :param method: the HTTP request method (default: GET)
+        :param params: dictionary of URL parameters (optional)
+        :param auth_rotation: set to True, if authentication keys should be rotated
+               during this request (default: True for json requests)
+        :return: the parsed json response, when the request was successful, or a PersonioApiError
+        """
+        headers = {'accept': 'application/json'}
+        response = self.request(path, method, params, headers=headers, auth_rotation=auth_rotation)
         if response.ok:
             try:
-                data = response.json()
-                return data
+                return response.json()
             except ValueError as e:
                 raise PersonioError(f"Failed to parse response as json: {response.text}")
         else:
+            raise PersonioApiError.from_response(response)
+
+    def request_image(self, path: str, method='GET', params: Dict[str, Any] = None,
+                      auth_rotation=False) -> Optional[bytes]:
+        """
+        Request an image file (as png or jpg) from the Personio API.
+        Returns the image as byte array, or None, if no image is available for this resource
+        (HTTP status 404).
+        When any other errors occur, a PersonioApiError is raised.
+
+        :param path: the URL path for this request (relative to the Personio API base URL)
+        :param method: the HTTP request method (default: GET)
+        :param params: dictionary of URL parameters (optional)
+        :param auth_rotation: set to True, if authentication keys should be rotated
+               during this request (default: False for image requests)
+        :return: the image (bytes) or None, if no image is available
+        """
+        headers = {'accept': 'image/png, image/jpeg'}
+        response = self.request(path, method, params, headers=headers, auth_rotation=auth_rotation)
+        if response.ok:
+            # great, we have our image as png or jpg
+            return response.content
+        elif response.status_code == 404:
+            # no image? how disappointing...
+            return None
+        else:
+            # oh noes, something went terribly wrong!
             raise PersonioApiError.from_response(response)
 
     def get_employees(self) -> List[Employee]:
@@ -80,21 +130,21 @@ class Personio:
 
         :return: list of ``Employee`` instances
         """
-        response = self.request('company/employees')
+        response = self.request_json('company/employees')
         employees = [Employee.from_dict(d['attributes'], self) for d in response['data']]
         return employees
 
     def get_employee(self, employee_id: int) -> Employee:
-        response = self.request(f'company/employees/{employee_id}')
+        response = self.request_json(f'company/employees/{employee_id}')
         employee_dict = response['data']['attributes']
         employee = Employee.from_dict(employee_dict, self)
         return employee
 
-    def get_employee_picture(self, employee_id: int) -> bytes:
-        # /company/employees/42/profile-picture/
-        response = self.request(f'company/employees/{employee_id}/profile-picture', auth_rotation=False)
-        # TODO implement
-        pass
+    def get_employee_picture(self, employee_id: int, width: int = None) -> Optional[bytes]:
+        path = f'company/employees/{employee_id}/profile-picture'
+        if width:
+            path += f'/{width}'
+        return self.request_image(path, auth_rotation=False)
 
     def create_employee(self, employee: Employee):
         # TODO implement
@@ -117,7 +167,7 @@ class Personio:
             "limit": 200,
             "offset": 0
         }
-        response = self.request('company/attendances', params=params)
+        response = self.request_json('company/attendances', params=params)
         attendances = [Attendance.from_dict(d, self) for d in response['data']]
         return attendances
 
@@ -152,7 +202,7 @@ class Personio:
             "limit": 200,
             "offset": 0
         }
-        response = self.request('company/time-offs', params=params)
+        response = self.request_json('company/time-offs', params=params)
         absences = [Absence.from_dict(d['attributes'], self) for d in response['data']]
         return absences
 

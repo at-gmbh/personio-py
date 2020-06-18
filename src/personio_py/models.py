@@ -706,10 +706,10 @@ class Employee(WritablePersonioResource, LabeledAttributesMixin):
     def _update(self, client: 'Personio' = None):
         pass
 
-    def picture(self, client: 'Personio' = None) -> bytes:
+    def picture(self, client: 'Personio' = None, width: int = None) -> bytes:
         if self._picture is None:
             client = get_client(self, client)
-            self._picture = client.get_employee_picture(self.id_)
+            self._picture = client.get_employee_picture(self.id_, width=width)
         return self._picture
 
     def __str__(self):

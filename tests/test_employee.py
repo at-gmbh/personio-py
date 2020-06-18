@@ -1,7 +1,7 @@
 from copy import deepcopy
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timezone
 
-from personio_py import Absence, Attendance, DynamicAttr, Employee
+from personio_py import DynamicAttr, Employee
 from personio_py.mapping import DynamicMapping
 
 employee_dict = {
@@ -24,45 +24,6 @@ dyn_mapping = [
     DynamicMapping(field_id=43, alias='birthday', data_type=datetime),
     DynamicMapping(field_id=44, alias='hobbies', data_type=list),
 ]
-
-absence_dict = {
-    'id': 42100,
-    'status': 'approved',
-    'comment': 'Christmas <3',
-    'start_date': '1835-12-24T00:00:00+00:00',
-    'end_date': '1835-12-31T00:00:00+00:00',
-    'days_count': 5,
-    'half_day_start': 0,
-    'half_day_end': 0,
-    'time_off_type': {'type': 'TimeOffType', 'attributes': {'id': 1, 'name': 'vacation'}},
-    'employee': {
-        'type': 'Employee',
-        'attributes': {
-            'id': {'label': 'ID', 'value': 42},
-            'first_name': {'label': 'First name', 'value': 'Ada'},
-            'last_name': {'label': 'Last name', 'value': 'Lovelace'},
-            'email': {'label': 'Email', 'value': 'ada@example.org'}
-        }
-    },
-    'created_by': 'Ada Lovelace',
-    'certificate': {'status': 'not-required'},
-    'created_at': '1835-12-01T13:15:00+00:00'
-}
-
-attendance_dict = {
-    'id': 42200,
-    'type': 'AttendancePeriod',
-    'attributes': {
-        'employee': 42,
-        'date': '1835-06-01',
-        'start_time': '09:00',
-        'end_time': '17:00',
-        'break': 60,
-        'comment': 'great progress today :)',
-        'is_holiday': False,
-        'is_on_time_off': False
-    }
-}
 
 
 def test_dynamic_attr():
@@ -156,41 +117,6 @@ def test_resource_ordering():
     # id 42 > id 7
     assert employee_1 > employee_2
     assert employee_2 < employee_1
-
-
-def test_parse_absence():
-    absence = Absence.from_dict(absence_dict)
-    assert absence
-    assert absence.comment == 'Christmas <3'
-    assert absence.created_by == 'Ada Lovelace'
-    assert absence.start_date == datetime(1835, 12, 24, tzinfo=timezone.utc)
-    assert absence.certificate.status == 'not-required'
-    assert absence.time_off_type.name == 'vacation'
-    assert absence.employee.id_ == 42
-
-
-def test_serialize_absence():
-    absence = Absence.from_dict(absence_dict)
-    d = absence.to_dict()
-    assert d == absence_dict
-
-
-def test_parse_attendance():
-    attendance = Attendance.from_dict(attendance_dict)
-    assert attendance
-    assert attendance.id_ == 42200
-    assert attendance.employee_id == 42
-    assert attendance.comment == 'great progress today :)'
-    assert attendance.date == datetime(1835, 6, 1)
-    assert attendance.start_time == timedelta(hours=9, minutes=0)
-    assert attendance.end_time == timedelta(hours=17, minutes=0)
-
-
-def test_serialize_attendance():
-    # TODO needs fixing. should probably change the way from/to dict works
-    attendance = Attendance.from_dict(attendance_dict)
-    d = attendance.to_dict()
-    assert d == attendance_dict
 
 
 def get_employee_dict_mod(**overrides):

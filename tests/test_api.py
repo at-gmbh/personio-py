@@ -10,11 +10,11 @@ personio = Personio(client_id=CLIENT_ID, client_secret=CLIENT_SECRET)
 
 
 def test_raw_api_employees():
-    response = personio.request('company/employees')
+    response = personio.request_json('company/employees')
     employees = response['data']
     assert len(employees) > 0
     id_0 = employees[0]['attributes']['id']['value']
-    employee_0 = personio.request(f'company/employees/{id_0}')
+    employee_0 = personio.request_json(f'company/employees/{id_0}')
     assert employee_0
 
 
@@ -26,13 +26,13 @@ def test_raw_api_attendances():
         "limit": 200,
         "offset": 0
     }
-    attendances = personio.request('company/attendances', params=params)
+    attendances = personio.request_json('company/attendances', params=params)
     assert attendances
 
 
 def test_raw_api_absence_types():
     params = {"limit": 200, "offset": 0}
-    absence_types = personio.request('company/time-off-types', params=params)
+    absence_types = personio.request_json('company/time-off-types', params=params)
     assert len(absence_types['data']) > 10
 
 
@@ -44,7 +44,7 @@ def test_raw_api_absences():
         "limit": 200,
         "offset": 0
     }
-    absences = personio.request('company/time-offs', params=params)
+    absences = personio.request_json('company/time-offs', params=params)
     assert absences
 
 
@@ -58,7 +58,7 @@ def test_get_employee():
     assert employee.first_name == 'Sebastian'
     d = employee.to_dict()
     assert d
-    response = personio.request(f'company/employees/2007207')
+    response = personio.request_json(f'company/employees/2007207')
     api_attr = response['data']['attributes']
     # TODO handle none values
     assert d == api_attr
