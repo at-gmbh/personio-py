@@ -295,7 +295,7 @@ class AbsenceEntitlement(PersonioResource):
         NumericFieldMapping('entitlement', 'entitlement', float),
     ]
 
-    def __init__(self, id_: int, name: str, entitlement: float, **kwargs):
+    def __init__(self, id_: int = None, name: str = None, entitlement: float = None, **kwargs):
         super().__init__(**kwargs)
         self.id_ = id_
         self.name = name
@@ -310,7 +310,7 @@ class AbsenceType(PersonioResource):
         FieldMapping('name', 'name', str),
     ]
 
-    def __init__(self, id_: int, name: str, **kwargs):
+    def __init__(self, id_: int = None, name: str = None, **kwargs):
         super().__init__(**kwargs)
         self.id_ = id_
         self.name = name
@@ -323,7 +323,7 @@ class Certificate(PersonioResource):
     ]
     _flat_dict = True
 
-    def __init__(self, status: str, **kwargs):
+    def __init__(self, status: str = None, **kwargs):
         super().__init__(**kwargs)
         self.status = status
 
@@ -337,7 +337,7 @@ class CostCenter(PersonioResource):
         NumericFieldMapping('percentage', 'percentage', float),
     ]
 
-    def __init__(self, id_: int, name: str, percentage: float, **kwargs):
+    def __init__(self, id_: int = None, name: str = None, percentage: float = None, **kwargs):
         super().__init__(**kwargs)
         self.id_ = id_
         self.name = name
@@ -352,7 +352,7 @@ class Department(PersonioResource):
         FieldMapping('name', 'name', str),
     ]
 
-    def __init__(self, id_: int, name: str, **kwargs):
+    def __init__(self, id_: int = None, name: str = None, **kwargs):
         super().__init__(**kwargs)
         self.id_ = id_
         self.name = name
@@ -368,7 +368,8 @@ class HolidayCalendar(PersonioResource):
         FieldMapping('state', 'state', str),
     ]
 
-    def __init__(self, id_: int, name: str, country: str, state: str, **kwargs):
+    def __init__(self, id_: int = None, name: str = None, country: str = None,
+                 state: str = None, **kwargs):
         super().__init__(**kwargs)
         self.id_ = id_
         self.name = name
@@ -384,7 +385,7 @@ class Office(PersonioResource):
         FieldMapping('name', 'name', str),
     ]
 
-    def __init__(self, id_: int, name: str, **kwargs):
+    def __init__(self, id_: int = None, name: str = None, **kwargs):
         super().__init__(**kwargs)
         self.id_ = id_
         self.name = name
@@ -428,7 +429,7 @@ class Team(PersonioResource):
         FieldMapping('name', 'name', str),
     ]
 
-    def __init__(self, id_: int, name: str, **kwargs):
+    def __init__(self, id_: int = None, name: str = None, **kwargs):
         super().__init__(**kwargs)
         self.id_ = id_
         self.name = name
@@ -450,9 +451,17 @@ class WorkSchedule(PersonioResource):
         DurationFieldMapping('sunday', 'sunday'),
     ]
 
-    def __init__(self, id_: int, name: str, valid_from: datetime = None, monday: timedelta = None,
-                 tuesday: timedelta = None, wednesday: timedelta = None, thursday: timedelta = None,
-                 friday: timedelta = None, saturday: timedelta = None, sunday: timedelta = None,
+    def __init__(self,
+                 id_: int = None,
+                 name: str = None,
+                 valid_from: datetime = None,
+                 monday: timedelta = None,
+                 tuesday: timedelta = None,
+                 wednesday: timedelta = None,
+                 thursday: timedelta = None,
+                 friday: timedelta = None,
+                 saturday: timedelta = None,
+                 sunday: timedelta = None,
                  **kwargs):
         super().__init__(**kwargs)
         self.id_ = id_

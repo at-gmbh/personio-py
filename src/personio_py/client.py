@@ -53,7 +53,27 @@ class Personio:
             raise PersonioApiError.from_response(response)
 
     def request(self, path: str, method='GET', params: Dict[str, Any] = None,
-                headers: Dict[str, str] = None, auth_rotation=True) -> Response:
+                data: Dict[str, Any] = None, headers: Dict[str, str] = None,
+                auth_rotation=True) -> Response:
+        """
+        Make a request against the Personio API.
+        Returns the HTTP response, which might be successful or not.
+
+        Rotation of authorization tokens is handled in this function. If no token is available
+        (first request of this instance), the ``authenticate()`` function is called. On subsequent
+        requests, the new authorization token is read from the response headers and replaces the
+        previous one. Note that this behavior can be turned off by setting auth_rotation=False,
+        which is required for some requests that do not return a new authorization token.
+
+        :param path: the URL path for this request (relative to the Personio API base URL)
+        :param method: the HTTP request method (default: GET)
+        :param params: dictionary of URL parameters (optional)
+        :param data: dictionary of data to send in the request body (optional)
+        :param headers: additional request headers (authentication is handled separately)
+        :param auth_rotation: set to True, if authentication keys should be rotated
+               during this request (default: True)
+        :return: the HTTP response (the caller is responsible for handling HTTP errors)
+        """
         # check if we are already authenticated
         if not self.authenticated:
             self.authenticate()
@@ -63,7 +83,7 @@ class Personio:
             _headers.update(headers)
         # make the request
         url = urljoin(self.base_url, path)
-        response = requests.request(method, url, headers=_headers, params=params)
+        response = requests.request(method, url, headers=_headers, params=params, data=data)
         # re-new the authorization header
         authorization = response.headers.get('Authorization')
         if authorization:
@@ -74,7 +94,7 @@ class Personio:
         return response
 
     def request_json(self, path: str, method='GET', params: Dict[str, Any] = None,
-                     auth_rotation=True) -> Dict[str, Any]:
+                     data: Dict[str, Any] = None, auth_rotation=True) -> Dict[str, Any]:
         """
         Make a request against the Personio API, expecting a json response.
         Returns the parsed json response as dictionary. Will raise a PersonioApiError if the
@@ -83,12 +103,13 @@ class Personio:
         :param path: the URL path for this request (relative to the Personio API base URL)
         :param method: the HTTP request method (default: GET)
         :param params: dictionary of URL parameters (optional)
+        :param data: dictionary of data to send in the request body (optional)
         :param auth_rotation: set to True, if authentication keys should be rotated
                during this request (default: True for json requests)
         :return: the parsed json response, when the request was successful, or a PersonioApiError
         """
         headers = {'accept': 'application/json'}
-        response = self.request(path, method, params, headers=headers, auth_rotation=auth_rotation)
+        response = self.request(path, method, params, data, headers, auth_rotation=auth_rotation)
         if response.ok:
             try:
                 return response.json()
@@ -146,9 +167,23 @@ class Personio:
             path += f'/{width}'
         return self.request_image(path, auth_rotation=False)
 
-    def create_employee(self, employee: Employee):
-        # TODO implement
-        pass
+    def create_employee(self, employee: Employee, refresh=True) -> Employee:
+        data = {
+            'employee[email]': employee.email,
+            'employee[first_name]': employee.first_name,
+            'employee[last_name]': employee.last_name,
+            'employee[gender]': employee.gender,
+            'employee[position]': employee.position,
+            'employee[department]': employee.department.name,
+            'employee[hire_date]': employee.hire_date.isoformat()[:10],
+            'employee[weekly_hours]': employee.weekly_working_hours,
+        }
+        response = self.request_json('company/employees', method='POST', data=data)
+        employee.id_ = response['data']['id']
+        if refresh:
+            return self.get_employee(employee.id_)
+        else:
+            return employee
 
     def update_employee(self, employee: Employee):
         # TODO implement
