@@ -1,6 +1,6 @@
 import logging
 import re
-from datetime import datetime, timedelta
+from datetime import date, datetime, timedelta
 from decimal import Decimal
 from typing import Any, Dict, List, NamedTuple, Optional, TYPE_CHECKING, Type, TypeVar, Union
 
@@ -55,13 +55,16 @@ class DateTimeFieldMapping(FieldMapping):
         return datetime.fromisoformat(value)
 
 
-class DateFieldMapping(DateTimeFieldMapping):
+class DateFieldMapping(FieldMapping):
 
     def __init__(self, api_field: str, class_field: str):
-        super().__init__(api_field, class_field)
+        super().__init__(api_field, class_field, field_type=date)
 
     def serialize(self, value: datetime) -> str:
-        return value.isoformat()[:10]
+        return value.isoformat()
+
+    def deserialize(self, value: str, **kwargs) -> date:
+        return date.fromisoformat(value[:10])
 
 
 class DurationFieldMapping(FieldMapping):
@@ -166,6 +169,8 @@ class DynamicMapping(NamedTuple):
             return FieldMapping(api_field, self.alias, str)
         elif self.data_type in (int, float, Decimal):
             return NumericFieldMapping(api_field, self.alias, self.data_type)
+        elif self.data_type == date:
+            return DateFieldMapping(api_field, self.alias)
         elif self.data_type == datetime:
             return DateTimeFieldMapping(api_field, self.alias)
         elif self.data_type == timedelta:
