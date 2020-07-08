@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import date
 
 from personio_py import Absence
 
@@ -6,8 +6,8 @@ absence_dict = {
     'id': 42100,
     'status': 'approved',
     'comment': 'Christmas <3',
-    'start_date': '1835-12-24T00:00:00+00:00',
-    'end_date': '1835-12-31T00:00:00+00:00',
+    'start_date': '1835-12-24',
+    'end_date': '1835-12-31',
     'days_count': 5,
     'half_day_start': 0,
     'half_day_end': 0,
@@ -32,7 +32,7 @@ def test_parse_absence():
     assert absence
     assert absence.comment == 'Christmas <3'
     assert absence.created_by == 'Ada Lovelace'
-    assert absence.start_date == datetime(1835, 12, 24, tzinfo=timezone.utc)
+    assert absence.start_date == date(1835, 12, 24)
     assert absence.certificate.status == 'not-required'
     assert absence.time_off_type.name == 'vacation'
     assert absence.employee.id_ == 42

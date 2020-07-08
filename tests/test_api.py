@@ -1,15 +1,25 @@
 import os
 from datetime import datetime
 
-from personio_py import Department, Employee, Personio
+import pytest
 
+from personio_py import Department, Employee, Personio, PersonioError
+
+# Personio client authentication
 CLIENT_ID = os.getenv('CLIENT_ID')
 CLIENT_SECRET = os.getenv('CLIENT_SECRET')
 personio = Personio(client_id=CLIENT_ID, client_secret=CLIENT_SECRET)
 
-# TODO deactivate all tests that rely on a specific personio instance
+# deactivate all tests that rely on a specific personio instance
+try:
+    personio.authenticate()
+    can_authenticate = True
+except PersonioError:
+    can_authenticate = False
+skip_if_no_auth = pytest.mark.skipif(not can_authenticate, reason="Personio authentication failed")
 
 
+@skip_if_no_auth
 def test_raw_api_employees():
     response = personio.request_json('company/employees')
     employees = response['data']
@@ -19,6 +29,7 @@ def test_raw_api_employees():
     assert employee_0
 
 
+@skip_if_no_auth
 def test_raw_api_attendances():
     params = {
         "start_date": "2020-01-01",
@@ -31,12 +42,14 @@ def test_raw_api_attendances():
     assert attendances
 
 
+@skip_if_no_auth
 def test_raw_api_absence_types():
     params = {"limit": 200, "offset": 0}
     absence_types = personio.request_json('company/time-off-types', params=params)
     assert len(absence_types['data']) > 10
 
 
+@skip_if_no_auth
 def test_raw_api_absences():
     params = {
         "start_date": "2020-01-01",
@@ -49,11 +62,13 @@ def test_raw_api_absences():
     assert absences
 
 
+@skip_if_no_auth
 def test_get_employees():
     employees = personio.get_employees()
     assert len(employees) > 0
 
 
+@skip_if_no_auth
 def test_get_employee():
     employee = personio.get_employee(2007207)
     assert employee.first_name == 'Sebastian'
@@ -61,16 +76,17 @@ def test_get_employee():
     assert d
     response = personio.request_json(f'company/employees/2007207')
     api_attr = response['data']['attributes']
-    # TODO handle none values
     assert d == api_attr
 
 
+@skip_if_no_auth
 def test_get_employee_picture():
     employee = Employee(client=personio, id_=2007207)
     picture = employee.picture()
     assert picture
 
 
+@skip_if_no_auth
 def test_create_employee():
     ada = Employee(
         first_name='Ada',
@@ -90,11 +106,13 @@ def test_create_employee():
     assert ada_created.status == 'active'
 
 
+@skip_if_no_auth
 def test_get_absences():
-    absences = personio.get_absences(1460609)
+    absences = personio.get_absences(2007207)
     assert len(absences) > 0
 
 
+@skip_if_no_auth
 def test_get_attendances():
     attendances = personio.get_attendances(2007207)
     assert len(attendances) > 0
