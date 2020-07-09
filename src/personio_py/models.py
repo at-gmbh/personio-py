@@ -80,7 +80,8 @@ class PersonioResource:
 
     @classmethod
     def from_dict(cls, d: Dict[str, Any], client: 'Personio' = None) -> '__class__':
-        # TODO from/to dict should probably always serialize from/to the full dict, not a subset like d['attributes']
+        # TODO from/to dict should probably always serialize from/to the full dict,
+        #  not a subset like d['attributes']
         kwargs = cls._map_fields(d, client)
         return cls(client=client, **kwargs)
 

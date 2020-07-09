@@ -17,7 +17,8 @@ class MissingCredentialsError(PersonioError):
 class PersonioApiError(PersonioError):
     """An error response from the Personio HTTP API"""
 
-    def __init__(self, status_code: int, message: str, error_code: int = None, errors: Dict[str, Any] = None, response: Response = None):
+    def __init__(self, status_code: int, message: str, error_code: int = None,
+                 errors: Dict[str, Any] = None, response: Response = None):
         super().__init__()
         self.status_code = status_code
         self.message = message
@@ -39,7 +40,7 @@ class PersonioApiError(PersonioError):
                 error_code=code,
                 errors=error_dict,
                 response=response)
-        except ValueError as e:
+        except ValueError:
             return PersonioApiError(
                 status_code=response.status_code,
                 message=response.text,

@@ -5,6 +5,7 @@
 # testing
 pytest~=5.4.0
 pytest-cov~=2.8.0
+flake8
 
 # documentation
 sphinx~=3.0.4

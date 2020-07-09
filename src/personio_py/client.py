@@ -113,7 +113,7 @@ class Personio:
         if response.ok:
             try:
                 return response.json()
-            except ValueError as e:
+            except ValueError:
                 raise PersonioError(f"Failed to parse response as json: {response.text}")
         else:
             raise PersonioApiError.from_response(response)
@@ -168,6 +168,7 @@ class Personio:
         return self.request_image(path, auth_rotation=False)
 
     def create_employee(self, employee: Employee, refresh=True) -> Employee:
+        # TODO warn about limited selection of fields
         data = {
             'employee[email]': employee.email,
             'employee[first_name]': employee.first_name,
