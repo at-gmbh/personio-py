@@ -66,14 +66,18 @@ setup(
     author="Sebastian Straub",
     author_email="sebastian.straub@alexanderthamm.com",
     description="a lightweight Personio API client",
-    license="proprietary",
-    url="",
+    url="https://github.com/at-gmbh/personio-py",
+    project_urls={
+        #'Documentation': '...',
+        'Source': 'https://github.com/at-gmbh/personio-py',
+    },
     packages=find_packages("src"),
     package_dir={"": "src"},
     package_data={'personio_py': ['res/*']},
     long_description=read('README.md'),
+    long_description_content_type='text/markdown',
     install_requires=[
-        'requests~=2.23.0',
+        'requests>=2.21.0,<3.0.0',
     ],
     tests_require=[
         'pytest',
@@ -87,4 +91,21 @@ setup(
     },
     platforms='any',
     python_requires='>=3.7',
+    license='Apache 2.0',
+    classifiers=[
+        # Full list: https://pypi.python.org/pypi?%3Aaction=list_classifiers
+        'License :: OSI Approved :: Apache Software License',
+        'Development Status :: 4 - Beta',
+        'Intended Audience :: Developers',
+        'Topic :: Internet :: WWW/HTTP',
+        'Topic :: Office/Business',
+        'Topic :: Software Development :: Libraries :: Python Modules',
+        'Typing :: Typed',
+        'Programming Language :: Python',
+        'Programming Language :: Python :: 3',
+        'Programming Language :: Python :: 3 :: Only',
+        'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 3.8',
+        'Programming Language :: Python :: 3.9',
+    ],
 )
