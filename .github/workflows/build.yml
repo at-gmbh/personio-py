@@ -1,7 +1,4 @@
-# This workflow will install Python dependencies, run tests and lint with a variety of Python versions
-# For more information see: https://help.github.com/actions/language-and-framework-guides/using-python-with-github-actions
-
-name: Python package
+name: Python Test & Build
 
 on:
   push:
@@ -15,7 +12,8 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: [3.7, 3.8]
+        python-version: [3.7, 3.8, pypy3]
+    name: Test & Build on Python ${{ matrix.python-version }}
 
     steps:
     - uses: actions/checkout@v2
@@ -23,8 +21,11 @@ jobs:
       uses: actions/setup-python@v2
       with:
         python-version: ${{ matrix.python-version }}
+    - name: Display Python version
+      run: python -c "import sys; print(sys.version)"
     - name: Install dependencies
       run: |
+        # upgrade pip, install flake8 (for linting), pytest (for testing) and the personio-py package
         python -m pip install --upgrade pip
         pip install flake8 pytest
         pip install -r requirements.txt
@@ -33,9 +34,16 @@ jobs:
       run: |
         # stop the build if there are Python syntax errors or undefined names
         flake8 src --count --select=E9,F63,F7,F82 --show-source --statistics
-        # exit-zero treats all errors as warnings.
-        # ignore unused imports in __init__.py (F401) and line break after binary operator (W504)
+        # exit-zero treats all errors as warnings. ignore unused imports in __init__.py (F401) and line break after binary operator (W504)
         flake8 src --count --exit-zero --max-complexity=10 --max-line-length=100 --ignore=F401,W504 --statistics
     - name: Test with pytest
       run: |
-        pytest
+        pytest tests
+    - name: Build a distribution package (wheel)
+      run: |
+        python setup.py sdist bdist_wheel
+    - name: Store distribution package
+      uses: actions/upload-artifact@v2
+      with:
+        name: personio-py_${{ matrix.python-version }}
+        path: dist/
