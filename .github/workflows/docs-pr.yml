@@ -13,8 +13,8 @@ jobs:
     - uses: actions/checkout@v2
     - uses: ammaraskar/sphinx-action@master
       with:
-        build-command: "sphinx-build -b html . build"
         pre-build-command: "pip install sphinx_rtd_theme~=0.4.3 recommonmark~=0.6.0 m2r~=0.2.1"
+        build-command: "make html"
         docs-folder: "docs/"
     - uses: actions/upload-artifact@v2
       with:
