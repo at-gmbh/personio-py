@@ -6,11 +6,6 @@ on:
     # Push events to matching 'v*', i.e. 'v1.0', 'v20.15.10b5'
     - 'v*'
 
-  # TODO remove!
-  pull_request:
-    branches:
-      - master
-
 jobs:
   release:
     name: Create Release & Deploy on PyPI
@@ -26,11 +21,7 @@ jobs:
         pip install -r requirements.txt
         python setup.py sdist bdist_wheel
         cd dist
-        ls -l
         echo "::set-env name=WHEEL::$(ls *.whl)"
-    - name: Check that env WHEEL exists
-      run: |
-        echo "wheel: ${{ env.WHEEL }} or $WHEEL"
     - name: Create Release
       id: create_release
       uses: actions/create-release@v1
