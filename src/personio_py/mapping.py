@@ -1,3 +1,6 @@
+"""
+mappings from Personio API fields to Python data types and vice versa are defined in this module
+"""
 import logging
 import re
 from datetime import date, datetime, timedelta
@@ -14,6 +17,15 @@ T = TypeVar('T')
 
 
 class FieldMapping:
+    """
+    A generic mapping from a Personio API field to a Python object.
+    The default implementation works great for strings, but for more complex types,
+    please refer to the subclasses of ``FieldMapping``.
+
+    :param api_field: name of the field in the Personio API
+    :param class_field: name of the attribute in the target Python object
+    :param field_type: data type of the field
+    """
 
     def __init__(self, api_field: str, class_field: str, field_type: Type[T]):
         self.api_field = api_field
@@ -21,9 +33,22 @@ class FieldMapping:
         self.field_type = field_type
 
     def serialize(self, value: T) -> Union[str, Dict]:
+        """
+        Serialize the parsed value to the format that the Personio API expects.
+
+        :param value: the value to serialize
+        :return: the serialized value
+        """
         return str(value)
 
     def deserialize(self, value: Union[str, Dict], **kwargs) -> T:
+        """
+        Deserialize the Personio API value to a more useful Python data type.
+
+        :param value: the value as provided by the Personio API
+        :param kwargs: additional parameters (to be used by subclasses)
+        :return: the deserialized value
+        """
         return self.field_type(value)
 
     def __str__(self):

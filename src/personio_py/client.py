@@ -27,6 +27,7 @@ class Personio:
     """
 
     BASE_URL = "https://api.personio.de/v1/"
+    """base URL of the Personio HTTP API"""
 
     def __init__(self, base_url: str = None, client_id: str = None, client_secret: str = None,
                  dynamic_fields: List[DynamicMapping] = None):
@@ -38,6 +39,18 @@ class Personio:
         self.dynamic_fields = dynamic_fields
 
     def authenticate(self):
+        """
+        Try to authenticate (using Personio's ``/auth`` endpoint) with the credentials
+        (client ID and secret) that were provided to this instance.
+
+        There should be no need to explicitly call this function, because you will be automatically
+        authenticated when you make your first request.
+
+        If the authentication was successful, the authentication token is stored in the
+        headers dictionary (``self.headers``). This token will be sent with every request and
+        it will be automatically rotated whenever necessary.
+        If the authentication failed, a ``PersonioApiError`` will be raised.
+        """
         if not (self.client_id and self.client_secret):
             raise MissingCredentialsError(
                 "both client_id and client_secret must be provided in order to authenticate")
@@ -147,7 +160,7 @@ class Personio:
 
     def get_employees(self) -> List[Employee]:
         """
-        get employees
+        Get a list of all employee records in your account.
 
         :return: list of ``Employee`` instances
         """
@@ -156,18 +169,36 @@ class Personio:
         return employees
 
     def get_employee(self, employee_id: int) -> Employee:
+        """
+        Get a single employee with the specified ID.
+
+        :param employee_id: the Personio ID of the employee to fetch
+        :return: an ``Employee`` instance or a PersonioApiError, if the employee does not exist
+        """
         response = self.request_json(f'company/employees/{employee_id}')
         employee_dict = response['data']['attributes']
         employee = Employee.from_dict(employee_dict, self)
         return employee
 
     def get_employee_picture(self, employee_id: int, width: int = None) -> Optional[bytes]:
+        """
+        Get the profile picture of the employee with the specified ID as image file
+        (usually png or jpg).
+
+        :param employee_id: the Personio ID of the employee to fetch
+        :param width: optionally scale the profile picture to this width.
+               Defaults to the original width of the profile picture.
+        :return: the profile picture as png or jpg file (bytes)
+        """
         path = f'company/employees/{employee_id}/profile-picture'
         if width:
             path += f'/{width}'
         return self.request_image(path, auth_rotation=False)
 
     def create_employee(self, employee: Employee, refresh=True) -> Employee:
+        """
+        placeholder; not ready to be used
+        """
         # TODO warn about limited selection of fields
         data = {
             'employee[email]': employee.email,
@@ -187,11 +218,17 @@ class Personio:
             return employee
 
     def update_employee(self, employee: Employee):
+        """
+        placeholder; not ready to be used
+        """
         # TODO implement
         pass
 
     def get_attendances(self, employee_ids: Union[int, List[int]], start_date: datetime = None,
                         end_date: datetime = None) -> List[Attendance]:
+        """
+        placeholder; not ready to be used
+        """
         # TODO automatically resolve paginated requests
 
         employee_ids, start_date, end_date = self._normalize_timeframe_params(
@@ -208,25 +245,40 @@ class Personio:
         return attendances
 
     def create_attendances(self, attendances: List[Attendance]):
+        """
+        placeholder; not ready to be used
+        """
         # attendances can be created individually, but here you can push a huge bunch of items
         # in a single request, which can be significantly faster
         # TODO implement
         pass
 
     def update_attendance(self, attendance_id: int):
+        """
+        placeholder; not ready to be used
+        """
         # TODO implement
         pass
 
     def delete_attendance(self, attendance_id: int):
+        """
+        placeholder; not ready to be used
+        """
         # TODO implement
         pass
 
     def get_absence_types(self) -> List[AbsenceType]:
+        """
+        placeholder; not ready to be used
+        """
         # TODO implement
         pass
 
     def get_absences(self, employee_ids: Union[int, List[int]], start_date: datetime = None,
                      end_date: datetime = None) -> List[Absence]:
+        """
+        placeholder; not ready to be used
+        """
         # TODO automatically resolve paginated requests
 
         employee_ids, start_date, end_date = self._normalize_timeframe_params(
@@ -243,14 +295,23 @@ class Personio:
         return absences
 
     def get_absence(self, absence_id: int) -> Absence:
+        """
+        placeholder; not ready to be used
+        """
         # TODO implement
         pass
 
     def create_absence(self, absence: Absence):
+        """
+        placeholder; not ready to be used
+        """
         # TODO implement
         pass
 
     def delete_absence(self, absence_id: int):
+        """
+        placeholder; not ready to be used
+        """
         # TODO implement
         pass
 
@@ -258,6 +319,19 @@ class Personio:
     def _normalize_timeframe_params(
             cls, employee_ids: Union[int, List[int]], start_date: datetime = None,
             end_date: datetime = None) -> Tuple[List[int], datetime, datetime]:
+        """
+        Whenever we need a list of employee IDs, a start date and an end date, this function comes
+        in handy:
+
+        * wraps a single employee ID into a list
+        * sets the start date way into the past, if it was not provided
+        * sets the end date way into the future, if it was not provided
+
+        :param employee_ids: a single employee ID or a list of employee IDs
+        :param start_date: a start date (optional)
+        :param end_date: an end date (optional)
+        :return: a tuple of (list of employee IDs, start date, end date), no None values.
+        """
         if not employee_ids:
             raise ValueError("need at least one employee ID, got nothing")
         if start_date is None:

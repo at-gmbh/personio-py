@@ -1,3 +1,6 @@
+"""
+definition of ORMs for objects that are available in the Personio API
+"""
 import json
 import logging
 from collections import namedtuple
@@ -10,6 +13,7 @@ from personio_py.mapping import DateFieldMapping, DateTimeFieldMapping, Duration
     DynamicMapping, FieldMapping, ListFieldMapping, NumericFieldMapping, ObjectFieldMapping
 
 if TYPE_CHECKING:
+    # only type checkers may import Personio, otherwise we get an evil circular import error
     from personio_py import Personio
 
 logger = logging.getLogger('personio_py')

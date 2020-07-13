@@ -15,7 +15,16 @@ class MissingCredentialsError(PersonioError):
 
 
 class PersonioApiError(PersonioError):
-    """An error response from the Personio HTTP API"""
+    """
+    An error response from the Personio HTTP API
+
+    :param status_code: the HTTP status code of the API response
+    :param message: the error message from the Personio API
+    :param error_code: the error code that is provided with the Personio API response
+           (not the HTTP status code!)
+    :param errors: details about the errors that are provided by the Personio API as dictionary
+    :param response: the HTTP response
+    """
 
     def __init__(self, status_code: int, message: str, error_code: int = None,
                  errors: Dict[str, Any] = None, response: Response = None):
@@ -28,6 +37,12 @@ class PersonioApiError(PersonioError):
 
     @classmethod
     def from_response(cls, response: Response):
+        """
+        Creates a ``PersonioApiError`` from the specified HTTP response.
+
+        :param response: a HTTP error response from Personio
+        :return: a PersonioApiError that matches the HTTP error
+        """
         try:
             data: Dict = response.json()
             error = data.get('error', {})
