@@ -2,19 +2,26 @@ name: Python Test & Build
 
 on:
   push:
-    branches: [ master ]
+    branches:
+    - master
+    paths:
+    - '!docs/**'
+    - '!*.md'
   pull_request:
-    branches: [ master ]
+    branches:
+      - master
+    paths:
+      - '!docs/**'
+      - '!*.md'
 
 jobs:
-  build:
 
+  build:
     runs-on: ubuntu-latest
     strategy:
       matrix:
         python-version: [3.7, 3.8]
     name: Test & Build on Python ${{ matrix.python-version }}
-
     steps:
     - uses: actions/checkout@v2
     - name: Set up Python ${{ matrix.python-version }}
