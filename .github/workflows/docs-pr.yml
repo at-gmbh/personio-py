@@ -2,13 +2,15 @@ name: Sphinx Docs
 
 on:
   pull_request:
-    branches: [ master ]
+    branches:
+    - master
+    paths:
+    - 'docs/**'
 
 jobs:
-  build:
-
+  docs:
+    name: Generate Sphinx Docs
     runs-on: ubuntu-latest
-
     steps:
     - uses: actions/checkout@v2
     - uses: ammaraskar/sphinx-action@master
