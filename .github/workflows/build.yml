@@ -4,15 +4,9 @@ on:
   push:
     branches:
     - master
-    paths:
-    - '!docs/**'
-    - '!*.md'
   pull_request:
     branches:
       - master
-    paths:
-      - '!docs/**'
-      - '!*.md'
 
 jobs:
 
