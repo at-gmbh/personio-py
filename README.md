@@ -1,6 +1,8 @@
 # personio-py
 
-![build](https://github.com/at-gmbh/personio-py/workflows/build/badge.svg?branch=master&event=push)
+[![build](https://github.com/at-gmbh/personio-py/workflows/build/badge.svg?branch=master&event=push)](https://github.com/at-gmbh/personio-py/actions?query=workflow%3Abuild)
+[![PyPI version](https://badge.fury.io/py/personio-py.svg)](https://pypi.org/project/personio-py/)
+![PyPI - Python Version](https://img.shields.io/pypi/pyversions/personio-py)
 
 **personio-py** is a lightweight Personio API client library for Python. Also, it's pretty intuitive to use. But don't take my word for it, please have a look:
 
@@ -68,6 +70,8 @@ Before contributing code, please set up the pre-commit hooks to reduce errors an
 ## Contact
 
 Sebastian Straub (sebastian.straub [at] alexanderthamm.com)
+
+Developed with ❤ at [Alexander Thamm GmbH](https://www.alexanderthamm.com/)
 
 ## License
 
