@@ -30,11 +30,13 @@ jobs:
         path: docs/build/html/
     - name: Commit Documentation Changes
       run: |
+        set -uex
         # clone just branch "gh-pages" in local folder "gh-pages"
         git clone https://github.com/at-gmbh/personio-py --branch gh-pages --single-branch gh-pages
         # delete existing files
         cd gh-pages
-        rm -v !(".git"|"README.md")
+        shopt -s extglob
+        rm -r !(".git"|"README.md")
         cd ..
         # copy new files
         cp -r docs/build/html/* gh-pages/
