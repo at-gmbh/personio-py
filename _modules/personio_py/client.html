@@ -1,0 +1,534 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>personio_py.client &mdash; personio-py  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> personio-py
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../guide.html">User Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api.html">API Documentation</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">personio-py</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content style-external-links">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+        
+      <li>personio_py.client</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for personio_py.client</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Union</span>
+<span class="kn">from</span> <span class="nn">urllib.parse</span> <span class="kn">import</span> <span class="n">urljoin</span>
+
+<span class="kn">import</span> <span class="nn">requests</span>
+<span class="kn">from</span> <span class="nn">requests</span> <span class="kn">import</span> <span class="n">Response</span>
+
+<span class="kn">from</span> <span class="nn">personio_py</span> <span class="kn">import</span> <span class="n">Absence</span><span class="p">,</span> <span class="n">AbsenceType</span><span class="p">,</span> <span class="n">Attendance</span><span class="p">,</span> <span class="n">DynamicMapping</span><span class="p">,</span> <span class="n">Employee</span>
+<span class="kn">from</span> <span class="nn">personio_py.errors</span> <span class="kn">import</span> <span class="n">MissingCredentialsError</span><span class="p">,</span> <span class="n">PersonioApiError</span><span class="p">,</span> <span class="n">PersonioError</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s1">&#39;personio_py&#39;</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="Personio"><a class="viewcode-back" href="../../api.html#personio_py.Personio">[docs]</a><span class="k">class</span> <span class="nc">Personio</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    the Personio API client.</span>
+
+<span class="sd">    :param base_url: use this custom base URL instead of the default https://api.personio.de/v1/</span>
+<span class="sd">    :param client_id: the client id for API authentication</span>
+<span class="sd">           (if not provided, defaults to the ``CLIENT_ID`` environment variable)</span>
+<span class="sd">    :param client_secret: the client secret for API authentication</span>
+<span class="sd">           (if not provided, defaults to the ``CLIENT_SECRET`` environment variable)</span>
+<span class="sd">    :param dynamic_fields: definition of expected dynamic fields.</span>
+<span class="sd">           List of :py:class:`DynamicMapping` tuples.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">BASE_URL</span> <span class="o">=</span> <span class="s2">&quot;https://api.personio.de/v1/&quot;</span>
+    <span class="sd">&quot;&quot;&quot;base URL of the Personio HTTP API&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">base_url</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">client_id</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">client_secret</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                 <span class="n">dynamic_fields</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">DynamicMapping</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">base_url</span> <span class="o">=</span> <span class="n">base_url</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">BASE_URL</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">client_id</span> <span class="o">=</span> <span class="n">client_id</span> <span class="ow">or</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s1">&#39;CLIENT_ID&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">client_secret</span> <span class="o">=</span> <span class="n">client_secret</span> <span class="ow">or</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s1">&#39;CLIENT_SECRET&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">headers</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;accept&#39;</span><span class="p">:</span> <span class="s1">&#39;application/json&#39;</span><span class="p">}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">authenticated</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dynamic_fields</span> <span class="o">=</span> <span class="n">dynamic_fields</span>
+
+<div class="viewcode-block" id="Personio.authenticate"><a class="viewcode-back" href="../../api.html#personio_py.Personio.authenticate">[docs]</a>    <span class="k">def</span> <span class="nf">authenticate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Try to authenticate (using Personio&#39;s ``/auth`` endpoint) with the credentials</span>
+<span class="sd">        (client ID and secret) that were provided to this instance.</span>
+
+<span class="sd">        There should be no need to explicitly call this function, because you will be automatically</span>
+<span class="sd">        authenticated when you make your first request.</span>
+
+<span class="sd">        If the authentication was successful, the authentication token is stored in the</span>
+<span class="sd">        headers dictionary (``self.headers``). This token will be sent with every request and</span>
+<span class="sd">        it will be automatically rotated whenever necessary.</span>
+<span class="sd">        If the authentication failed, a ``PersonioApiError`` will be raised.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">client_id</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">client_secret</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">MissingCredentialsError</span><span class="p">(</span>
+                <span class="s2">&quot;both client_id and client_secret must be provided in order to authenticate&quot;</span><span class="p">)</span>
+        <span class="n">url</span> <span class="o">=</span> <span class="n">urljoin</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">base_url</span><span class="p">,</span> <span class="s1">&#39;auth&#39;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;authenticating to </span><span class="si">{url}</span><span class="s2"> with client_id </span><span class="si">{self.client_id}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">params</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;client_id&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">client_id</span><span class="p">,</span> <span class="s2">&quot;client_secret&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">client_secret</span><span class="p">}</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">request</span><span class="p">(</span><span class="s2">&quot;POST&quot;</span><span class="p">,</span> <span class="n">url</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">headers</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">response</span><span class="o">.</span><span class="n">ok</span><span class="p">:</span>
+            <span class="n">token</span> <span class="o">=</span> <span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()[</span><span class="s1">&#39;data&#39;</span><span class="p">][</span><span class="s1">&#39;token&#39;</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">headers</span><span class="p">[</span><span class="s1">&#39;Authorization&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Bearer </span><span class="si">{token}</span><span class="s2">&quot;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">authenticated</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">PersonioApiError</span><span class="o">.</span><span class="n">from_response</span><span class="p">(</span><span class="n">response</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Personio.request"><a class="viewcode-back" href="../../api.html#personio_py.Personio.request">[docs]</a>    <span class="k">def</span> <span class="nf">request</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s1">&#39;GET&#39;</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                <span class="n">data</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">headers</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                <span class="n">auth_rotation</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Response</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Make a request against the Personio API.</span>
+<span class="sd">        Returns the HTTP response, which might be successful or not.</span>
+
+<span class="sd">        Rotation of authorization tokens is handled in this function. If no token is available</span>
+<span class="sd">        (first request of this instance), the ``authenticate()`` function is called. On subsequent</span>
+<span class="sd">        requests, the new authorization token is read from the response headers and replaces the</span>
+<span class="sd">        previous one. Note that this behavior can be turned off by setting auth_rotation=False,</span>
+<span class="sd">        which is required for some requests that do not return a new authorization token.</span>
+
+<span class="sd">        :param path: the URL path for this request (relative to the Personio API base URL)</span>
+<span class="sd">        :param method: the HTTP request method (default: GET)</span>
+<span class="sd">        :param params: dictionary of URL parameters (optional)</span>
+<span class="sd">        :param data: dictionary of data to send in the request body (optional)</span>
+<span class="sd">        :param headers: additional request headers (authentication is handled separately)</span>
+<span class="sd">        :param auth_rotation: set to True, if authentication keys should be rotated</span>
+<span class="sd">               during this request (default: True)</span>
+<span class="sd">        :return: the HTTP response (the caller is responsible for handling HTTP errors)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># check if we are already authenticated</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">authenticated</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">authenticate</span><span class="p">()</span>
+        <span class="c1"># define headers</span>
+        <span class="n">_headers</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">headers</span>
+        <span class="k">if</span> <span class="n">headers</span><span class="p">:</span>
+            <span class="n">_headers</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">headers</span><span class="p">)</span>
+        <span class="c1"># make the request</span>
+        <span class="n">url</span> <span class="o">=</span> <span class="n">urljoin</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">base_url</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">request</span><span class="p">(</span><span class="n">method</span><span class="p">,</span> <span class="n">url</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="n">_headers</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">)</span>
+        <span class="c1"># re-new the authorization header</span>
+        <span class="n">authorization</span> <span class="o">=</span> <span class="n">response</span><span class="o">.</span><span class="n">headers</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;Authorization&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">authorization</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">headers</span><span class="p">[</span><span class="s1">&#39;Authorization&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">authorization</span>
+        <span class="k">elif</span> <span class="n">auth_rotation</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">PersonioError</span><span class="p">(</span><span class="s2">&quot;Missing Authorization Header in response&quot;</span><span class="p">)</span>
+        <span class="c1"># return the response, let the caller handle any issues</span>
+        <span class="k">return</span> <span class="n">response</span></div>
+
+<div class="viewcode-block" id="Personio.request_json"><a class="viewcode-back" href="../../api.html#personio_py.Personio.request_json">[docs]</a>    <span class="k">def</span> <span class="nf">request_json</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s1">&#39;GET&#39;</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                     <span class="n">data</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">auth_rotation</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Make a request against the Personio API, expecting a json response.</span>
+<span class="sd">        Returns the parsed json response as dictionary. Will raise a PersonioApiError if the</span>
+<span class="sd">        request fails.</span>
+
+<span class="sd">        :param path: the URL path for this request (relative to the Personio API base URL)</span>
+<span class="sd">        :param method: the HTTP request method (default: GET)</span>
+<span class="sd">        :param params: dictionary of URL parameters (optional)</span>
+<span class="sd">        :param data: dictionary of data to send in the request body (optional)</span>
+<span class="sd">        :param auth_rotation: set to True, if authentication keys should be rotated</span>
+<span class="sd">               during this request (default: True for json requests)</span>
+<span class="sd">        :return: the parsed json response, when the request was successful, or a PersonioApiError</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">headers</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;accept&#39;</span><span class="p">:</span> <span class="s1">&#39;application/json&#39;</span><span class="p">}</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">request</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">method</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">headers</span><span class="p">,</span> <span class="n">auth_rotation</span><span class="o">=</span><span class="n">auth_rotation</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">response</span><span class="o">.</span><span class="n">ok</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
+            <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">PersonioError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Failed to parse response as json: </span><span class="si">{response.text}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">PersonioApiError</span><span class="o">.</span><span class="n">from_response</span><span class="p">(</span><span class="n">response</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Personio.request_image"><a class="viewcode-back" href="../../api.html#personio_py.Personio.request_image">[docs]</a>    <span class="k">def</span> <span class="nf">request_image</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s1">&#39;GET&#39;</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                      <span class="n">auth_rotation</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bytes</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Request an image file (as png or jpg) from the Personio API.</span>
+<span class="sd">        Returns the image as byte array, or None, if no image is available for this resource</span>
+<span class="sd">        (HTTP status 404).</span>
+<span class="sd">        When any other errors occur, a PersonioApiError is raised.</span>
+
+<span class="sd">        :param path: the URL path for this request (relative to the Personio API base URL)</span>
+<span class="sd">        :param method: the HTTP request method (default: GET)</span>
+<span class="sd">        :param params: dictionary of URL parameters (optional)</span>
+<span class="sd">        :param auth_rotation: set to True, if authentication keys should be rotated</span>
+<span class="sd">               during this request (default: False for image requests)</span>
+<span class="sd">        :return: the image (bytes) or None, if no image is available</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">headers</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;accept&#39;</span><span class="p">:</span> <span class="s1">&#39;image/png, image/jpeg&#39;</span><span class="p">}</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">request</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">method</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="n">headers</span><span class="p">,</span> <span class="n">auth_rotation</span><span class="o">=</span><span class="n">auth_rotation</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">response</span><span class="o">.</span><span class="n">ok</span><span class="p">:</span>
+            <span class="c1"># great, we have our image as png or jpg</span>
+            <span class="k">return</span> <span class="n">response</span><span class="o">.</span><span class="n">content</span>
+        <span class="k">elif</span> <span class="n">response</span><span class="o">.</span><span class="n">status_code</span> <span class="o">==</span> <span class="mi">404</span><span class="p">:</span>
+            <span class="c1"># no image? how disappointing...</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># oh noes, something went terribly wrong!</span>
+            <span class="k">raise</span> <span class="n">PersonioApiError</span><span class="o">.</span><span class="n">from_response</span><span class="p">(</span><span class="n">response</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Personio.get_employees"><a class="viewcode-back" href="../../api.html#personio_py.Personio.get_employees">[docs]</a>    <span class="k">def</span> <span class="nf">get_employees</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Employee</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get a list of all employee records in your account.</span>
+
+<span class="sd">        :return: list of ``Employee`` instances</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">request_json</span><span class="p">(</span><span class="s1">&#39;company/employees&#39;</span><span class="p">)</span>
+        <span class="n">employees</span> <span class="o">=</span> <span class="p">[</span><span class="n">Employee</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;attributes&#39;</span><span class="p">],</span> <span class="bp">self</span><span class="p">)</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">response</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">]]</span>
+        <span class="k">return</span> <span class="n">employees</span></div>
+
+<div class="viewcode-block" id="Personio.get_employee"><a class="viewcode-back" href="../../api.html#personio_py.Personio.get_employee">[docs]</a>    <span class="k">def</span> <span class="nf">get_employee</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">employee_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Employee</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get a single employee with the specified ID.</span>
+
+<span class="sd">        :param employee_id: the Personio ID of the employee to fetch</span>
+<span class="sd">        :return: an ``Employee`` instance or a PersonioApiError, if the employee does not exist</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">request_json</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;company/employees/</span><span class="si">{employee_id}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="n">employee_dict</span> <span class="o">=</span> <span class="n">response</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">][</span><span class="s1">&#39;attributes&#39;</span><span class="p">]</span>
+        <span class="n">employee</span> <span class="o">=</span> <span class="n">Employee</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">employee_dict</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">employee</span></div>
+
+<div class="viewcode-block" id="Personio.get_employee_picture"><a class="viewcode-back" href="../../api.html#personio_py.Personio.get_employee_picture">[docs]</a>    <span class="k">def</span> <span class="nf">get_employee_picture</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">employee_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">width</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bytes</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the profile picture of the employee with the specified ID as image file</span>
+<span class="sd">        (usually png or jpg).</span>
+
+<span class="sd">        :param employee_id: the Personio ID of the employee to fetch</span>
+<span class="sd">        :param width: optionally scale the profile picture to this width.</span>
+<span class="sd">               Defaults to the original width of the profile picture.</span>
+<span class="sd">        :return: the profile picture as png or jpg file (bytes)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;company/employees/</span><span class="si">{employee_id}</span><span class="s1">/profile-picture&#39;</span>
+        <span class="k">if</span> <span class="n">width</span><span class="p">:</span>
+            <span class="n">path</span> <span class="o">+=</span> <span class="sa">f</span><span class="s1">&#39;/</span><span class="si">{width}</span><span class="s1">&#39;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">request_image</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">auth_rotation</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Personio.create_employee"><a class="viewcode-back" href="../../api.html#personio_py.Personio.create_employee">[docs]</a>    <span class="k">def</span> <span class="nf">create_employee</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">employee</span><span class="p">:</span> <span class="n">Employee</span><span class="p">,</span> <span class="n">refresh</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Employee</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        placeholder; not ready to be used</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># TODO warn about limited selection of fields</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;employee[email]&#39;</span><span class="p">:</span> <span class="n">employee</span><span class="o">.</span><span class="n">email</span><span class="p">,</span>
+            <span class="s1">&#39;employee[first_name]&#39;</span><span class="p">:</span> <span class="n">employee</span><span class="o">.</span><span class="n">first_name</span><span class="p">,</span>
+            <span class="s1">&#39;employee[last_name]&#39;</span><span class="p">:</span> <span class="n">employee</span><span class="o">.</span><span class="n">last_name</span><span class="p">,</span>
+            <span class="s1">&#39;employee[gender]&#39;</span><span class="p">:</span> <span class="n">employee</span><span class="o">.</span><span class="n">gender</span><span class="p">,</span>
+            <span class="s1">&#39;employee[position]&#39;</span><span class="p">:</span> <span class="n">employee</span><span class="o">.</span><span class="n">position</span><span class="p">,</span>
+            <span class="s1">&#39;employee[department]&#39;</span><span class="p">:</span> <span class="n">employee</span><span class="o">.</span><span class="n">department</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+            <span class="s1">&#39;employee[hire_date]&#39;</span><span class="p">:</span> <span class="n">employee</span><span class="o">.</span><span class="n">hire_date</span><span class="o">.</span><span class="n">isoformat</span><span class="p">()[:</span><span class="mi">10</span><span class="p">],</span>
+            <span class="s1">&#39;employee[weekly_hours]&#39;</span><span class="p">:</span> <span class="n">employee</span><span class="o">.</span><span class="n">weekly_working_hours</span><span class="p">,</span>
+        <span class="p">}</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">request_json</span><span class="p">(</span><span class="s1">&#39;company/employees&#39;</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s1">&#39;POST&#39;</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">)</span>
+        <span class="n">employee</span><span class="o">.</span><span class="n">id_</span> <span class="o">=</span> <span class="n">response</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">][</span><span class="s1">&#39;id&#39;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">refresh</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_employee</span><span class="p">(</span><span class="n">employee</span><span class="o">.</span><span class="n">id_</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">employee</span></div>
+
+<div class="viewcode-block" id="Personio.update_employee"><a class="viewcode-back" href="../../api.html#personio_py.Personio.update_employee">[docs]</a>    <span class="k">def</span> <span class="nf">update_employee</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">employee</span><span class="p">:</span> <span class="n">Employee</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        placeholder; not ready to be used</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># TODO implement</span>
+        <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="Personio.get_attendances"><a class="viewcode-back" href="../../api.html#personio_py.Personio.get_attendances">[docs]</a>    <span class="k">def</span> <span class="nf">get_attendances</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">employee_ids</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]],</span> <span class="n">start_date</span><span class="p">:</span> <span class="n">datetime</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                        <span class="n">end_date</span><span class="p">:</span> <span class="n">datetime</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Attendance</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        placeholder; not ready to be used</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># TODO automatically resolve paginated requests</span>
+
+        <span class="n">employee_ids</span><span class="p">,</span> <span class="n">start_date</span><span class="p">,</span> <span class="n">end_date</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_normalize_timeframe_params</span><span class="p">(</span>
+            <span class="n">employee_ids</span><span class="p">,</span> <span class="n">start_date</span><span class="p">,</span> <span class="n">end_date</span><span class="p">)</span>
+        <span class="n">params</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;start_date&quot;</span><span class="p">:</span> <span class="n">start_date</span><span class="o">.</span><span class="n">isoformat</span><span class="p">()[:</span><span class="mi">10</span><span class="p">],</span>
+            <span class="s2">&quot;end_date&quot;</span><span class="p">:</span> <span class="n">end_date</span><span class="o">.</span><span class="n">isoformat</span><span class="p">()[:</span><span class="mi">10</span><span class="p">],</span>
+            <span class="s2">&quot;employees[]&quot;</span><span class="p">:</span> <span class="n">employee_ids</span><span class="p">,</span>
+            <span class="s2">&quot;limit&quot;</span><span class="p">:</span> <span class="mi">200</span><span class="p">,</span>
+            <span class="s2">&quot;offset&quot;</span><span class="p">:</span> <span class="mi">0</span>
+        <span class="p">}</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">request_json</span><span class="p">(</span><span class="s1">&#39;company/attendances&#39;</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">)</span>
+        <span class="n">attendances</span> <span class="o">=</span> <span class="p">[</span><span class="n">Attendance</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">response</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">]]</span>
+        <span class="k">return</span> <span class="n">attendances</span></div>
+
+<div class="viewcode-block" id="Personio.create_attendances"><a class="viewcode-back" href="../../api.html#personio_py.Personio.create_attendances">[docs]</a>    <span class="k">def</span> <span class="nf">create_attendances</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attendances</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Attendance</span><span class="p">]):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        placeholder; not ready to be used</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># attendances can be created individually, but here you can push a huge bunch of items</span>
+        <span class="c1"># in a single request, which can be significantly faster</span>
+        <span class="c1"># TODO implement</span>
+        <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="Personio.update_attendance"><a class="viewcode-back" href="../../api.html#personio_py.Personio.update_attendance">[docs]</a>    <span class="k">def</span> <span class="nf">update_attendance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attendance_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        placeholder; not ready to be used</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># TODO implement</span>
+        <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="Personio.delete_attendance"><a class="viewcode-back" href="../../api.html#personio_py.Personio.delete_attendance">[docs]</a>    <span class="k">def</span> <span class="nf">delete_attendance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attendance_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        placeholder; not ready to be used</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># TODO implement</span>
+        <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="Personio.get_absence_types"><a class="viewcode-back" href="../../api.html#personio_py.Personio.get_absence_types">[docs]</a>    <span class="k">def</span> <span class="nf">get_absence_types</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">AbsenceType</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        placeholder; not ready to be used</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># TODO implement</span>
+        <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="Personio.get_absences"><a class="viewcode-back" href="../../api.html#personio_py.Personio.get_absences">[docs]</a>    <span class="k">def</span> <span class="nf">get_absences</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">employee_ids</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]],</span> <span class="n">start_date</span><span class="p">:</span> <span class="n">datetime</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                     <span class="n">end_date</span><span class="p">:</span> <span class="n">datetime</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Absence</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        placeholder; not ready to be used</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># TODO automatically resolve paginated requests</span>
+
+        <span class="n">employee_ids</span><span class="p">,</span> <span class="n">start_date</span><span class="p">,</span> <span class="n">end_date</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_normalize_timeframe_params</span><span class="p">(</span>
+            <span class="n">employee_ids</span><span class="p">,</span> <span class="n">start_date</span><span class="p">,</span> <span class="n">end_date</span><span class="p">)</span>
+        <span class="n">params</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;start_date&quot;</span><span class="p">:</span> <span class="n">start_date</span><span class="o">.</span><span class="n">isoformat</span><span class="p">()[:</span><span class="mi">10</span><span class="p">],</span>
+            <span class="s2">&quot;end_date&quot;</span><span class="p">:</span> <span class="n">end_date</span><span class="o">.</span><span class="n">isoformat</span><span class="p">()[:</span><span class="mi">10</span><span class="p">],</span>
+            <span class="s2">&quot;employees[]&quot;</span><span class="p">:</span> <span class="n">employee_ids</span><span class="p">,</span>
+            <span class="s2">&quot;limit&quot;</span><span class="p">:</span> <span class="mi">200</span><span class="p">,</span>
+            <span class="s2">&quot;offset&quot;</span><span class="p">:</span> <span class="mi">0</span>
+        <span class="p">}</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">request_json</span><span class="p">(</span><span class="s1">&#39;company/time-offs&#39;</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">)</span>
+        <span class="n">absences</span> <span class="o">=</span> <span class="p">[</span><span class="n">Absence</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;attributes&#39;</span><span class="p">],</span> <span class="bp">self</span><span class="p">)</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">response</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">]]</span>
+        <span class="k">return</span> <span class="n">absences</span></div>
+
+<div class="viewcode-block" id="Personio.get_absence"><a class="viewcode-back" href="../../api.html#personio_py.Personio.get_absence">[docs]</a>    <span class="k">def</span> <span class="nf">get_absence</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">absence_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Absence</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        placeholder; not ready to be used</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># TODO implement</span>
+        <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="Personio.create_absence"><a class="viewcode-back" href="../../api.html#personio_py.Personio.create_absence">[docs]</a>    <span class="k">def</span> <span class="nf">create_absence</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">absence</span><span class="p">:</span> <span class="n">Absence</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        placeholder; not ready to be used</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># TODO implement</span>
+        <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="Personio.delete_absence"><a class="viewcode-back" href="../../api.html#personio_py.Personio.delete_absence">[docs]</a>    <span class="k">def</span> <span class="nf">delete_absence</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">absence_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        placeholder; not ready to be used</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># TODO implement</span>
+        <span class="k">pass</span></div>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">_normalize_timeframe_params</span><span class="p">(</span>
+            <span class="bp">cls</span><span class="p">,</span> <span class="n">employee_ids</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]],</span> <span class="n">start_date</span><span class="p">:</span> <span class="n">datetime</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">end_date</span><span class="p">:</span> <span class="n">datetime</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">datetime</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Whenever we need a list of employee IDs, a start date and an end date, this function comes</span>
+<span class="sd">        in handy:</span>
+
+<span class="sd">        * wraps a single employee ID into a list</span>
+<span class="sd">        * sets the start date way into the past, if it was not provided</span>
+<span class="sd">        * sets the end date way into the future, if it was not provided</span>
+
+<span class="sd">        :param employee_ids: a single employee ID or a list of employee IDs</span>
+<span class="sd">        :param start_date: a start date (optional)</span>
+<span class="sd">        :param end_date: an end date (optional)</span>
+<span class="sd">        :return: a tuple of (list of employee IDs, start date, end date), no None values.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">employee_ids</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;need at least one employee ID, got nothing&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">start_date</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">start_date</span> <span class="o">=</span> <span class="n">datetime</span><span class="p">(</span><span class="mi">1900</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">end_date</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">end_date</span> <span class="o">=</span> <span class="n">datetime</span><span class="p">(</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">year</span> <span class="o">+</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">employee_ids</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+            <span class="n">employee_ids</span> <span class="o">=</span> <span class="p">[</span><span class="n">employee_ids</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">employee_ids</span><span class="p">,</span> <span class="n">start_date</span><span class="p">,</span> <span class="n">end_date</span></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2020, Alexander Thamm GmbH
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

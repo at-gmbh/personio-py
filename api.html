@@ -1,0 +1,1055 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>API &mdash; personio-py  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="Changelog" href="changelog.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> personio-py
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="guide.html">User Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="changelog.html">Changelog</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">API Documentation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#personio">Personio</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-personio_py.models">models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-personio_py.mapping">mapping</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#errors">Errors</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">personio-py</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content style-external-links">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>API</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/api.md.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="api">
+<h1>API<a class="headerlink" href="#api" title="Permalink to this headline">¶</a></h1>
+<p>🚧 this page is still a work in progress 🚧</p>
+<p>If you’d like to make a contribution, please join the project <a class="reference external" href="https://github.com/at-gmbh/personio-py">on GitHub</a></p>
+<div class="section" id="personio">
+<h2>Personio<a class="headerlink" href="#personio" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="personio_py.Personio">
+<em class="property">class </em><code class="sig-prename descclassname">personio_py.</code><code class="sig-name descname">Personio</code><span class="sig-paren">(</span><em class="sig-param">base_url: str = None</em>, <em class="sig-param">client_id: str = None</em>, <em class="sig-param">client_secret: str = None</em>, <em class="sig-param">dynamic_fields: List[personio_py.mapping.DynamicMapping] = None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/personio_py/client.html#Personio"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#personio_py.Personio" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>the Personio API client.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>base_url</strong> – use this custom base URL instead of the default <a class="reference external" href="https://api.personio.de/v1/">https://api.personio.de/v1/</a></p></li>
+<li><p><strong>client_id</strong> – the client id for API authentication
+(if not provided, defaults to the <code class="docutils literal notranslate"><span class="pre">CLIENT_ID</span></code> environment variable)</p></li>
+<li><p><strong>client_secret</strong> – the client secret for API authentication
+(if not provided, defaults to the <code class="docutils literal notranslate"><span class="pre">CLIENT_SECRET</span></code> environment variable)</p></li>
+<li><p><strong>dynamic_fields</strong> – definition of expected dynamic fields.
+List of <code class="xref py py-class docutils literal notranslate"><span class="pre">DynamicMapping</span></code> tuples.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="method">
+<dt id="personio_py.Personio.authenticate">
+<code class="sig-name descname">authenticate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/personio_py/client.html#Personio.authenticate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#personio_py.Personio.authenticate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Try to authenticate (using Personio’s <code class="docutils literal notranslate"><span class="pre">/auth</span></code> endpoint) with the credentials
+(client ID and secret) that were provided to this instance.</p>
+<p>There should be no need to explicitly call this function, because you will be automatically
+authenticated when you make your first request.</p>
+<p>If the authentication was successful, the authentication token is stored in the
+headers dictionary (<code class="docutils literal notranslate"><span class="pre">self.headers</span></code>). This token will be sent with every request and
+it will be automatically rotated whenever necessary.
+If the authentication failed, a <code class="docutils literal notranslate"><span class="pre">PersonioApiError</span></code> will be raised.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="personio_py.Personio.create_absence">
+<code class="sig-name descname">create_absence</code><span class="sig-paren">(</span><em class="sig-param">absence: personio_py.models.Absence</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/personio_py/client.html#Personio.create_absence"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#personio_py.Personio.create_absence" title="Permalink to this definition">¶</a></dt>
+<dd><p>placeholder; not ready to be used</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="personio_py.Personio.create_attendances">
+<code class="sig-name descname">create_attendances</code><span class="sig-paren">(</span><em class="sig-param">attendances: List[personio_py.models.Attendance]</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/personio_py/client.html#Personio.create_attendances"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#personio_py.Personio.create_attendances" title="Permalink to this definition">¶</a></dt>
+<dd><p>placeholder; not ready to be used</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="personio_py.Personio.create_employee">
+<code class="sig-name descname">create_employee</code><span class="sig-paren">(</span><em class="sig-param">employee: personio_py.models.Employee</em>, <em class="sig-param">refresh=True</em><span class="sig-paren">)</span> &#x2192; personio_py.models.Employee<a class="reference internal" href="_modules/personio_py/client.html#Personio.create_employee"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#personio_py.Personio.create_employee" title="Permalink to this definition">¶</a></dt>
+<dd><p>placeholder; not ready to be used</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="personio_py.Personio.delete_absence">
+<code class="sig-name descname">delete_absence</code><span class="sig-paren">(</span><em class="sig-param">absence_id: int</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/personio_py/client.html#Personio.delete_absence"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#personio_py.Personio.delete_absence" title="Permalink to this definition">¶</a></dt>
+<dd><p>placeholder; not ready to be used</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="personio_py.Personio.delete_attendance">
+<code class="sig-name descname">delete_attendance</code><span class="sig-paren">(</span><em class="sig-param">attendance_id: int</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/personio_py/client.html#Personio.delete_attendance"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#personio_py.Personio.delete_attendance" title="Permalink to this definition">¶</a></dt>
+<dd><p>placeholder; not ready to be used</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="personio_py.Personio.get_absence">
+<code class="sig-name descname">get_absence</code><span class="sig-paren">(</span><em class="sig-param">absence_id: int</em><span class="sig-paren">)</span> &#x2192; personio_py.models.Absence<a class="reference internal" href="_modules/personio_py/client.html#Personio.get_absence"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#personio_py.Personio.get_absence" title="Permalink to this definition">¶</a></dt>
+<dd><p>placeholder; not ready to be used</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="personio_py.Personio.get_absence_types">
+<code class="sig-name descname">get_absence_types</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; List[personio_py.models.AbsenceType]<a class="reference internal" href="_modules/personio_py/client.html#Personio.get_absence_types"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#personio_py.Personio.get_absence_types" title="Permalink to this definition">¶</a></dt>
+<dd><p>placeholder; not ready to be used</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="personio_py.Personio.get_absences">
+<code class="sig-name descname">get_absences</code><span class="sig-paren">(</span><em class="sig-param">employee_ids: Union[int, List[int]], start_date: datetime.datetime = None, end_date: datetime.datetime = None</em><span class="sig-paren">)</span> &#x2192; List[personio_py.models.Absence]<a class="reference internal" href="_modules/personio_py/client.html#Personio.get_absences"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#personio_py.Personio.get_absences" title="Permalink to this definition">¶</a></dt>
+<dd><p>placeholder; not ready to be used</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="personio_py.Personio.get_attendances">
+<code class="sig-name descname">get_attendances</code><span class="sig-paren">(</span><em class="sig-param">employee_ids: Union[int, List[int]], start_date: datetime.datetime = None, end_date: datetime.datetime = None</em><span class="sig-paren">)</span> &#x2192; List[personio_py.models.Attendance]<a class="reference internal" href="_modules/personio_py/client.html#Personio.get_attendances"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#personio_py.Personio.get_attendances" title="Permalink to this definition">¶</a></dt>
+<dd><p>placeholder; not ready to be used</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="personio_py.Personio.get_employee">
+<code class="sig-name descname">get_employee</code><span class="sig-paren">(</span><em class="sig-param">employee_id: int</em><span class="sig-paren">)</span> &#x2192; personio_py.models.Employee<a class="reference internal" href="_modules/personio_py/client.html#Personio.get_employee"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#personio_py.Personio.get_employee" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get a single employee with the specified ID.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>employee_id</strong> – the Personio ID of the employee to fetch</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>an <code class="docutils literal notranslate"><span class="pre">Employee</span></code> instance or a PersonioApiError, if the employee does not exist</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="personio_py.Personio.get_employee_picture">
+<code class="sig-name descname">get_employee_picture</code><span class="sig-paren">(</span><em class="sig-param">employee_id: int</em>, <em class="sig-param">width: int = None</em><span class="sig-paren">)</span> &#x2192; Optional[bytes]<a class="reference internal" href="_modules/personio_py/client.html#Personio.get_employee_picture"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#personio_py.Personio.get_employee_picture" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the profile picture of the employee with the specified ID as image file
+(usually png or jpg).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>employee_id</strong> – the Personio ID of the employee to fetch</p></li>
+<li><p><strong>width</strong> – optionally scale the profile picture to this width.
+Defaults to the original width of the profile picture.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>the profile picture as png or jpg file (bytes)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="personio_py.Personio.get_employees">
+<code class="sig-name descname">get_employees</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; List[personio_py.models.Employee]<a class="reference internal" href="_modules/personio_py/client.html#Personio.get_employees"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#personio_py.Personio.get_employees" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get a list of all employee records in your account.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>list of <code class="docutils literal notranslate"><span class="pre">Employee</span></code> instances</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="personio_py.Personio.request">
+<code class="sig-name descname">request</code><span class="sig-paren">(</span><em class="sig-param">path: str</em>, <em class="sig-param">method='GET'</em>, <em class="sig-param">params: Dict[str</em>, <em class="sig-param">Any] = None</em>, <em class="sig-param">data: Dict[str</em>, <em class="sig-param">Any] = None</em>, <em class="sig-param">headers: Dict[str</em>, <em class="sig-param">str] = None</em>, <em class="sig-param">auth_rotation=True</em><span class="sig-paren">)</span> &#x2192; requests.models.Response<a class="reference internal" href="_modules/personio_py/client.html#Personio.request"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#personio_py.Personio.request" title="Permalink to this definition">¶</a></dt>
+<dd><p>Make a request against the Personio API.
+Returns the HTTP response, which might be successful or not.</p>
+<p>Rotation of authorization tokens is handled in this function. If no token is available
+(first request of this instance), the <code class="docutils literal notranslate"><span class="pre">authenticate()</span></code> function is called. On subsequent
+requests, the new authorization token is read from the response headers and replaces the
+previous one. Note that this behavior can be turned off by setting auth_rotation=False,
+which is required for some requests that do not return a new authorization token.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>path</strong> – the URL path for this request (relative to the Personio API base URL)</p></li>
+<li><p><strong>method</strong> – the HTTP request method (default: GET)</p></li>
+<li><p><strong>params</strong> – dictionary of URL parameters (optional)</p></li>
+<li><p><strong>data</strong> – dictionary of data to send in the request body (optional)</p></li>
+<li><p><strong>headers</strong> – additional request headers (authentication is handled separately)</p></li>
+<li><p><strong>auth_rotation</strong> – set to True, if authentication keys should be rotated
+during this request (default: True)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>the HTTP response (the caller is responsible for handling HTTP errors)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="personio_py.Personio.request_image">
+<code class="sig-name descname">request_image</code><span class="sig-paren">(</span><em class="sig-param">path: str</em>, <em class="sig-param">method='GET'</em>, <em class="sig-param">params: Dict[str</em>, <em class="sig-param">Any] = None</em>, <em class="sig-param">auth_rotation=False</em><span class="sig-paren">)</span> &#x2192; Optional[bytes]<a class="reference internal" href="_modules/personio_py/client.html#Personio.request_image"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#personio_py.Personio.request_image" title="Permalink to this definition">¶</a></dt>
+<dd><p>Request an image file (as png or jpg) from the Personio API.
+Returns the image as byte array, or None, if no image is available for this resource
+(HTTP status 404).
+When any other errors occur, a PersonioApiError is raised.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>path</strong> – the URL path for this request (relative to the Personio API base URL)</p></li>
+<li><p><strong>method</strong> – the HTTP request method (default: GET)</p></li>
+<li><p><strong>params</strong> – dictionary of URL parameters (optional)</p></li>
+<li><p><strong>auth_rotation</strong> – set to True, if authentication keys should be rotated
+during this request (default: False for image requests)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>the image (bytes) or None, if no image is available</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="personio_py.Personio.request_json">
+<code class="sig-name descname">request_json</code><span class="sig-paren">(</span><em class="sig-param">path: str</em>, <em class="sig-param">method='GET'</em>, <em class="sig-param">params: Dict[str</em>, <em class="sig-param">Any] = None</em>, <em class="sig-param">data: Dict[str</em>, <em class="sig-param">Any] = None</em>, <em class="sig-param">auth_rotation=True</em><span class="sig-paren">)</span> &#x2192; Dict[str, Any]<a class="reference internal" href="_modules/personio_py/client.html#Personio.request_json"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#personio_py.Personio.request_json" title="Permalink to this definition">¶</a></dt>
+<dd><p>Make a request against the Personio API, expecting a json response.
+Returns the parsed json response as dictionary. Will raise a PersonioApiError if the
+request fails.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>path</strong> – the URL path for this request (relative to the Personio API base URL)</p></li>
+<li><p><strong>method</strong> – the HTTP request method (default: GET)</p></li>
+<li><p><strong>params</strong> – dictionary of URL parameters (optional)</p></li>
+<li><p><strong>data</strong> – dictionary of data to send in the request body (optional)</p></li>
+<li><p><strong>auth_rotation</strong> – set to True, if authentication keys should be rotated
+during this request (default: True for json requests)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>the parsed json response, when the request was successful, or a PersonioApiError</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="personio_py.Personio.update_attendance">
+<code class="sig-name descname">update_attendance</code><span class="sig-paren">(</span><em class="sig-param">attendance_id: int</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/personio_py/client.html#Personio.update_attendance"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#personio_py.Personio.update_attendance" title="Permalink to this definition">¶</a></dt>
+<dd><p>placeholder; not ready to be used</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="personio_py.Personio.update_employee">
+<code class="sig-name descname">update_employee</code><span class="sig-paren">(</span><em class="sig-param">employee: personio_py.models.Employee</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/personio_py/client.html#Personio.update_employee"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#personio_py.Personio.update_employee" title="Permalink to this definition">¶</a></dt>
+<dd><p>placeholder; not ready to be used</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-personio_py.models">
+<span id="models"></span><h2>models<a class="headerlink" href="#module-personio_py.models" title="Permalink to this headline">¶</a></h2>
+<p>definition of ORMs for objects that are available in the Personio API</p>
+<dl class="class">
+<dt id="personio_py.models.Absence">
+<em class="property">class </em><code class="sig-prename descclassname">personio_py.models.</code><code class="sig-name descname">Absence</code><span class="sig-paren">(</span><em class="sig-param">client: Personio = None</em>, <em class="sig-param">dynamic: Dict[str</em>, <em class="sig-param">Any] = None</em>, <em class="sig-param">dynamic_raw: List[DynamicAttr] = None</em>, <em class="sig-param">id_: int = None</em>, <em class="sig-param">status: str = None</em>, <em class="sig-param">comment: str = None</em>, <em class="sig-param">start_date: datetime.datetime = None</em>, <em class="sig-param">end_date: datetime.datetime = None</em>, <em class="sig-param">days_count: float = None</em>, <em class="sig-param">half_day_start: float = None</em>, <em class="sig-param">half_day_end: float = None</em>, <em class="sig-param">time_off_type: personio_py.models.AbsenceType = None</em>, <em class="sig-param">employee: personio_py.models.ShortEmployee = None</em>, <em class="sig-param">created_by: str = None</em>, <em class="sig-param">certificate: personio_py.models.Certificate = None</em>, <em class="sig-param">created_at: datetime.datetime = None</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/personio_py/models.html#Absence"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#personio_py.models.Absence" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#personio_py.models.WritablePersonioResource" title="personio_py.models.WritablePersonioResource"><code class="xref py py-class docutils literal notranslate"><span class="pre">personio_py.models.WritablePersonioResource</span></code></a></p>
+</dd></dl>
+
+<dl class="class">
+<dt id="personio_py.models.AbsenceEntitlement">
+<em class="property">class </em><code class="sig-prename descclassname">personio_py.models.</code><code class="sig-name descname">AbsenceEntitlement</code><span class="sig-paren">(</span><em class="sig-param">id_: int = None</em>, <em class="sig-param">name: str = None</em>, <em class="sig-param">entitlement: float = None</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/personio_py/models.html#AbsenceEntitlement"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#personio_py.models.AbsenceEntitlement" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#personio_py.models.PersonioResource" title="personio_py.models.PersonioResource"><code class="xref py py-class docutils literal notranslate"><span class="pre">personio_py.models.PersonioResource</span></code></a></p>
+</dd></dl>
+
+<dl class="class">
+<dt id="personio_py.models.AbsenceType">
+<em class="property">class </em><code class="sig-prename descclassname">personio_py.models.</code><code class="sig-name descname">AbsenceType</code><span class="sig-paren">(</span><em class="sig-param">id_: int = None</em>, <em class="sig-param">name: str = None</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/personio_py/models.html#AbsenceType"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#personio_py.models.AbsenceType" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#personio_py.models.PersonioResource" title="personio_py.models.PersonioResource"><code class="xref py py-class docutils literal notranslate"><span class="pre">personio_py.models.PersonioResource</span></code></a></p>
+</dd></dl>
+
+<dl class="class">
+<dt id="personio_py.models.Attendance">
+<em class="property">class </em><code class="sig-prename descclassname">personio_py.models.</code><code class="sig-name descname">Attendance</code><span class="sig-paren">(</span><em class="sig-param">client: Personio = None</em>, <em class="sig-param">dynamic: Dict[str</em>, <em class="sig-param">Any] = None</em>, <em class="sig-param">dynamic_raw: List[DynamicAttr] = None</em>, <em class="sig-param">id_: int = None</em>, <em class="sig-param">employee_id: int = None</em>, <em class="sig-param">date: datetime.datetime = None</em>, <em class="sig-param">start_time: str = None</em>, <em class="sig-param">end_time: str = None</em>, <em class="sig-param">break_duration: int = None</em>, <em class="sig-param">comment: str = None</em>, <em class="sig-param">is_holiday: bool = None</em>, <em class="sig-param">is_on_time_off: bool = None</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/personio_py/models.html#Attendance"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#personio_py.models.Attendance" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#personio_py.models.WritablePersonioResource" title="personio_py.models.WritablePersonioResource"><code class="xref py py-class docutils literal notranslate"><span class="pre">personio_py.models.WritablePersonioResource</span></code></a></p>
+<dl class="method">
+<dt id="personio_py.models.Attendance.from_dict">
+<em class="property">classmethod </em><code class="sig-name descname">from_dict</code><span class="sig-paren">(</span><em class="sig-param">d: Dict[str, Any], client: Personio = None, dynamic_fields: List[personio_py.mapping.DynamicMapping] = None</em><span class="sig-paren">)</span> &#x2192; __class__<a class="reference internal" href="_modules/personio_py/models.html#Attendance.from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#personio_py.models.Attendance.from_dict" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="personio_py.models.Certificate">
+<em class="property">class </em><code class="sig-prename descclassname">personio_py.models.</code><code class="sig-name descname">Certificate</code><span class="sig-paren">(</span><em class="sig-param">status: str = None</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/personio_py/models.html#Certificate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#personio_py.models.Certificate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#personio_py.models.PersonioResource" title="personio_py.models.PersonioResource"><code class="xref py py-class docutils literal notranslate"><span class="pre">personio_py.models.PersonioResource</span></code></a></p>
+</dd></dl>
+
+<dl class="class">
+<dt id="personio_py.models.CostCenter">
+<em class="property">class </em><code class="sig-prename descclassname">personio_py.models.</code><code class="sig-name descname">CostCenter</code><span class="sig-paren">(</span><em class="sig-param">id_: int = None</em>, <em class="sig-param">name: str = None</em>, <em class="sig-param">percentage: float = None</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/personio_py/models.html#CostCenter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#personio_py.models.CostCenter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#personio_py.models.PersonioResource" title="personio_py.models.PersonioResource"><code class="xref py py-class docutils literal notranslate"><span class="pre">personio_py.models.PersonioResource</span></code></a></p>
+</dd></dl>
+
+<dl class="class">
+<dt id="personio_py.models.Department">
+<em class="property">class </em><code class="sig-prename descclassname">personio_py.models.</code><code class="sig-name descname">Department</code><span class="sig-paren">(</span><em class="sig-param">id_: int = None</em>, <em class="sig-param">name: str = None</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/personio_py/models.html#Department"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#personio_py.models.Department" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#personio_py.models.PersonioResource" title="personio_py.models.PersonioResource"><code class="xref py py-class docutils literal notranslate"><span class="pre">personio_py.models.PersonioResource</span></code></a></p>
+</dd></dl>
+
+<dl class="class">
+<dt id="personio_py.models.DynamicAttr">
+<em class="property">class </em><code class="sig-prename descclassname">personio_py.models.</code><code class="sig-name descname">DynamicAttr</code><span class="sig-paren">(</span><em class="sig-param">field_id</em>, <em class="sig-param">label</em>, <em class="sig-param">value</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/personio_py/models.html#DynamicAttr"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#personio_py.models.DynamicAttr" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code></p>
+<dl class="method">
+<dt id="personio_py.models.DynamicAttr.clone">
+<code class="sig-name descname">clone</code><span class="sig-paren">(</span><em class="sig-param">new_value: Optional[Any] = None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/personio_py/models.html#DynamicAttr.clone"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#personio_py.models.DynamicAttr.clone" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="personio_py.models.DynamicAttr.field_id">
+<code class="sig-name descname">field_id</code><a class="headerlink" href="#personio_py.models.DynamicAttr.field_id" title="Permalink to this definition">¶</a></dt>
+<dd><p>Alias for field number 0</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="personio_py.models.DynamicAttr.from_attributes">
+<em class="property">classmethod </em><code class="sig-name descname">from_attributes</code><span class="sig-paren">(</span><em class="sig-param">d: Dict[str, Dict[str, Any]]</em><span class="sig-paren">)</span> &#x2192; List[personio_py.models.DynamicAttr]<a class="reference internal" href="_modules/personio_py/models.html#DynamicAttr.from_attributes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#personio_py.models.DynamicAttr.from_attributes" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="personio_py.models.DynamicAttr.from_dict">
+<em class="property">classmethod </em><code class="sig-name descname">from_dict</code><span class="sig-paren">(</span><em class="sig-param">key: str, d: Dict[str, Any]</em><span class="sig-paren">)</span> &#x2192; personio_py.models.DynamicAttr<a class="reference internal" href="_modules/personio_py/models.html#DynamicAttr.from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#personio_py.models.DynamicAttr.from_dict" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="personio_py.models.DynamicAttr.label">
+<code class="sig-name descname">label</code><a class="headerlink" href="#personio_py.models.DynamicAttr.label" title="Permalink to this definition">¶</a></dt>
+<dd><p>Alias for field number 1</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="personio_py.models.DynamicAttr.to_attributes">
+<em class="property">classmethod </em><code class="sig-name descname">to_attributes</code><span class="sig-paren">(</span><em class="sig-param">dyn_attrs: List[DynamicAttr]</em><span class="sig-paren">)</span> &#x2192; Dict[str, Dict[str, Any]]<a class="reference internal" href="_modules/personio_py/models.html#DynamicAttr.to_attributes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#personio_py.models.DynamicAttr.to_attributes" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="personio_py.models.DynamicAttr.to_dict">
+<code class="sig-name descname">to_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; Dict[str, Any]<a class="reference internal" href="_modules/personio_py/models.html#DynamicAttr.to_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#personio_py.models.DynamicAttr.to_dict" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="personio_py.models.DynamicAttr.value">
+<code class="sig-name descname">value</code><a class="headerlink" href="#personio_py.models.DynamicAttr.value" title="Permalink to this definition">¶</a></dt>
+<dd><p>Alias for field number 2</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="personio_py.models.Employee">
+<em class="property">class </em><code class="sig-prename descclassname">personio_py.models.</code><code class="sig-name descname">Employee</code><span class="sig-paren">(</span><em class="sig-param">client: Personio = None</em>, <em class="sig-param">dynamic: Dict[str</em>, <em class="sig-param">Any] = None</em>, <em class="sig-param">dynamic_raw: List[DynamicAttr] = None</em>, <em class="sig-param">id_: int = None</em>, <em class="sig-param">first_name: str = None</em>, <em class="sig-param">last_name: str = None</em>, <em class="sig-param">email: str = None</em>, <em class="sig-param">gender: str = None</em>, <em class="sig-param">status: str = None</em>, <em class="sig-param">position: str = None</em>, <em class="sig-param">supervisor: personio_py.models.ShortEmployee = None</em>, <em class="sig-param">employment_type: str = None</em>, <em class="sig-param">weekly_working_hours: str = None</em>, <em class="sig-param">hire_date: datetime.datetime = None</em>, <em class="sig-param">contract_end_date: datetime.datetime = None</em>, <em class="sig-param">termination_date: datetime.datetime = None</em>, <em class="sig-param">termination_type: str = None</em>, <em class="sig-param">termination_reason: str = None</em>, <em class="sig-param">probation_period_end: datetime.datetime = None</em>, <em class="sig-param">created_at: datetime.datetime = None</em>, <em class="sig-param">last_modified_at: datetime.datetime = None</em>, <em class="sig-param">subcompany: str = None</em>, <em class="sig-param">office: personio_py.models.Office = None</em>, <em class="sig-param">department: personio_py.models.Department = None</em>, <em class="sig-param">cost_centers: List[personio_py.models.CostCenter] = None</em>, <em class="sig-param">holiday_calendar: personio_py.models.HolidayCalendar = None</em>, <em class="sig-param">absence_entitlement: List[personio_py.models.AbsenceEntitlement] = None</em>, <em class="sig-param">work_schedule: personio_py.models.WorkSchedule = None</em>, <em class="sig-param">fix_salary: float = None</em>, <em class="sig-param">fix_salary_interval: str = None</em>, <em class="sig-param">hourly_salary: float = None</em>, <em class="sig-param">vacation_day_balance: float = None</em>, <em class="sig-param">last_working_day: datetime.datetime = None</em>, <em class="sig-param">profile_picture: str = None</em>, <em class="sig-param">team: personio_py.models.Team = None</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/personio_py/models.html#Employee"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#personio_py.models.Employee" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#personio_py.models.WritablePersonioResource" title="personio_py.models.WritablePersonioResource"><code class="xref py py-class docutils literal notranslate"><span class="pre">personio_py.models.WritablePersonioResource</span></code></a>, <a class="reference internal" href="#personio_py.models.LabeledAttributesMixin" title="personio_py.models.LabeledAttributesMixin"><code class="xref py py-class docutils literal notranslate"><span class="pre">personio_py.models.LabeledAttributesMixin</span></code></a></p>
+<dl class="method">
+<dt id="personio_py.models.Employee.picture">
+<code class="sig-name descname">picture</code><span class="sig-paren">(</span><em class="sig-param">client: Personio = None</em>, <em class="sig-param">width: int = None</em><span class="sig-paren">)</span> &#x2192; bytes<a class="reference internal" href="_modules/personio_py/models.html#Employee.picture"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#personio_py.models.Employee.picture" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="personio_py.models.HolidayCalendar">
+<em class="property">class </em><code class="sig-prename descclassname">personio_py.models.</code><code class="sig-name descname">HolidayCalendar</code><span class="sig-paren">(</span><em class="sig-param">id_: int = None</em>, <em class="sig-param">name: str = None</em>, <em class="sig-param">country: str = None</em>, <em class="sig-param">state: str = None</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/personio_py/models.html#HolidayCalendar"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#personio_py.models.HolidayCalendar" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#personio_py.models.PersonioResource" title="personio_py.models.PersonioResource"><code class="xref py py-class docutils literal notranslate"><span class="pre">personio_py.models.PersonioResource</span></code></a></p>
+</dd></dl>
+
+<dl class="class">
+<dt id="personio_py.models.LabeledAttributesMixin">
+<em class="property">class </em><code class="sig-prename descclassname">personio_py.models.</code><code class="sig-name descname">LabeledAttributesMixin</code><span class="sig-paren">(</span><em class="sig-param">*args</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/personio_py/models.html#LabeledAttributesMixin"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#personio_py.models.LabeledAttributesMixin" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#personio_py.models.PersonioResource" title="personio_py.models.PersonioResource"><code class="xref py py-class docutils literal notranslate"><span class="pre">personio_py.models.PersonioResource</span></code></a></p>
+<dl class="method">
+<dt id="personio_py.models.LabeledAttributesMixin.to_dict">
+<code class="sig-name descname">to_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; Dict[str, Any]<a class="reference internal" href="_modules/personio_py/models.html#LabeledAttributesMixin.to_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#personio_py.models.LabeledAttributesMixin.to_dict" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="personio_py.models.Office">
+<em class="property">class </em><code class="sig-prename descclassname">personio_py.models.</code><code class="sig-name descname">Office</code><span class="sig-paren">(</span><em class="sig-param">id_: int = None</em>, <em class="sig-param">name: str = None</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/personio_py/models.html#Office"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#personio_py.models.Office" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#personio_py.models.PersonioResource" title="personio_py.models.PersonioResource"><code class="xref py py-class docutils literal notranslate"><span class="pre">personio_py.models.PersonioResource</span></code></a></p>
+</dd></dl>
+
+<dl class="class">
+<dt id="personio_py.models.PersonioResource">
+<em class="property">class </em><code class="sig-prename descclassname">personio_py.models.</code><code class="sig-name descname">PersonioResource</code><span class="sig-paren">(</span><em class="sig-param">client: Personio = None</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/personio_py/models.html#PersonioResource"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#personio_py.models.PersonioResource" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="method">
+<dt id="personio_py.models.PersonioResource.from_dict">
+<em class="property">classmethod </em><code class="sig-name descname">from_dict</code><span class="sig-paren">(</span><em class="sig-param">d: Dict[str, Any], client: Personio = None</em><span class="sig-paren">)</span> &#x2192; __class__<a class="reference internal" href="_modules/personio_py/models.html#PersonioResource.from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#personio_py.models.PersonioResource.from_dict" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="personio_py.models.PersonioResource.to_dict">
+<code class="sig-name descname">to_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; Dict[str, Any]<a class="reference internal" href="_modules/personio_py/models.html#PersonioResource.to_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#personio_py.models.PersonioResource.to_dict" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="personio_py.models.PersonioResource.to_tuple">
+<code class="sig-name descname">to_tuple</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; Tuple<a class="reference internal" href="_modules/personio_py/models.html#PersonioResource.to_tuple"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#personio_py.models.PersonioResource.to_tuple" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="personio_py.models.ShortEmployee">
+<em class="property">class </em><code class="sig-prename descclassname">personio_py.models.</code><code class="sig-name descname">ShortEmployee</code><span class="sig-paren">(</span><em class="sig-param">client: Personio = None</em>, <em class="sig-param">id_: int = None</em>, <em class="sig-param">first_name: str = None</em>, <em class="sig-param">last_name: str = None</em>, <em class="sig-param">email: str = None</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/personio_py/models.html#ShortEmployee"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#personio_py.models.ShortEmployee" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#personio_py.models.LabeledAttributesMixin" title="personio_py.models.LabeledAttributesMixin"><code class="xref py py-class docutils literal notranslate"><span class="pre">personio_py.models.LabeledAttributesMixin</span></code></a></p>
+<dl class="method">
+<dt id="personio_py.models.ShortEmployee.resolve">
+<code class="sig-name descname">resolve</code><span class="sig-paren">(</span><em class="sig-param">client: Personio = None</em><span class="sig-paren">)</span> &#x2192; Employee<a class="reference internal" href="_modules/personio_py/models.html#ShortEmployee.resolve"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#personio_py.models.ShortEmployee.resolve" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="personio_py.models.Team">
+<em class="property">class </em><code class="sig-prename descclassname">personio_py.models.</code><code class="sig-name descname">Team</code><span class="sig-paren">(</span><em class="sig-param">id_: int = None</em>, <em class="sig-param">name: str = None</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/personio_py/models.html#Team"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#personio_py.models.Team" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#personio_py.models.PersonioResource" title="personio_py.models.PersonioResource"><code class="xref py py-class docutils literal notranslate"><span class="pre">personio_py.models.PersonioResource</span></code></a></p>
+</dd></dl>
+
+<dl class="class">
+<dt id="personio_py.models.WorkSchedule">
+<em class="property">class </em><code class="sig-prename descclassname">personio_py.models.</code><code class="sig-name descname">WorkSchedule</code><span class="sig-paren">(</span><em class="sig-param">id_: int = None</em>, <em class="sig-param">name: str = None</em>, <em class="sig-param">valid_from: datetime.datetime = None</em>, <em class="sig-param">monday: datetime.timedelta = None</em>, <em class="sig-param">tuesday: datetime.timedelta = None</em>, <em class="sig-param">wednesday: datetime.timedelta = None</em>, <em class="sig-param">thursday: datetime.timedelta = None</em>, <em class="sig-param">friday: datetime.timedelta = None</em>, <em class="sig-param">saturday: datetime.timedelta = None</em>, <em class="sig-param">sunday: datetime.timedelta = None</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/personio_py/models.html#WorkSchedule"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#personio_py.models.WorkSchedule" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#personio_py.models.PersonioResource" title="personio_py.models.PersonioResource"><code class="xref py py-class docutils literal notranslate"><span class="pre">personio_py.models.PersonioResource</span></code></a></p>
+</dd></dl>
+
+<dl class="class">
+<dt id="personio_py.models.WritablePersonioResource">
+<em class="property">class </em><code class="sig-prename descclassname">personio_py.models.</code><code class="sig-name descname">WritablePersonioResource</code><span class="sig-paren">(</span><em class="sig-param">client: Personio = None</em>, <em class="sig-param">dynamic: List[DynamicAttr] = None</em>, <em class="sig-param">dynamic_fields: List[personio_py.mapping.DynamicMapping] = None</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/personio_py/models.html#WritablePersonioResource"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#personio_py.models.WritablePersonioResource" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#personio_py.models.PersonioResource" title="personio_py.models.PersonioResource"><code class="xref py py-class docutils literal notranslate"><span class="pre">personio_py.models.PersonioResource</span></code></a></p>
+<dl class="method">
+<dt id="personio_py.models.WritablePersonioResource.create">
+<code class="sig-name descname">create</code><span class="sig-paren">(</span><em class="sig-param">client: Personio = None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/personio_py/models.html#WritablePersonioResource.create"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#personio_py.models.WritablePersonioResource.create" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="personio_py.models.WritablePersonioResource.delete">
+<code class="sig-name descname">delete</code><span class="sig-paren">(</span><em class="sig-param">client: Personio = None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/personio_py/models.html#WritablePersonioResource.delete"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#personio_py.models.WritablePersonioResource.delete" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="personio_py.models.WritablePersonioResource.from_dict">
+<em class="property">classmethod </em><code class="sig-name descname">from_dict</code><span class="sig-paren">(</span><em class="sig-param">d: Dict[str, Any], client: Personio = None, dynamic_fields: List[personio_py.mapping.DynamicMapping] = None</em><span class="sig-paren">)</span> &#x2192; __class__<a class="reference internal" href="_modules/personio_py/models.html#WritablePersonioResource.from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#personio_py.models.WritablePersonioResource.from_dict" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="personio_py.models.WritablePersonioResource.to_dict">
+<code class="sig-name descname">to_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; Dict[str, Any]<a class="reference internal" href="_modules/personio_py/models.html#WritablePersonioResource.to_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#personio_py.models.WritablePersonioResource.to_dict" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="personio_py.models.WritablePersonioResource.update">
+<code class="sig-name descname">update</code><span class="sig-paren">(</span><em class="sig-param">client: Personio = None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/personio_py/models.html#WritablePersonioResource.update"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#personio_py.models.WritablePersonioResource.update" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="personio_py.models.get_client">
+<code class="sig-prename descclassname">personio_py.models.</code><code class="sig-name descname">get_client</code><span class="sig-paren">(</span><em class="sig-param">resource: personio_py.models.PersonioResource</em>, <em class="sig-param">client: Personio = None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/personio_py/models.html#get_client"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#personio_py.models.get_client" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-personio_py.mapping">
+<span id="mapping"></span><h2>mapping<a class="headerlink" href="#module-personio_py.mapping" title="Permalink to this headline">¶</a></h2>
+<p>mappings from Personio API fields to Python data types and vice versa are defined in this module</p>
+<dl class="class">
+<dt id="personio_py.mapping.DateFieldMapping">
+<em class="property">class </em><code class="sig-prename descclassname">personio_py.mapping.</code><code class="sig-name descname">DateFieldMapping</code><span class="sig-paren">(</span><em class="sig-param">api_field: str</em>, <em class="sig-param">class_field: str</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/personio_py/mapping.html#DateFieldMapping"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#personio_py.mapping.DateFieldMapping" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#personio_py.mapping.FieldMapping" title="personio_py.mapping.FieldMapping"><code class="xref py py-class docutils literal notranslate"><span class="pre">personio_py.mapping.FieldMapping</span></code></a></p>
+<dl class="method">
+<dt id="personio_py.mapping.DateFieldMapping.deserialize">
+<code class="sig-name descname">deserialize</code><span class="sig-paren">(</span><em class="sig-param">value: str</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span> &#x2192; datetime.date<a class="reference internal" href="_modules/personio_py/mapping.html#DateFieldMapping.deserialize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#personio_py.mapping.DateFieldMapping.deserialize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Deserialize the Personio API value to a more useful Python data type.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>value</strong> – the value as provided by the Personio API</p></li>
+<li><p><strong>kwargs</strong> – additional parameters (to be used by subclasses)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>the deserialized value</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="personio_py.mapping.DateFieldMapping.serialize">
+<code class="sig-name descname">serialize</code><span class="sig-paren">(</span><em class="sig-param">value: datetime.datetime</em><span class="sig-paren">)</span> &#x2192; str<a class="reference internal" href="_modules/personio_py/mapping.html#DateFieldMapping.serialize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#personio_py.mapping.DateFieldMapping.serialize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Serialize the parsed value to the format that the Personio API expects.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>value</strong> – the value to serialize</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>the serialized value</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="personio_py.mapping.DateTimeFieldMapping">
+<em class="property">class </em><code class="sig-prename descclassname">personio_py.mapping.</code><code class="sig-name descname">DateTimeFieldMapping</code><span class="sig-paren">(</span><em class="sig-param">api_field: str</em>, <em class="sig-param">class_field: str</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/personio_py/mapping.html#DateTimeFieldMapping"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#personio_py.mapping.DateTimeFieldMapping" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#personio_py.mapping.FieldMapping" title="personio_py.mapping.FieldMapping"><code class="xref py py-class docutils literal notranslate"><span class="pre">personio_py.mapping.FieldMapping</span></code></a></p>
+<dl class="method">
+<dt id="personio_py.mapping.DateTimeFieldMapping.deserialize">
+<code class="sig-name descname">deserialize</code><span class="sig-paren">(</span><em class="sig-param">value: str</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span> &#x2192; datetime.datetime<a class="reference internal" href="_modules/personio_py/mapping.html#DateTimeFieldMapping.deserialize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#personio_py.mapping.DateTimeFieldMapping.deserialize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Deserialize the Personio API value to a more useful Python data type.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>value</strong> – the value as provided by the Personio API</p></li>
+<li><p><strong>kwargs</strong> – additional parameters (to be used by subclasses)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>the deserialized value</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="personio_py.mapping.DateTimeFieldMapping.serialize">
+<code class="sig-name descname">serialize</code><span class="sig-paren">(</span><em class="sig-param">value: datetime.datetime</em><span class="sig-paren">)</span> &#x2192; str<a class="reference internal" href="_modules/personio_py/mapping.html#DateTimeFieldMapping.serialize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#personio_py.mapping.DateTimeFieldMapping.serialize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Serialize the parsed value to the format that the Personio API expects.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>value</strong> – the value to serialize</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>the serialized value</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="personio_py.mapping.DurationFieldMapping">
+<em class="property">class </em><code class="sig-prename descclassname">personio_py.mapping.</code><code class="sig-name descname">DurationFieldMapping</code><span class="sig-paren">(</span><em class="sig-param">api_field: str</em>, <em class="sig-param">class_field: str</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/personio_py/mapping.html#DurationFieldMapping"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#personio_py.mapping.DurationFieldMapping" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#personio_py.mapping.FieldMapping" title="personio_py.mapping.FieldMapping"><code class="xref py py-class docutils literal notranslate"><span class="pre">personio_py.mapping.FieldMapping</span></code></a></p>
+<dl class="method">
+<dt id="personio_py.mapping.DurationFieldMapping.deserialize">
+<code class="sig-name descname">deserialize</code><span class="sig-paren">(</span><em class="sig-param">value: str</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span> &#x2192; datetime.timedelta<a class="reference internal" href="_modules/personio_py/mapping.html#DurationFieldMapping.deserialize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#personio_py.mapping.DurationFieldMapping.deserialize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Deserialize the Personio API value to a more useful Python data type.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>value</strong> – the value as provided by the Personio API</p></li>
+<li><p><strong>kwargs</strong> – additional parameters (to be used by subclasses)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>the deserialized value</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="personio_py.mapping.DurationFieldMapping.pattern">
+<code class="sig-name descname">pattern</code><em class="property"> = re.compile('\\d\\d?:\\d\\d')</em><a class="headerlink" href="#personio_py.mapping.DurationFieldMapping.pattern" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="personio_py.mapping.DurationFieldMapping.serialize">
+<code class="sig-name descname">serialize</code><span class="sig-paren">(</span><em class="sig-param">value: datetime.timedelta</em><span class="sig-paren">)</span> &#x2192; str<a class="reference internal" href="_modules/personio_py/mapping.html#DurationFieldMapping.serialize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#personio_py.mapping.DurationFieldMapping.serialize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Serialize the parsed value to the format that the Personio API expects.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>value</strong> – the value to serialize</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>the serialized value</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="personio_py.mapping.DurationFieldMapping.str_to_timedelta">
+<em class="property">classmethod </em><code class="sig-name descname">str_to_timedelta</code><span class="sig-paren">(</span><em class="sig-param">s: str</em><span class="sig-paren">)</span> &#x2192; datetime.timedelta<a class="reference internal" href="_modules/personio_py/mapping.html#DurationFieldMapping.str_to_timedelta"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#personio_py.mapping.DurationFieldMapping.str_to_timedelta" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="personio_py.mapping.DynamicMapping">
+<em class="property">class </em><code class="sig-prename descclassname">personio_py.mapping.</code><code class="sig-name descname">DynamicMapping</code><a class="reference internal" href="_modules/personio_py/mapping.html#DynamicMapping"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#personio_py.mapping.DynamicMapping" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code></p>
+<p>Defines a mapping from a dynamic field to a more memorable name and its actual data type,
+so that it may be converted into a proper python type, if possible.</p>
+<dl class="attribute">
+<dt id="personio_py.mapping.DynamicMapping.alias">
+<code class="sig-name descname">alias</code><a class="headerlink" href="#personio_py.mapping.DynamicMapping.alias" title="Permalink to this definition">¶</a></dt>
+<dd><p>a more memorable name than the field_id, will be used as dictionary key</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="personio_py.mapping.DynamicMapping.data_type">
+<code class="sig-name descname">data_type</code><a class="headerlink" href="#personio_py.mapping.DynamicMapping.data_type" title="Permalink to this definition">¶</a></dt>
+<dd><p>the data type of the field, for automatic conversion (e.g. str to datetime)</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="personio_py.mapping.DynamicMapping.field_id">
+<code class="sig-name descname">field_id</code><a class="headerlink" href="#personio_py.mapping.DynamicMapping.field_id" title="Permalink to this definition">¶</a></dt>
+<dd><p>the id number of the dynamic field, e.g. for ‘dynamic_123456’, field_id=123456</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="personio_py.mapping.DynamicMapping.get_field_mapping">
+<code class="sig-name descname">get_field_mapping</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; FieldMappingType<a class="reference internal" href="_modules/personio_py/mapping.html#DynamicMapping.get_field_mapping"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#personio_py.mapping.DynamicMapping.get_field_mapping" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="personio_py.mapping.FieldMapping">
+<em class="property">class </em><code class="sig-prename descclassname">personio_py.mapping.</code><code class="sig-name descname">FieldMapping</code><span class="sig-paren">(</span><em class="sig-param">api_field: str, class_field: str, field_type: Type[T]</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/personio_py/mapping.html#FieldMapping"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#personio_py.mapping.FieldMapping" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>A generic mapping from a Personio API field to a Python object.
+The default implementation works great for strings, but for more complex types,
+please refer to the subclasses of <code class="docutils literal notranslate"><span class="pre">FieldMapping</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>api_field</strong> – name of the field in the Personio API</p></li>
+<li><p><strong>class_field</strong> – name of the attribute in the target Python object</p></li>
+<li><p><strong>field_type</strong> – data type of the field</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="method">
+<dt id="personio_py.mapping.FieldMapping.deserialize">
+<code class="sig-name descname">deserialize</code><span class="sig-paren">(</span><em class="sig-param">value: Union[str, Dict], **kwargs</em><span class="sig-paren">)</span> &#x2192; T<a class="reference internal" href="_modules/personio_py/mapping.html#FieldMapping.deserialize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#personio_py.mapping.FieldMapping.deserialize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Deserialize the Personio API value to a more useful Python data type.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>value</strong> – the value as provided by the Personio API</p></li>
+<li><p><strong>kwargs</strong> – additional parameters (to be used by subclasses)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>the deserialized value</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="personio_py.mapping.FieldMapping.serialize">
+<code class="sig-name descname">serialize</code><span class="sig-paren">(</span><em class="sig-param">value: T</em><span class="sig-paren">)</span> &#x2192; Union[str, Dict]<a class="reference internal" href="_modules/personio_py/mapping.html#FieldMapping.serialize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#personio_py.mapping.FieldMapping.serialize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Serialize the parsed value to the format that the Personio API expects.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>value</strong> – the value to serialize</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>the serialized value</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="personio_py.mapping.ListFieldMapping">
+<em class="property">class </em><code class="sig-prename descclassname">personio_py.mapping.</code><code class="sig-name descname">ListFieldMapping</code><span class="sig-paren">(</span><em class="sig-param">item_mapping: personio_py.mapping.FieldMapping</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/personio_py/mapping.html#ListFieldMapping"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#personio_py.mapping.ListFieldMapping" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#personio_py.mapping.FieldMapping" title="personio_py.mapping.FieldMapping"><code class="xref py py-class docutils literal notranslate"><span class="pre">personio_py.mapping.FieldMapping</span></code></a></p>
+<dl class="method">
+<dt id="personio_py.mapping.ListFieldMapping.deserialize">
+<code class="sig-name descname">deserialize</code><span class="sig-paren">(</span><em class="sig-param">values: List[Any], client: Personio = None</em><span class="sig-paren">)</span> &#x2192; List[Any]<a class="reference internal" href="_modules/personio_py/mapping.html#ListFieldMapping.deserialize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#personio_py.mapping.ListFieldMapping.deserialize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Deserialize the Personio API value to a more useful Python data type.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>value</strong> – the value as provided by the Personio API</p></li>
+<li><p><strong>kwargs</strong> – additional parameters (to be used by subclasses)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>the deserialized value</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="personio_py.mapping.ListFieldMapping.serialize">
+<code class="sig-name descname">serialize</code><span class="sig-paren">(</span><em class="sig-param">values: List[Any]</em><span class="sig-paren">)</span> &#x2192; List[Any]<a class="reference internal" href="_modules/personio_py/mapping.html#ListFieldMapping.serialize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#personio_py.mapping.ListFieldMapping.serialize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Serialize the parsed value to the format that the Personio API expects.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>value</strong> – the value to serialize</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>the serialized value</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="personio_py.mapping.MultiTagFieldMapping">
+<em class="property">class </em><code class="sig-prename descclassname">personio_py.mapping.</code><code class="sig-name descname">MultiTagFieldMapping</code><span class="sig-paren">(</span><em class="sig-param">api_field: str</em>, <em class="sig-param">class_field: str</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/personio_py/mapping.html#MultiTagFieldMapping"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#personio_py.mapping.MultiTagFieldMapping" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#personio_py.mapping.FieldMapping" title="personio_py.mapping.FieldMapping"><code class="xref py py-class docutils literal notranslate"><span class="pre">personio_py.mapping.FieldMapping</span></code></a></p>
+<dl class="method">
+<dt id="personio_py.mapping.MultiTagFieldMapping.deserialize">
+<code class="sig-name descname">deserialize</code><span class="sig-paren">(</span><em class="sig-param">value: str</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span> &#x2192; List[str]<a class="reference internal" href="_modules/personio_py/mapping.html#MultiTagFieldMapping.deserialize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#personio_py.mapping.MultiTagFieldMapping.deserialize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Deserialize the Personio API value to a more useful Python data type.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>value</strong> – the value as provided by the Personio API</p></li>
+<li><p><strong>kwargs</strong> – additional parameters (to be used by subclasses)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>the deserialized value</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="personio_py.mapping.MultiTagFieldMapping.serialize">
+<code class="sig-name descname">serialize</code><span class="sig-paren">(</span><em class="sig-param">values: List[str]</em><span class="sig-paren">)</span> &#x2192; str<a class="reference internal" href="_modules/personio_py/mapping.html#MultiTagFieldMapping.serialize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#personio_py.mapping.MultiTagFieldMapping.serialize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Serialize the parsed value to the format that the Personio API expects.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>value</strong> – the value to serialize</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>the serialized value</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="personio_py.mapping.NumericFieldMapping">
+<em class="property">class </em><code class="sig-prename descclassname">personio_py.mapping.</code><code class="sig-name descname">NumericFieldMapping</code><span class="sig-paren">(</span><em class="sig-param">api_field: str</em>, <em class="sig-param">class_field: str</em>, <em class="sig-param">field_type=&lt;class 'float'&gt;</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/personio_py/mapping.html#NumericFieldMapping"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#personio_py.mapping.NumericFieldMapping" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#personio_py.mapping.FieldMapping" title="personio_py.mapping.FieldMapping"><code class="xref py py-class docutils literal notranslate"><span class="pre">personio_py.mapping.FieldMapping</span></code></a></p>
+<dl class="method">
+<dt id="personio_py.mapping.NumericFieldMapping.deserialize">
+<code class="sig-name descname">deserialize</code><span class="sig-paren">(</span><em class="sig-param">value: Union[int, float, str], **kwargs</em><span class="sig-paren">)</span> &#x2192; Union[int, float, str]<a class="reference internal" href="_modules/personio_py/mapping.html#NumericFieldMapping.deserialize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#personio_py.mapping.NumericFieldMapping.deserialize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Deserialize the Personio API value to a more useful Python data type.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>value</strong> – the value as provided by the Personio API</p></li>
+<li><p><strong>kwargs</strong> – additional parameters (to be used by subclasses)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>the deserialized value</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="personio_py.mapping.NumericFieldMapping.serialize">
+<code class="sig-name descname">serialize</code><span class="sig-paren">(</span><em class="sig-param">value: Union[int, float, str]</em><span class="sig-paren">)</span> &#x2192; Union[int, float, str]<a class="reference internal" href="_modules/personio_py/mapping.html#NumericFieldMapping.serialize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#personio_py.mapping.NumericFieldMapping.serialize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Serialize the parsed value to the format that the Personio API expects.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>value</strong> – the value to serialize</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>the serialized value</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="personio_py.mapping.ObjectFieldMapping">
+<em class="property">class </em><code class="sig-prename descclassname">personio_py.mapping.</code><code class="sig-name descname">ObjectFieldMapping</code><span class="sig-paren">(</span><em class="sig-param">api_field: str, class_field: str, field_type: Type[PersonioResourceType]</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/personio_py/mapping.html#ObjectFieldMapping"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#personio_py.mapping.ObjectFieldMapping" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#personio_py.mapping.FieldMapping" title="personio_py.mapping.FieldMapping"><code class="xref py py-class docutils literal notranslate"><span class="pre">personio_py.mapping.FieldMapping</span></code></a></p>
+<dl class="method">
+<dt id="personio_py.mapping.ObjectFieldMapping.deserialize">
+<code class="sig-name descname">deserialize</code><span class="sig-paren">(</span><em class="sig-param">value: Dict</em>, <em class="sig-param">client: Personio = None</em><span class="sig-paren">)</span> &#x2192; Optional[PersonioResourceType]<a class="reference internal" href="_modules/personio_py/mapping.html#ObjectFieldMapping.deserialize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#personio_py.mapping.ObjectFieldMapping.deserialize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Deserialize the Personio API value to a more useful Python data type.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>value</strong> – the value as provided by the Personio API</p></li>
+<li><p><strong>kwargs</strong> – additional parameters (to be used by subclasses)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>the deserialized value</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="personio_py.mapping.ObjectFieldMapping.serialize">
+<code class="sig-name descname">serialize</code><span class="sig-paren">(</span><em class="sig-param">value: PersonioResourceType</em><span class="sig-paren">)</span> &#x2192; Dict<a class="reference internal" href="_modules/personio_py/mapping.html#ObjectFieldMapping.serialize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#personio_py.mapping.ObjectFieldMapping.serialize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Serialize the parsed value to the format that the Personio API expects.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>value</strong> – the value to serialize</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>the serialized value</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="errors">
+<h2>Errors<a class="headerlink" href="#errors" title="Permalink to this headline">¶</a></h2>
+<dl class="exception">
+<dt id="personio_py.PersonioError">
+<em class="property">exception </em><code class="sig-prename descclassname">personio_py.</code><code class="sig-name descname">PersonioError</code><a class="reference internal" href="_modules/personio_py/errors.html#PersonioError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#personio_py.PersonioError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></p>
+<p>A generic error caused by personio-py</p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="personio_py.MissingCredentialsError">
+<em class="property">exception </em><code class="sig-prename descclassname">personio_py.</code><code class="sig-name descname">MissingCredentialsError</code><a class="reference internal" href="_modules/personio_py/errors.html#MissingCredentialsError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#personio_py.MissingCredentialsError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">personio_py.errors.PersonioError</span></code></p>
+<p>you are missing some strictly required credentials</p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="personio_py.PersonioApiError">
+<em class="property">exception </em><code class="sig-prename descclassname">personio_py.</code><code class="sig-name descname">PersonioApiError</code><span class="sig-paren">(</span><em class="sig-param">status_code: int</em>, <em class="sig-param">message: str</em>, <em class="sig-param">error_code: int = None</em>, <em class="sig-param">errors: Dict[str</em>, <em class="sig-param">Any] = None</em>, <em class="sig-param">response: requests.models.Response = None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/personio_py/errors.html#PersonioApiError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#personio_py.PersonioApiError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">personio_py.errors.PersonioError</span></code></p>
+<p>An error response from the Personio HTTP API</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>status_code</strong> – the HTTP status code of the API response</p></li>
+<li><p><strong>message</strong> – the error message from the Personio API</p></li>
+<li><p><strong>error_code</strong> – the error code that is provided with the Personio API response
+(not the HTTP status code!)</p></li>
+<li><p><strong>errors</strong> – details about the errors that are provided by the Personio API as dictionary</p></li>
+<li><p><strong>response</strong> – the HTTP response</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="method">
+<dt id="personio_py.PersonioApiError.from_response">
+<em class="property">classmethod </em><code class="sig-name descname">from_response</code><span class="sig-paren">(</span><em class="sig-param">response: requests.models.Response</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/personio_py/errors.html#PersonioApiError.from_response"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#personio_py.PersonioApiError.from_response" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a <code class="docutils literal notranslate"><span class="pre">PersonioApiError</span></code> from the specified HTTP response.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>response</strong> – a HTTP error response from Personio</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>a PersonioApiError that matches the HTTP error</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="exception">
+<dt id="personio_py.UnsupportedMethodError">
+<em class="property">exception </em><code class="sig-prename descclassname">personio_py.</code><code class="sig-name descname">UnsupportedMethodError</code><span class="sig-paren">(</span><em class="sig-param">method: str</em>, <em class="sig-param">clazz: Type</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/personio_py/errors.html#UnsupportedMethodError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#personio_py.UnsupportedMethodError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">personio_py.errors.PersonioError</span></code></p>
+<p>this method is not supported by this class (but it might be by a similar one)</p>
+</dd></dl>
+
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+      
+        <a href="changelog.html" class="btn btn-neutral float-left" title="Changelog" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2020, Alexander Thamm GmbH
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
