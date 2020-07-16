@@ -1,8 +1,9 @@
 # personio-py
 
 [![build](https://github.com/at-gmbh/personio-py/workflows/build/badge.svg?branch=master&event=push)](https://github.com/at-gmbh/personio-py/actions?query=workflow%3Abuild)
-[![PyPI version](https://badge.fury.io/py/personio-py.svg)](https://pypi.org/project/personio-py/)
-![PyPI - Python Version](https://img.shields.io/pypi/pyversions/personio-py)
+[![PyPI](https://img.shields.io/pypi/v/personio-py)](https://pypi.org/project/personio-py/)
+[![PyPI - Python Version](https://img.shields.io/pypi/pyversions/personio-py)](https://pypi.org/project/personio-py/)
+[![PyPI - License](https://img.shields.io/pypi/l/personio-py)](./LICENSE)
 
 **personio-py** is a lightweight Personio API client library for Python. Also, it's pretty intuitive to use. But don't take my word for it, please have a look:
 
