@@ -1,4 +1,4 @@
-name: Sphinx Docs
+name: docs-verify
 
 on:
   pull_request:
