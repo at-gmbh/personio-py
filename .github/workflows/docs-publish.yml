@@ -35,13 +35,10 @@ jobs:
         git clone https://github.com/at-gmbh/personio-py --branch gh-pages --single-branch gh-pages
         # delete existing files
         cd gh-pages
-        shopt -s extglob
-        rm -r !(".git"|"README.md")
-        cd ..
+        ls | grep -v "README.md" | xargs rm -rf
         # copy new files
-        cp -r docs/build/html/* gh-pages/
+        cp -r ../docs/build/html/* .
         # add all files to git & commit
-        cd gh-pages
         git config --local user.email "action@github.com"
         git config --local user.name "GitHub Action"
         git add .
