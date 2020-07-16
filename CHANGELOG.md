@@ -10,4 +10,4 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 - This is the first release of the Personio API client library
 - Created Python module `personio_py`
-- Documentation using Sphinx
+- Documentation using Sphinx (on [GitHub Pages](https://at-gmbh.github.io/personio-py/))
