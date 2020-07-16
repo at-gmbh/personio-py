@@ -1,0 +1,27 @@
+name: deploy
+
+# will be triggered when a new release is published (draft releases are ignored)
+on:
+  release:
+    types: [published]
+
+jobs:
+  release:
+    name: Deploy on PyPI
+    runs-on: ubuntu-latest
+    steps:
+      # checkout & build
+    - uses: actions/checkout@v2
+    - uses: actions/setup-python@v2
+      with:
+        python-version: 3.7
+    - name: Build Wheel
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        python setup.py sdist bdist_wheel
+      # publish on PyPI (productive environment)
+    - name: Publish Package to PyPI
+      uses: pypa/gh-action-pypi-publish@master
+      with:
+        password: ${{ secrets.PYPI_API_TOKEN }}

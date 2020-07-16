@@ -1,4 +1,4 @@
-name: Release
+name: release
 
 on:
   push:
@@ -8,9 +8,10 @@ on:
 
 jobs:
   release:
-    name: Create Release & Deploy on PyPI
+    name: Create Release & Deploy on TestPyPI
     runs-on: ubuntu-latest
     steps:
+      # checkout & build
     - uses: actions/checkout@v2
     - uses: actions/setup-python@v2
       with:
@@ -22,6 +23,7 @@ jobs:
         python setup.py sdist bdist_wheel
         cd dist
         echo "::set-env name=WHEEL::$(ls *.whl)"
+      # create a new draft release (so we only trigger the deployment pipeline after the draft has been published)
     - name: Create Release
       id: create_release
       uses: actions/create-release@v1
@@ -32,6 +34,7 @@ jobs:
         release_name: Release ${{ github.ref }}
         draft: true
         prerelease: false
+      # upload the wheel to the draft release
     - name: Upload Release Asset
       id: upload-release-asset
       uses: actions/upload-release-asset@v1.0.2
@@ -42,9 +45,9 @@ jobs:
         asset_path: ./dist/${{ env.WHEEL }}
         asset_name: ${{ env.WHEEL }}
         asset_content_type: application/zip
+      # release on TestPyPI (for release on regular PyPI, see deploy.yml)
     - name: Publish Package to TestPyPI
       uses: pypa/gh-action-pypi-publish@master
       with:
         password: ${{ secrets.PYPI_TEST_API_TOKEN }}
         repository_url: https://test.pypi.org/legacy/
-    # TODO add publish to (productive) PyPI as last step, if tag does not contain 'a' or 'b'
