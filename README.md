@@ -3,9 +3,10 @@
 [![build](https://github.com/at-gmbh/personio-py/workflows/build/badge.svg?branch=master&event=push)](https://github.com/at-gmbh/personio-py/actions?query=workflow%3Abuild)
 [![PyPI](https://img.shields.io/pypi/v/personio-py)](https://pypi.org/project/personio-py/)
 [![PyPI - Python Version](https://img.shields.io/pypi/pyversions/personio-py)](https://pypi.org/project/personio-py/)
+[![documentation](https://img.shields.io/badge/docs-latest-informational)](https://at-gmbh.github.io/personio-py/)
 [![PyPI - License](https://img.shields.io/pypi/l/personio-py)](./LICENSE)
 
-**personio-py** is a lightweight Personio API client library for Python. Also, it's pretty intuitive to use. But don't take my word for it, please have a look:
+**personio-py** is a lightweight [Personio](https://www.personio.de/) API client library for Python. Also, it's pretty intuitive to use. But don't take my word for it, please have a look:
 
 ```python
 >>> from personio_py import Personio
@@ -27,6 +28,8 @@
 
 If something appears to be broken, please have a look at the [open issues](https://github.com/at-gmbh/personio-py/issues) and vote for an existing issue or create a new one, if you can't find an issue that describes your problem.
 
+**📖 Documentation is available at [at-gmbh.github.io/personio-py](https://at-gmbh.github.io/personio-py/)**
+
 ## Features
 
 * Aims to cover all functions of the Personio API (work in progress)
@@ -42,7 +45,7 @@ The package is available on [PyPI](https://pypi.org/project/personio-py/) and ca
 
     pip install personio-py
 
-Now you can `import personio_py` and start coding. Please have a look at the [User Guide](guide.md) and the [Examples](examples.md) section for more details.
+Now you can `import personio_py` and start coding. Please have a look at the [User Guide](https://at-gmbh.github.io/personio-py/guide.html) and the [Examples](https://at-gmbh.github.io/personio-py/examples.html) section for more details.
 
 ## Contributing
 
