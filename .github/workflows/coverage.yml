@@ -1,0 +1,34 @@
+name: coverage
+
+on:
+  push:
+    branches:
+    - master
+    paths:
+    - 'docs/**'
+    - 'CHANGELOG.md'
+
+  # TODO remove
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  coverage:
+    name: Coverage Reports on codecov.io
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - uses: actions/setup-python@v2
+      with:
+        python-version: 3.7
+    - name: Generate coverage report
+      run: |
+        pip install pytest pytest-cov
+        python setup.py testcov
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v1
+      with:
+        file: ./coverage.xml
+        directory: ./junit/
+        fail_ci_if_error: true
