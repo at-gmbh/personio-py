@@ -61,7 +61,7 @@ exclude_patterns = []
 html_theme = 'sphinx_rtd_theme'
 
 html_theme_options = {
-    #'canonical_url': '',
+    'canonical_url': 'https://at-gmbh.github.io/personio-py/',
     'logo_only': False,
     'display_version': True,
     'prev_next_buttons_location': 'bottom',
@@ -71,7 +71,15 @@ html_theme_options = {
     'sticky_navigation': True,
     'navigation_depth': 4,
     'includehidden': True,
-    'titles_only': False
+    'titles_only': False,
+}
+
+html_context = {
+    "display_github": True,
+    "github_user": "at-gmbh",
+    "github_repo": "personio-py",
+    "github_version": "master",
+    "conf_py_path": "/docs/source/",
 }
 
 
