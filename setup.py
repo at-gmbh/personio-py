@@ -13,7 +13,7 @@ __version__ = run_path('src/personio_py/version.py')['__version__']
 
 def read(fname):
     """Utility function to read the README file."""
-    return open(os.path.join(os.path.dirname(__file__), fname)).read()
+    return open(os.path.join(os.path.dirname(__file__), fname), 'r', encoding='utf-8').read()
 
 
 class DistCommand(Command):
@@ -68,8 +68,9 @@ setup(
     description="a lightweight Personio API client",
     url="https://github.com/at-gmbh/personio-py",
     project_urls={
-        #'Documentation': '...',
+        'Documentation': 'https://at-gmbh.github.io/personio-py/',
         'Source': 'https://github.com/at-gmbh/personio-py',
+        'Tracker': 'https://github.com/at-gmbh/personio-py/issues',
     },
     packages=find_packages("src"),
     package_dir={"": "src"},
