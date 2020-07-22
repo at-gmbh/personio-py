@@ -4,15 +4,15 @@ on:
   push:
     branches:
     - master
-    paths:
+    paths-ignore:
     - 'docs/**'
-    - 'CHANGELOG.md'
+    - '*.md'
   pull_request:
     branches:
     - master
-    paths:
+    paths-ignore:
     - 'docs/**'
-    - 'CHANGELOG.md'
+    - '*.md'
 
 jobs:
   coverage:
