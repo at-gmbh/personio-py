@@ -2,20 +2,21 @@
 # with this project (e.g. for testing or useful development tools).
 # The regular project dependencies are defined in requirements.txt
 
-flake8
-m2r~=0.2.1
-
-# git hooks
-pre-commit
-pytest-cov>=2.0
 # testing
 pytest>=5.0
-recommonmark~=0.6.0
-sphinx_rtd_theme~=0.5.0
+pytest-cov>=2.0
+responses~=0.10.15
+flake8>=3.0
 
 # documentation
 sphinx~=3.1.2
-twine
+sphinx_rtd_theme~=0.5.0
+recommonmark~=0.6.0
+m2r~=0.2.1
 
 # publishing
 wheel
+twine
+
+# git hooks
+pre-commit
