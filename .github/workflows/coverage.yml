@@ -7,11 +7,12 @@ on:
     paths:
     - 'docs/**'
     - 'CHANGELOG.md'
-
-  # TODO remove
   pull_request:
     branches:
-      - master
+    - master
+    paths:
+    - 'docs/**'
+    - 'CHANGELOG.md'
 
 jobs:
   coverage:
