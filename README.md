@@ -4,6 +4,7 @@
 [![PyPI](https://img.shields.io/pypi/v/personio-py)](https://pypi.org/project/personio-py/)
 [![PyPI - Python Version](https://img.shields.io/pypi/pyversions/personio-py)](https://pypi.org/project/personio-py/)
 [![documentation](https://img.shields.io/badge/docs-latest-informational)](https://at-gmbh.github.io/personio-py/)
+[![Codecov](https://img.shields.io/codecov/c/github/at-gmbh/personio-py)](https://codecov.io/gh/at-gmbh/personio-py)
 [![PyPI - License](https://img.shields.io/pypi/l/personio-py)](./LICENSE)
 
 **personio-py** is a lightweight [Personio](https://www.personio.de/) API client library for Python. Also, it's pretty intuitive to use. But don't take my word for it, please have a look:
