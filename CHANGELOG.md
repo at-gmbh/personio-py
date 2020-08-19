@@ -8,7 +8,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 * ...
 
-## [0.1.0](https://github.com/at-gmbh/personio-py/tree/v0.1.0) - 2020-08-19
+## [0.1.1](https://github.com/at-gmbh/personio-py/tree/v0.1.0) - 2020-08-19
 
 - This is the first release of the Personio API client library
 - Created Python module `personio_py`
