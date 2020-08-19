@@ -5,7 +5,7 @@
 [![PyPI - Python Version](https://img.shields.io/pypi/pyversions/personio-py)](https://pypi.org/project/personio-py/)
 [![documentation](https://img.shields.io/badge/docs-latest-informational)](https://at-gmbh.github.io/personio-py/)
 [![Codecov](https://img.shields.io/codecov/c/github/at-gmbh/personio-py)](https://codecov.io/gh/at-gmbh/personio-py)
-[![PyPI - License](https://img.shields.io/pypi/l/personio-py)](./LICENSE)
+[![PyPI - License](https://img.shields.io/pypi/l/personio-py)](https://github.com/at-gmbh/personio-py/blob/master/LICENSE)
 
 **personio-py** is a lightweight [Personio](https://www.personio.de/) API client library for Python. Also, it's pretty intuitive to use. But don't take my word for it, please have a look:
 
@@ -71,6 +71,18 @@ this will clean up the build folder and then run the `bdist_wheel` command.
 Before contributing code, please set up the pre-commit hooks to reduce errors and ensure consistency
 
     pip install -U pre-commit && pre-commit install
+
+### PyPI Release
+
+This project is released on [PyPI](https://pypi.org/project/personio-py/). Most of the tedious steps that are required to test & publish your release are automated by [CI pipelines](https://github.com/at-gmbh/personio-py/actions). All you have to do is to write your code and when the time comes to make a release, please follow these steps:
+
+* update the program version in [`src/personio_py/version.py`](./src/personio_py/version.py)
+* write a summary of your changes in [`CHANGELOG.md`](./CHANGELOG.md)
+* add a tag on the master branch with the new version number preceded by the letter `v`, e.g. for version 1.0.0 the tag would be `v1.0.0`. To tag the head of the current branch, use `git tag v1.0.0`
+* push your changes to github and don't forget to push the tag with `git push origin v1.0.0`
+* now have a look at the [release pipeline](https://github.com/at-gmbh/personio-py/actions?query=workflow%3Arelease) on GitHub. If it finishes without errors, you can find your release on [TestPyPI](https://test.pypi.org/project/personio-py). Please verify that your release works as expected.
+* Now for the live deployment on PyPI. To avoid mistakes, this is only triggered, when a release is published on GitHub first. Please have a look at the [Releases](https://github.com/at-gmbh/personio-py/releases) now; there should be a draft release with your version number (this was created by the CI pipeline which also made the TestPyPI release). Edit the draft release, copy the text you added to [`CHANGELOG.md`](./CHANGELOG.md) into the description field and publish it.
+* After you publish the release, the [deploy pipeline](https://github.com/at-gmbh/personio-py/actions?query=workflow%3Adeploy) is triggered on GitHub. It will publish the release directly to [PyPI](https://pypi.org/project/personio-py/) where everyone can enjoy your latest features.
 
 ## API Functions
 
