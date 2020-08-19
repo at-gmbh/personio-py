@@ -4,8 +4,8 @@ from typing import Dict
 import pytest
 import responses
 
-from personio_py import DynamicMapping, Employee, Personio, PersonioApiError
-from tests.mock_data import json_dict_employees
+from personio_py import DynamicMapping, Employee, Personio, PersonioApiError, PersonioError
+from tests.mock_data import json_dict_employee_ada, json_dict_employees
 
 
 @responses.activate
@@ -60,6 +60,33 @@ def test_get_employees():
     assert alan.vacation_day_balance == 25
     assert rms.hire_date.year == 1983
     assert rms.work_schedule.monday.seconds == 8*60*60
+
+
+@responses.activate
+def test_get_employee_by_id():
+    # mock the get employee endpoint
+    responses.add(
+        responses.GET, 'https://api.personio.de/v1/company/employees/2040614', status=200,
+        json=json_dict_employee_ada, adding_headers={'Authorization': 'Bearer rotated_dummy_token'})
+    # configure personio & get employee
+    personio = mock_personio()
+    ada = personio.get_employee(2040614)
+    # validate
+    assert ada.id_ == 2040614
+    assert ada.last_name == 'Lovelace'
+
+
+@responses.activate
+def test_auth_rotation_fail():
+    # mock the get employees endpoint
+    responses.add(
+        responses.GET, 'https://api.personio.de/v1/company/employees', status=200,
+        json=json_dict_employees, adding_headers={})
+    # get the mocked response
+    personio = mock_personio()
+    with pytest.raises(PersonioError) as e:
+        personio.get_employees()
+    assert "authorization header" in str(e.value).lower()
 
 
 def mock_personio():
