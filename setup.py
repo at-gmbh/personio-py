@@ -64,7 +64,7 @@ setup(
     name="personio-py",
     version=__version__,
     author="Sebastian Straub",
-    author_email="sebastian.straub [at] alexanderthamm.com",
+    author_email="sebastian.straub@alexanderthamm.com",
     description="a lightweight Personio API client",
     url="https://github.com/at-gmbh/personio-py",
     project_urls={
