@@ -72,6 +72,29 @@ Before contributing code, please set up the pre-commit hooks to reduce errors an
 
     pip install -U pre-commit && pre-commit install
 
+## API Functions
+
+Available
+
+* [`POST /auth`](https://developer.personio.de/reference#auth): fully transparent authentication handling
+* [`GET /company/employees`](https://developer.personio.de/reference#get_company-employees): list all employees
+* [`GET /company/employees/{id}`](https://developer.personio.de/reference#get_company-employees-employee-id): get the employee with the specified ID
+* [`GET /company/employees/{id}/profile-picture/{width}`](https://developer.personio.de/reference#get_company-employees-employee-id-profile-picture-width): get the profile picture of the specified employee
+
+Work in Progress
+
+* [`POST /company/employees`](https://developer.personio.de/reference#post_company-employees): create a new employee
+* [`PATCH /company/employees/{id}`](https://developer.personio.de/reference#patch_company-employees-employee-id): update an existing employee entry
+* [`GET /company/attendances`](https://developer.personio.de/reference#get_company-attendances): fetch attendance data for the company employees
+* [`POST /company/attendances`](https://developer.personio.de/reference#post_company-attendances): add attendance data for the company employees
+* [`DELETE /company/attendances/{id}`](https://developer.personio.de/reference#delete_company-attendances-id): delete the attendance entry with the specified ID
+* [`PATCH /company/attendances/{id}`](https://developer.personio.de/reference#patch_company-attendances-id): update the attendance entry with the specified ID
+* [`GET /company/time-off-types`](https://developer.personio.de/reference#get_company-time-off-types): get a list of available absences types
+* [`GET /company/time-offs`](https://developer.personio.de/reference#get_company-time-offs): fetch absence data for the company employees
+* [`POST /company/time-offs`](https://developer.personio.de/reference#post_company-time-offs): add absence data for the company employees
+* [`DELETE /company/time-offs/{id}`](https://developer.personio.de/reference#delete_company-time-offs-id): delete the absence entry with the specified ID
+* [`GET /company/time-offs/{id}`](https://developer.personio.de/reference#get_company-time-offs-id): get the absence entry with the specified ID
+
 ## Contact
 
 Sebastian Straub (sebastian.straub [at] alexanderthamm.com)
