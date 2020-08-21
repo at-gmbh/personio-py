@@ -131,6 +131,46 @@ class Personio:
         else:
             raise PersonioApiError.from_response(response)
 
+    def request_paginated(
+            self, path: str, method='GET', params: Dict[str, Any] = None,
+            data: Dict[str, Any] = None, auth_rotation=True, limit=200) -> Dict[str, Any]:
+        """
+        Make a request against the Personio API, expecting a json response that may be paginated,
+        i.e. not all results might have been returned after the first request. Will continue
+        to make requests until no more results are provided by the Personio API.
+        Returns the parsed json response as dictionary. Will raise a PersonioApiError if the
+        request fails.
+
+        :param path: the URL path for this request (relative to the Personio API base URL)
+        :param method: the HTTP request method (default: GET)
+        :param params: dictionary of URL parameters (optional)
+        :param data: dictionary of data to send in the request body (optional)
+        :param auth_rotation: set to True, if authentication keys should be rotated
+               during this request (default: True for json requests)
+        :param limit: the max. number of items to return in response to a single request.
+               A higher limit means fewer requests will be made (though there is an upper bound
+               that is enforced on the server side)
+        :return: the parsed json response, when the request was successful, or a PersonioApiError
+        """
+        # prepare the params dict (need limit and offset as parameters)
+        if params is None:
+            params = {}
+        params['limit'] = limit
+        params['offset'] = 0
+        # continue making requests until no more data is returned
+        data_acc = []
+        while True:
+            response = self.request_json(path, method, params, data, auth_rotation=auth_rotation)
+            data = response['data']
+            if data:
+                data_acc.extend(data)
+                params['offset'] += len(data)
+            else:
+                break
+        # return the accumulated data
+        response['data'] = data_acc
+        return response
+
     def request_image(self, path: str, method='GET', params: Dict[str, Any] = None,
                       auth_rotation=False) -> Optional[bytes]:
         """
@@ -279,18 +319,14 @@ class Personio:
         """
         placeholder; not ready to be used
         """
-        # TODO automatically resolve paginated requests
-
         employee_ids, start_date, end_date = self._normalize_timeframe_params(
             employee_ids, start_date, end_date)
         params = {
+            "employees[]": employee_ids,
             "start_date": start_date.isoformat()[:10],
             "end_date": end_date.isoformat()[:10],
-            "employees[]": employee_ids,
-            "limit": 200,
-            "offset": 0
         }
-        response = self.request_json('company/time-offs', params=params)
+        response = self.request_paginated('company/time-offs', params=params)
         absences = [Absence.from_dict(d['attributes'], self) for d in response['data']]
         return absences
 

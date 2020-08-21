@@ -1,3 +1,4 @@
+import re
 from datetime import date
 from typing import Dict
 
@@ -5,7 +6,7 @@ import pytest
 import responses
 
 from personio_py import DynamicMapping, Employee, Personio, PersonioApiError, PersonioError
-from tests.mock_data import json_dict_employee_ada, json_dict_employees
+from tests.mock_data import *
 
 
 @responses.activate
@@ -87,6 +88,29 @@ def test_auth_rotation_fail():
     with pytest.raises(PersonioError) as e:
         personio.get_employees()
     assert "authorization header" in str(e.value).lower()
+
+
+@responses.activate
+def test_get_absences():
+    # mock the get absences endpoint (with different array offsets)
+    responses.add(
+        responses.GET, re.compile('https://api.personio.de/v1/company/time-offs?.*offset=0.*'),
+        status=200, json=json_dict_absence_alan, adding_headers={'Authorization': 'Bearer foo'})
+    responses.add(
+        responses.GET, re.compile('https://api.personio.de/v1/company/time-offs?.*offset=3.*'),
+        status=200, json=json_dict_empty_response, adding_headers={'Authorization': 'Bearer bar'})
+    # configure personio & get absences for alan
+    personio = mock_personio()
+    absences = personio.get_absences(2116365)
+    # validate
+    assert len(absences) == 3
+    selection = [a for a in absences if "marathon" in a.comment.lower()]
+    assert len(selection) == 1
+    marathon = selection[0]
+    assert marathon.start_date == date(1944, 9, 1)
+    assert marathon.half_day_start == 0
+    assert marathon.half_day_end == 1
+    assert marathon.status == 'approved'
 
 
 def mock_personio():
