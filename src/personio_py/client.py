@@ -207,7 +207,7 @@ class Personio:
         :return: list of ``Employee`` instances
         """
         response = self.request_json('company/employees')
-        employees = [Employee.from_dict(d['attributes'], self) for d in response['data']]
+        employees = [Employee.from_dict(d, self) for d in response['data']]
         return employees
 
     def get_employee(self, employee_id: int) -> Employee:
@@ -218,8 +218,7 @@ class Personio:
         :return: an ``Employee`` instance or a PersonioApiError, if the employee does not exist
         """
         response = self.request_json(f'company/employees/{employee_id}')
-        employee_dict = response['data']['attributes']
-        employee = Employee.from_dict(employee_dict, self)
+        employee = Employee.from_dict(response['data'], self)
         return employee
 
     def get_employee_picture(self, employee_id: int, width: int = None) -> Optional[bytes]:
@@ -359,8 +358,7 @@ class Personio:
             response = self.request_paginated(path, params=params)
             data_acc.extend(response['data'])
         # create objects from accumulated API responses
-        assert len(set(json.dumps(d, sort_keys=True) for d in data_acc)) == len(data_acc)
-        parsed_data = [resource_cls.from_dict(d['attributes'], self) for d in data_acc]
+        parsed_data = [resource_cls.from_dict(d, self) for d in data_acc]
         return parsed_data
 
     @classmethod

@@ -9,8 +9,9 @@ from functools import total_ordering
 from typing import Any, Dict, List, NamedTuple, Optional, TYPE_CHECKING, Tuple, Type, TypeVar
 
 from personio_py import PersonioError, UnsupportedMethodError
-from personio_py.mapping import DateFieldMapping, DateTimeFieldMapping, DurationFieldMapping, \
-    DynamicMapping, FieldMapping, ListFieldMapping, NumericFieldMapping, ObjectFieldMapping
+from personio_py.mapping import BooleanFieldMapping, DateFieldMapping, DateTimeFieldMapping, \
+    DurationFieldMapping, DynamicMapping, FieldMapping, ListFieldMapping, NumericFieldMapping, \
+    ObjectFieldMapping
 
 if TYPE_CHECKING:
     # only type checkers may import Personio, otherwise we get an evil circular import error
@@ -84,8 +85,6 @@ class PersonioResource:
 
     @classmethod
     def from_dict(cls, d: Dict[str, Any], client: 'Personio' = None) -> '__class__':
-        # TODO from/to dict should probably always serialize from/to the full dict,
-        #  not a subset like d['attributes']
         kwargs = cls._map_fields(d, client)
         return cls(client=client, **kwargs)
 
@@ -191,13 +190,17 @@ class WritablePersonioResource(PersonioResource):
     @classmethod
     def from_dict(cls, d: Dict[str, Any], client: 'Personio' = None,
                   dynamic_fields: List[DynamicMapping] = None) -> '__class__':
-        kwargs = cls._map_fields(d, client)
+        cls._check_api_type(d)
+        kwargs = cls._map_fields(d['attributes'], client)
+        if 'id' in d:
+            kwargs['id_'] = d['id']
         dynamic_fields = dynamic_fields or (client.dynamic_fields if client else None)
         return cls(client=client, dynamic_fields=dynamic_fields, **kwargs)
 
     def to_dict(self) -> Dict[str, Any]:
         # we prefer typed values from the dynamic dict over the raw values
-        d = super().to_dict()
+        # (because they might have been changed by the user)
+        attr = super().to_dict()
         dynamic_mapping_dict = {dyn.field_id: dyn for dyn in self.dynamic_fields or []}
         for dyn in self.dynamic_raw.values():
             if dyn.field_id in dynamic_mapping_dict:
@@ -209,8 +212,20 @@ class WritablePersonioResource(PersonioResource):
                     serialized = field_mapping.serialize(rich_value)
                     if raw_value != serialized:
                         dyn = dyn.clone(new_value=serialized)
-            d[f'dynamic_{dyn.field_id}'] = dyn.to_dict()
-        return d
+            attr[f'dynamic_{dyn.field_id}'] = dyn.to_dict()
+        return {
+            'type': self._api_type_name,
+            'attributes': attr,
+        }
+
+    @classmethod
+    def _check_api_type(cls, d: Dict[str, Any]):
+        api_type_name = d['type']
+        if api_type_name != cls._api_type_name:
+            log_once(
+                logging.WARNING,
+                f"Unexpected API type '{api_type_name}' for class {cls.__name__}, "
+                f"expected '{cls._api_type_name}' instead")
 
     def create(self, client: 'Personio' = None):
         if self._can_create:
@@ -251,7 +266,6 @@ class WritablePersonioResource(PersonioResource):
         return client
 
 
-# TODO adjust (this mixin concept has issues)
 class LabeledAttributesMixin(PersonioResource):
 
     def __init__(self, *args, **kwargs):
@@ -483,10 +497,8 @@ class WorkSchedule(PersonioResource):
 
 class Absence(WritablePersonioResource):
 
-    # TODO implement
-
+    _api_type_name = "TimeOffPeriod"
     _can_update = False
-
     _field_mapping_list = [
         NumericFieldMapping('id', 'id_', int),
         FieldMapping('status', 'status', str),
@@ -547,7 +559,7 @@ class Attendance(WritablePersonioResource):
 
     _api_type_name = "AttendancePeriod"
     _field_mapping_list = [
-        # note: the id is not in the attributes dict, but one level higher
+        # note: the id is actually not in the attributes dict, but one level higher
         NumericFieldMapping('id', 'id_', int),
         NumericFieldMapping('employee', 'employee_id', int),
         DateFieldMapping('date', 'date'),
@@ -555,8 +567,8 @@ class Attendance(WritablePersonioResource):
         DurationFieldMapping('end_time', 'end_time'),
         NumericFieldMapping('break', 'break_duration', int),
         FieldMapping('comment', 'comment', str),
-        FieldMapping('is_holiday', 'is_holiday', bool),
-        FieldMapping('is_on_time_off', 'is_on_time_off', bool),
+        BooleanFieldMapping('is_holiday', 'is_holiday'),
+        BooleanFieldMapping('is_on_time_off', 'is_on_time_off'),
     ]
 
     def __init__(self,
@@ -584,12 +596,12 @@ class Attendance(WritablePersonioResource):
         self.is_holiday = is_holiday
         self.is_on_time_off = is_on_time_off
 
-    @classmethod
-    def from_dict(cls, d: Dict[str, Any], client: 'Personio' = None,
-                  dynamic_fields: List[DynamicMapping] = None) -> '__class__':
-        attendance: Attendance = super().from_dict(d['attributes'], client, dynamic_fields)
-        attendance.id_ = d['id']
-        return attendance
+    def to_dict(self) -> Dict[str, Any]:
+        # yes, this is weird an unnecessary, but that's how the api works
+        d = super().to_dict()
+        d['id'] = self.id_
+        del d['attributes']['id']
+        return d
 
     def _create(self, client: 'Personio'):
         pass
