@@ -17,11 +17,12 @@ on:
 jobs:
 
   build:
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
     strategy:
       matrix:
         python-version: [3.7, 3.8]
-    name: Test & Build with Python ${{ matrix.python-version }}
+        os: [ubuntu-latest, windows-latest]
+    name: Test & Build (Python ${{ matrix.python-version }} on ${{ matrix.os }})
     steps:
     - uses: actions/checkout@v2
     - name: Set up Python ${{ matrix.python-version }}
