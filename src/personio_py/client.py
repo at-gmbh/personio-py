@@ -2,7 +2,7 @@ import json
 import logging
 import os
 from datetime import datetime
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any, Dict, List, Optional, Tuple, Type, Union
 from urllib.parse import urljoin
 
 import requests
@@ -10,6 +10,7 @@ from requests import Response
 
 from personio_py import Absence, AbsenceType, Attendance, DynamicMapping, Employee
 from personio_py.errors import MissingCredentialsError, PersonioApiError, PersonioError
+from personio_py.models import PersonioResource
 
 logger = logging.getLogger('personio_py')
 
@@ -162,10 +163,10 @@ class Personio:
         data_acc = []
         while True:
             response = self.request_json(path, method, params, data, auth_rotation=auth_rotation)
-            data = response['data']
-            if data:
-                data_acc.extend(data)
-                params['offset'] += len(data)
+            resp_data = response['data']
+            if resp_data:
+                data_acc.extend(resp_data)
+                params['offset'] += len(resp_data)
             else:
                 break
         # return the accumulated data
@@ -206,7 +207,7 @@ class Personio:
         :return: list of ``Employee`` instances
         """
         response = self.request_json('company/employees')
-        employees = [Employee.from_dict(d['attributes'], self) for d in response['data']]
+        employees = [Employee.from_dict(d, self) for d in response['data']]
         return employees
 
     def get_employee(self, employee_id: int) -> Employee:
@@ -217,8 +218,7 @@ class Personio:
         :return: an ``Employee`` instance or a PersonioApiError, if the employee does not exist
         """
         response = self.request_json(f'company/employees/{employee_id}')
-        employee_dict = response['data']['attributes']
-        employee = Employee.from_dict(employee_dict, self)
+        employee = Employee.from_dict(response['data'], self)
         return employee
 
     def get_employee_picture(self, employee_id: int, width: int = None) -> Optional[bytes]:
@@ -270,20 +270,8 @@ class Personio:
         """
         placeholder; not ready to be used
         """
-        # TODO automatically resolve paginated requests
-
-        employee_ids, start_date, end_date = self._normalize_timeframe_params(
-            employee_ids, start_date, end_date)
-        params = {
-            "start_date": start_date.isoformat()[:10],
-            "end_date": end_date.isoformat()[:10],
-            "employees[]": employee_ids,
-            "limit": 200,
-            "offset": 0
-        }
-        response = self.request_json('company/attendances', params=params)
-        attendances = [Attendance.from_dict(d, self) for d in response['data']]
-        return attendances
+        return self._get_employee_metadata(
+            'company/attendances', Attendance, employee_ids, start_date, end_date)
 
     def create_attendances(self, attendances: List[Attendance]):
         """
@@ -328,23 +316,8 @@ class Personio:
         :param end_date: only return absence records up to this date (inclusive, optional)
         :return: list of ``Absence`` records for the specified employees
         """
-        # resolve params to match API requirements
-        employee_ids, start_date, end_date = self._normalize_timeframe_params(
-            employee_ids, start_date, end_date)
-        params = {
-            "start_date": start_date.isoformat()[:10],
-            "end_date": end_date.isoformat()[:10],
-        }
-        # request in batches of up to 50 employees (keeps URL length well below 2000 chars)
-        data_acc = []
-        for i in range(0, len(employee_ids), 50):
-            params["employees[]"] = employee_ids[i:i+50]
-            response = self.request_paginated('company/time-offs', params=params)
-            data_acc.extend(response['data'])
-        # create objects from accumulated API responses
-        assert len(set(json.dumps(d, sort_keys=True) for d in data_acc)) == len(data_acc)
-        absences = [Absence.from_dict(d['attributes'], self) for d in data_acc]
-        return absences
+        return self._get_employee_metadata(
+            'company/time-offs', Absence, employee_ids, start_date, end_date)
 
     def get_absence(self, absence_id: int) -> Absence:
         """
@@ -366,6 +339,27 @@ class Personio:
         """
         # TODO implement
         pass
+
+    def _get_employee_metadata(
+            self, path: str, resource_cls: Type[PersonioResource],
+            employee_ids: Union[int, List[int]], start_date: datetime = None,
+            end_date: datetime = None):
+        # resolve params to match API requirements
+        employee_ids, start_date, end_date = self._normalize_timeframe_params(
+            employee_ids, start_date, end_date)
+        params = {
+            "start_date": start_date.isoformat()[:10],
+            "end_date": end_date.isoformat()[:10],
+        }
+        # request in batches of up to 50 employees (keeps URL length well below 2000 chars)
+        data_acc = []
+        for i in range(0, len(employee_ids), 50):
+            params["employees[]"] = employee_ids[i:i+50]
+            response = self.request_paginated(path, params=params)
+            data_acc.extend(response['data'])
+        # create objects from accumulated API responses
+        parsed_data = [resource_cls.from_dict(d, self) for d in data_acc]
+        return parsed_data
 
     @classmethod
     def _normalize_timeframe_params(

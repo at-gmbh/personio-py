@@ -5,19 +5,22 @@ from personio_py import DynamicAttr, Employee
 from personio_py.mapping import DynamicMapping
 
 employee_dict = {
-    'id': {'label': 'ID', 'value': 42},
-    'first_name': {'label': 'First name', 'value': 'Ada'},
-    'last_name': {'label': 'Last name', 'value': 'Lovelace'},
-    'email': {'label': 'Email', 'value': 'ada@example.org'},
-    'gender': {'label': 'Gender', 'value': 'female'},
-    'status': {'label': 'Status', 'value': 'deceased'},
-    'position': {'label': 'Position', 'value': 'first programmer ever'},
-    'created_at': {'label': 'created_at', 'value': '1835-01-02T13:00:00+00:00'},
-    'dynamic_42': {'label': 'quote', 'value':
-        "The Analytical Engine has no pretensions whatever to originate anything. "
-        "It can do whatever we know how to order it to perform."},
-    'dynamic_43': {'label': 'birthday', 'value': '1815-12-10T00:00:00+00:00'},
-    'dynamic_44': {'label': 'hobbies', 'value': 'math,analytical thinking,music'},
+    'type': 'Employee',
+    'attributes': {
+        'id': {'label': 'ID', 'value': 42},
+        'first_name': {'label': 'First name', 'value': 'Ada'},
+        'last_name': {'label': 'Last name', 'value': 'Lovelace'},
+        'email': {'label': 'Email', 'value': 'ada@example.org'},
+        'gender': {'label': 'Gender', 'value': 'female'},
+        'status': {'label': 'Status', 'value': 'deceased'},
+        'position': {'label': 'Position', 'value': 'first programmer ever'},
+        'created_at': {'label': 'created_at', 'value': '1835-01-02T13:00:00+00:00'},
+        'dynamic_42': {'label': 'quote', 'value':
+            "The Analytical Engine has no pretensions whatever to originate anything. "
+            "It can do whatever we know how to order it to perform."},
+        'dynamic_43': {'label': 'birthday', 'value': '1815-12-10T00:00:00+00:00'},
+        'dynamic_44': {'label': 'hobbies', 'value': 'math,analytical thinking,music'},
+    }
 }
 
 dyn_mapping = [
@@ -27,7 +30,7 @@ dyn_mapping = [
 
 
 def test_dynamic_attr():
-    dyn_43_dict = employee_dict['dynamic_43']
+    dyn_43_dict = employee_dict['attributes']['dynamic_43']
     dyn_attr = DynamicAttr.from_dict('dynamic_43', dyn_43_dict)
     assert dyn_attr.field_id == 43
     assert dyn_attr.label == 'birthday'
@@ -37,7 +40,7 @@ def test_dynamic_attr():
 
 
 def test_dynamic_attr_list():
-    dyn_attrs = DynamicAttr.from_attributes(employee_dict)
+    dyn_attrs = DynamicAttr.from_attributes(employee_dict['attributes'])
     assert len(dyn_attrs) == 3
     attr_dict = DynamicAttr.to_attributes(dyn_attrs)
     assert 'dynamic_42' in attr_dict
@@ -45,7 +48,7 @@ def test_dynamic_attr_list():
 
 
 def test_map_types():
-    kwargs = Employee._map_fields(employee_dict)
+    kwargs = Employee._map_fields(employee_dict['attributes'])
     assert kwargs['id_'] == 42
     assert kwargs['dynamic']
     assert kwargs['dynamic'][1].label == 'birthday'
@@ -74,7 +77,7 @@ def test_parse_employee_dyn_changes():
     employee.dynamic['hobbies'].append('horse races')
     assert 'horse races' in employee.dynamic['hobbies']
     d = employee.to_dict()
-    assert d['dynamic_44']['value'] == 'math,analytical thinking,music,horse races'
+    assert d['attributes']['dynamic_44']['value'] == 'math,analytical thinking,music,horse races'
 
 
 def test_serialize_employee():
@@ -121,6 +124,7 @@ def test_resource_ordering():
 
 def get_employee_dict_mod(**overrides):
     employee_dict_mod = deepcopy(employee_dict)
+    attrs = employee_dict_mod['attributes']
     for key, value in overrides.items():
-        employee_dict_mod[key]['value'] = value
+        attrs[key]['value'] = value
     return employee_dict_mod

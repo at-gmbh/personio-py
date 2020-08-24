@@ -1,6 +1,6 @@
 import re
 from datetime import date
-from typing import Dict
+from typing import Any, Dict
 
 import pytest
 import responses
@@ -8,6 +8,7 @@ import responses
 from personio_py import DynamicMapping, Employee, Personio, PersonioApiError, PersonioError
 from tests.mock_data import *
 
+iso_date_match = re.compile(r'\d\d\d\d-\d\d-\d\d')
 
 @responses.activate
 def test_authenticate_ok():
@@ -61,6 +62,10 @@ def test_get_employees():
     assert alan.vacation_day_balance == 25
     assert rms.hire_date.year == 1983
     assert rms.work_schedule.monday.seconds == 8*60*60
+    # validate serialization
+    source_dict = json_dict_employees['data'][2]
+    target_dict = ada.to_dict()
+    compare_labeled_attributes(source_dict, target_dict)
 
 
 @responses.activate
@@ -111,6 +116,10 @@ def test_get_absences():
     assert marathon.half_day_start == 0
     assert marathon.half_day_end == 1
     assert marathon.status == 'approved'
+    # validate serialization
+    source_dict = json_dict_absence_alan['data'][0]
+    target_dict = marathon.to_dict()
+    compare_labeled_attributes(source_dict, target_dict)
 
 
 def mock_personio():
@@ -118,3 +127,49 @@ def mock_personio():
     resp_json = {'success': True, 'data': {'token': 'dummy_token'}}
     responses.add(responses.POST, 'https://api.personio.de/v1/auth', json=resp_json, status=200)
     return Personio(client_id='test', client_secret='test')
+
+
+def compare_labeled_attributes(expected: Dict, actual: Dict):
+    if actual == expected:
+        # fast lane - exact match
+        return
+    # let's see if there is any significant difference...
+    attr_expected = expected['attributes']
+    attr_actual = actual['attributes']
+    keys = sorted(set(attr_expected.keys()) | set(attr_actual.keys()))
+    # check every item
+    for key in keys:
+        val_expected = get_serialized_value(attr_expected, key)
+        # skip none values (these are not serialized)
+        if val_expected is not None:
+            val_actual = get_serialized_value(attr_actual, key)
+            if isinstance(val_expected, list):
+                for exp, act in zip(*(val_expected, val_actual)):
+                    compare_serialized_values(exp, act)
+            else:
+                compare_serialized_values(val_expected, val_actual)
+
+
+def compare_serialized_values(expected: Any, actual: Any):
+    if isinstance(expected, dict):
+        # another dict? recur
+        compare_labeled_attributes(expected, actual)
+    elif isinstance(expected, str):
+        if expected != actual:
+            if iso_date_match.match(expected):
+                # match ISO dates (only the date part, not time)
+                assert actual[:10] == expected[:10]
+            else:
+                # match the entire string
+                assert actual == expected
+    else:
+        assert actual == expected
+
+
+def get_serialized_value(d: Dict, key: str):
+    # two possible structures here: d[key]['value'] or just d['key']
+    val = d[key]
+    if isinstance(val, dict) and 'value' in val:
+        return val['value']
+    else:
+        return val
