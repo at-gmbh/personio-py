@@ -57,5 +57,5 @@ jobs:
     - name: Store distribution package
       uses: actions/upload-artifact@v2
       with:
-        name: personio-py_${{ matrix.python-version }}
+        name: personio-py_${{ matrix.python-version }}_${{ matrix.os }}
         path: dist/
