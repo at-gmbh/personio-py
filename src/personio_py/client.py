@@ -1,3 +1,4 @@
+import json
 import logging
 import os
 from datetime import datetime
@@ -317,17 +318,32 @@ class Personio:
     def get_absences(self, employee_ids: Union[int, List[int]], start_date: datetime = None,
                      end_date: datetime = None) -> List[Absence]:
         """
-        placeholder; not ready to be used
+        Get a list of all absence records for the employees with the specified IDs
+
+        :param employee_ids: a single employee ID or a list of employee IDs.
+               Absence records for all matching employee IDs will be retrieved.
+               The number of IDs that can be used in a single request is limited;
+               try to stay below 100 to be safe.
+        :param start_date: only return absence records from this date (inclusive, optional)
+        :param end_date: only return absence records up to this date (inclusive, optional)
+        :return: list of ``Absence`` records for the specified employees
         """
+        # resolve params to match API requirements
         employee_ids, start_date, end_date = self._normalize_timeframe_params(
             employee_ids, start_date, end_date)
         params = {
-            "employees[]": employee_ids,
             "start_date": start_date.isoformat()[:10],
             "end_date": end_date.isoformat()[:10],
         }
-        response = self.request_paginated('company/time-offs', params=params)
-        absences = [Absence.from_dict(d['attributes'], self) for d in response['data']]
+        # request in batches of up to 50 employees (keeps URL length well below 2000 chars)
+        data_acc = []
+        for i in range(0, len(employee_ids), 50):
+            params["employees[]"] = employee_ids[i:i+50]
+            response = self.request_paginated('company/time-offs', params=params)
+            data_acc.extend(response['data'])
+        # create objects from accumulated API responses
+        assert len(set(json.dumps(d, sort_keys=True) for d in data_acc)) == len(data_acc)
+        absences = [Absence.from_dict(d['attributes'], self) for d in data_acc]
         return absences
 
     def get_absence(self, absence_id: int) -> Absence:
