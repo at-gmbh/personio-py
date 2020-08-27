@@ -219,6 +219,18 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">field_type</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="k">else</span> <span class="n">value</span></div></div>
 
 
+<div class="viewcode-block" id="BooleanFieldMapping"><a class="viewcode-back" href="../../api.html#personio_py.mapping.BooleanFieldMapping">[docs]</a><span class="k">class</span> <span class="nc">BooleanFieldMapping</span><span class="p">(</span><span class="n">FieldMapping</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">api_field</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">class_field</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">api_field</span><span class="p">,</span> <span class="n">class_field</span><span class="p">,</span> <span class="n">field_type</span><span class="o">=</span><span class="nb">bool</span><span class="p">)</span>
+
+<div class="viewcode-block" id="BooleanFieldMapping.serialize"><a class="viewcode-back" href="../../api.html#personio_py.mapping.BooleanFieldMapping.serialize">[docs]</a>    <span class="k">def</span> <span class="nf">serialize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">bool</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">value</span></div>
+
+<div class="viewcode-block" id="BooleanFieldMapping.deserialize"><a class="viewcode-back" href="../../api.html#personio_py.mapping.BooleanFieldMapping.deserialize">[docs]</a>    <span class="k">def</span> <span class="nf">deserialize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="n">value</span><span class="p">)</span></div></div>
+
+
 <div class="viewcode-block" id="DateTimeFieldMapping"><a class="viewcode-back" href="../../api.html#personio_py.mapping.DateTimeFieldMapping">[docs]</a><span class="k">class</span> <span class="nc">DateTimeFieldMapping</span><span class="p">(</span><span class="n">FieldMapping</span><span class="p">):</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">api_field</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">class_field</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>

@@ -241,13 +241,47 @@ If the authentication failed, a <code class="docutils literal notranslate"><span
 <dl class="method">
 <dt id="personio_py.Personio.get_absences">
 <code class="sig-name descname">get_absences</code><span class="sig-paren">(</span><em class="sig-param">employee_ids: Union[int, List[int]], start_date: datetime.datetime = None, end_date: datetime.datetime = None</em><span class="sig-paren">)</span> &#x2192; List[personio_py.models.Absence]<a class="reference internal" href="_modules/personio_py/client.html#Personio.get_absences"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#personio_py.Personio.get_absences" title="Permalink to this definition">¶</a></dt>
-<dd><p>placeholder; not ready to be used</p>
+<dd><p>Get a list of all absence records for the employees with the specified IDs.</p>
+<p>Note that internally, multiple requests may be made by this function due to limitations
+of the Personio API: Only a limited number of records can be retrieved in a single request
+and only a limited number of employee IDs can be passed as URL parameters. The results
+are still presented as a single list, no matter how many requests are made.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>employee_ids</strong> – a single employee ID or a list of employee IDs.
+Absence records for all matching employee IDs will be retrieved.</p></li>
+<li><p><strong>start_date</strong> – only return absence records from this date (inclusive, optional)</p></li>
+<li><p><strong>end_date</strong> – only return absence records up to this date (inclusive, optional)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>list of <code class="docutils literal notranslate"><span class="pre">Absence</span></code> records for the specified employees</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="personio_py.Personio.get_attendances">
 <code class="sig-name descname">get_attendances</code><span class="sig-paren">(</span><em class="sig-param">employee_ids: Union[int, List[int]], start_date: datetime.datetime = None, end_date: datetime.datetime = None</em><span class="sig-paren">)</span> &#x2192; List[personio_py.models.Attendance]<a class="reference internal" href="_modules/personio_py/client.html#Personio.get_attendances"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#personio_py.Personio.get_attendances" title="Permalink to this definition">¶</a></dt>
-<dd><p>placeholder; not ready to be used</p>
+<dd><p>Get a list of all attendance records for the employees with the specified IDs</p>
+<p>Note that internally, multiple requests may be made by this function due to limitations
+of the Personio API: Only a limited number of records can be retrieved in a single request
+and only a limited number of employee IDs can be passed as URL parameters. The results
+are still presented as a single list, no matter how many requests are made.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>employee_ids</strong> – a single employee ID or a list of employee IDs.
+Attendance records for all matching employee IDs will be retrieved.</p></li>
+<li><p><strong>start_date</strong> – only return attendance records from this date (inclusive, optional)</p></li>
+<li><p><strong>end_date</strong> – only return attendance records up to this date (inclusive, optional)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>list of <code class="docutils literal notranslate"><span class="pre">Attendance</span></code> records for the specified employees</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -369,6 +403,34 @@ during this request (default: True for json requests)</p></li>
 </dd></dl>
 
 <dl class="method">
+<dt id="personio_py.Personio.request_paginated">
+<code class="sig-name descname">request_paginated</code><span class="sig-paren">(</span><em class="sig-param">path: str</em>, <em class="sig-param">method='GET'</em>, <em class="sig-param">params: Dict[str</em>, <em class="sig-param">Any] = None</em>, <em class="sig-param">data: Dict[str</em>, <em class="sig-param">Any] = None</em>, <em class="sig-param">auth_rotation=True</em>, <em class="sig-param">limit=200</em><span class="sig-paren">)</span> &#x2192; Dict[str, Any]<a class="reference internal" href="_modules/personio_py/client.html#Personio.request_paginated"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#personio_py.Personio.request_paginated" title="Permalink to this definition">¶</a></dt>
+<dd><p>Make a request against the Personio API, expecting a json response that may be paginated,
+i.e. not all results might have been returned after the first request. Will continue
+to make requests until no more results are provided by the Personio API.
+Returns the parsed json response as dictionary. Will raise a PersonioApiError if the
+request fails.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>path</strong> – the URL path for this request (relative to the Personio API base URL)</p></li>
+<li><p><strong>method</strong> – the HTTP request method (default: GET)</p></li>
+<li><p><strong>params</strong> – dictionary of URL parameters (optional)</p></li>
+<li><p><strong>data</strong> – dictionary of data to send in the request body (optional)</p></li>
+<li><p><strong>auth_rotation</strong> – set to True, if authentication keys should be rotated
+during this request (default: True for json requests)</p></li>
+<li><p><strong>limit</strong> – the max. number of items to return in response to a single request.
+A higher limit means fewer requests will be made (though there is an upper bound
+that is enforced on the server side)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>the parsed json response, when the request was successful, or a PersonioApiError</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
 <dt id="personio_py.Personio.update_attendance">
 <code class="sig-name descname">update_attendance</code><span class="sig-paren">(</span><em class="sig-param">attendance_id: int</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/personio_py/client.html#Personio.update_attendance"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#personio_py.Personio.update_attendance" title="Permalink to this definition">¶</a></dt>
 <dd><p>placeholder; not ready to be used</p>
@@ -388,7 +450,7 @@ during this request (default: True for json requests)</p></li>
 <p>definition of ORMs for objects that are available in the Personio API</p>
 <dl class="class">
 <dt id="personio_py.models.Absence">
-<em class="property">class </em><code class="sig-prename descclassname">personio_py.models.</code><code class="sig-name descname">Absence</code><span class="sig-paren">(</span><em class="sig-param">client: Personio = None</em>, <em class="sig-param">dynamic: Dict[str</em>, <em class="sig-param">Any] = None</em>, <em class="sig-param">dynamic_raw: List[DynamicAttr] = None</em>, <em class="sig-param">id_: int = None</em>, <em class="sig-param">status: str = None</em>, <em class="sig-param">comment: str = None</em>, <em class="sig-param">start_date: datetime.datetime = None</em>, <em class="sig-param">end_date: datetime.datetime = None</em>, <em class="sig-param">days_count: float = None</em>, <em class="sig-param">half_day_start: float = None</em>, <em class="sig-param">half_day_end: float = None</em>, <em class="sig-param">time_off_type: personio_py.models.AbsenceType = None</em>, <em class="sig-param">employee: personio_py.models.ShortEmployee = None</em>, <em class="sig-param">created_by: str = None</em>, <em class="sig-param">certificate: personio_py.models.Certificate = None</em>, <em class="sig-param">created_at: datetime.datetime = None</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/personio_py/models.html#Absence"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#personio_py.models.Absence" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">personio_py.models.</code><code class="sig-name descname">Absence</code><span class="sig-paren">(</span><em class="sig-param">client: Personio = None</em>, <em class="sig-param">dynamic: Dict[str</em>, <em class="sig-param">Any] = None</em>, <em class="sig-param">dynamic_raw: List[DynamicAttr] = None</em>, <em class="sig-param">id_: int = None</em>, <em class="sig-param">status: str = None</em>, <em class="sig-param">comment: str = None</em>, <em class="sig-param">start_date: datetime.datetime = None</em>, <em class="sig-param">end_date: datetime.datetime = None</em>, <em class="sig-param">days_count: float = None</em>, <em class="sig-param">half_day_start: int = None</em>, <em class="sig-param">half_day_end: int = None</em>, <em class="sig-param">time_off_type: personio_py.models.AbsenceType = None</em>, <em class="sig-param">employee: personio_py.models.ShortEmployee = None</em>, <em class="sig-param">created_by: str = None</em>, <em class="sig-param">certificate: personio_py.models.Certificate = None</em>, <em class="sig-param">created_at: datetime.datetime = None</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/personio_py/models.html#Absence"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#personio_py.models.Absence" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#personio_py.models.WritablePersonioResource" title="personio_py.models.WritablePersonioResource"><code class="xref py py-class docutils literal notranslate"><span class="pre">personio_py.models.WritablePersonioResource</span></code></a></p>
 </dd></dl>
 
@@ -409,8 +471,8 @@ during this request (default: True for json requests)</p></li>
 <em class="property">class </em><code class="sig-prename descclassname">personio_py.models.</code><code class="sig-name descname">Attendance</code><span class="sig-paren">(</span><em class="sig-param">client: Personio = None</em>, <em class="sig-param">dynamic: Dict[str</em>, <em class="sig-param">Any] = None</em>, <em class="sig-param">dynamic_raw: List[DynamicAttr] = None</em>, <em class="sig-param">id_: int = None</em>, <em class="sig-param">employee_id: int = None</em>, <em class="sig-param">date: datetime.datetime = None</em>, <em class="sig-param">start_time: str = None</em>, <em class="sig-param">end_time: str = None</em>, <em class="sig-param">break_duration: int = None</em>, <em class="sig-param">comment: str = None</em>, <em class="sig-param">is_holiday: bool = None</em>, <em class="sig-param">is_on_time_off: bool = None</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/personio_py/models.html#Attendance"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#personio_py.models.Attendance" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#personio_py.models.WritablePersonioResource" title="personio_py.models.WritablePersonioResource"><code class="xref py py-class docutils literal notranslate"><span class="pre">personio_py.models.WritablePersonioResource</span></code></a></p>
 <dl class="method">
-<dt id="personio_py.models.Attendance.from_dict">
-<em class="property">classmethod </em><code class="sig-name descname">from_dict</code><span class="sig-paren">(</span><em class="sig-param">d: Dict[str, Any], client: Personio = None, dynamic_fields: List[personio_py.mapping.DynamicMapping] = None</em><span class="sig-paren">)</span> &#x2192; __class__<a class="reference internal" href="_modules/personio_py/models.html#Attendance.from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#personio_py.models.Attendance.from_dict" title="Permalink to this definition">¶</a></dt>
+<dt id="personio_py.models.Attendance.to_dict">
+<code class="sig-name descname">to_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; Dict[str, Any]<a class="reference internal" href="_modules/personio_py/models.html#Attendance.to_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#personio_py.models.Attendance.to_dict" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -600,6 +662,43 @@ during this request (default: True for json requests)</p></li>
 <div class="section" id="module-personio_py.mapping">
 <span id="mapping"></span><h2>mapping<a class="headerlink" href="#module-personio_py.mapping" title="Permalink to this headline">¶</a></h2>
 <p>mappings from Personio API fields to Python data types and vice versa are defined in this module</p>
+<dl class="class">
+<dt id="personio_py.mapping.BooleanFieldMapping">
+<em class="property">class </em><code class="sig-prename descclassname">personio_py.mapping.</code><code class="sig-name descname">BooleanFieldMapping</code><span class="sig-paren">(</span><em class="sig-param">api_field: str</em>, <em class="sig-param">class_field: str</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/personio_py/mapping.html#BooleanFieldMapping"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#personio_py.mapping.BooleanFieldMapping" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#personio_py.mapping.FieldMapping" title="personio_py.mapping.FieldMapping"><code class="xref py py-class docutils literal notranslate"><span class="pre">personio_py.mapping.FieldMapping</span></code></a></p>
+<dl class="method">
+<dt id="personio_py.mapping.BooleanFieldMapping.deserialize">
+<code class="sig-name descname">deserialize</code><span class="sig-paren">(</span><em class="sig-param">value: str</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span> &#x2192; bool<a class="reference internal" href="_modules/personio_py/mapping.html#BooleanFieldMapping.deserialize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#personio_py.mapping.BooleanFieldMapping.deserialize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Deserialize the Personio API value to a more useful Python data type.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>value</strong> – the value as provided by the Personio API</p></li>
+<li><p><strong>kwargs</strong> – additional parameters (to be used by subclasses)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>the deserialized value</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="personio_py.mapping.BooleanFieldMapping.serialize">
+<code class="sig-name descname">serialize</code><span class="sig-paren">(</span><em class="sig-param">value: bool</em><span class="sig-paren">)</span> &#x2192; bool<a class="reference internal" href="_modules/personio_py/mapping.html#BooleanFieldMapping.serialize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#personio_py.mapping.BooleanFieldMapping.serialize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Serialize the parsed value to the format that the Personio API expects.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>value</strong> – the value to serialize</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>the serialized value</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
 <dl class="class">
 <dt id="personio_py.mapping.DateFieldMapping">
 <em class="property">class </em><code class="sig-prename descclassname">personio_py.mapping.</code><code class="sig-name descname">DateFieldMapping</code><span class="sig-paren">(</span><em class="sig-param">api_field: str</em>, <em class="sig-param">class_field: str</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/personio_py/mapping.html#DateFieldMapping"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#personio_py.mapping.DateFieldMapping" title="Permalink to this definition">¶</a></dt>

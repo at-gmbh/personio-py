@@ -149,10 +149,11 @@
            <div itemprop="articleBody">
             
   <h1>Source code for personio_py.client</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">logging</span>
+<span></span><span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">logging</span>
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Union</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Type</span><span class="p">,</span> <span class="n">Union</span>
 <span class="kn">from</span> <span class="nn">urllib.parse</span> <span class="kn">import</span> <span class="n">urljoin</span>
 
 <span class="kn">import</span> <span class="nn">requests</span>
@@ -160,6 +161,7 @@
 
 <span class="kn">from</span> <span class="nn">personio_py</span> <span class="kn">import</span> <span class="n">Absence</span><span class="p">,</span> <span class="n">AbsenceType</span><span class="p">,</span> <span class="n">Attendance</span><span class="p">,</span> <span class="n">DynamicMapping</span><span class="p">,</span> <span class="n">Employee</span>
 <span class="kn">from</span> <span class="nn">personio_py.errors</span> <span class="kn">import</span> <span class="n">MissingCredentialsError</span><span class="p">,</span> <span class="n">PersonioApiError</span><span class="p">,</span> <span class="n">PersonioError</span>
+<span class="kn">from</span> <span class="nn">personio_py.models</span> <span class="kn">import</span> <span class="n">PersonioResource</span>
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s1">&#39;personio_py&#39;</span><span class="p">)</span>
 
@@ -282,6 +284,46 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">PersonioApiError</span><span class="o">.</span><span class="n">from_response</span><span class="p">(</span><span class="n">response</span><span class="p">)</span></div>
 
+<div class="viewcode-block" id="Personio.request_paginated"><a class="viewcode-back" href="../../api.html#personio_py.Personio.request_paginated">[docs]</a>    <span class="k">def</span> <span class="nf">request_paginated</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s1">&#39;GET&#39;</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">data</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">auth_rotation</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">limit</span><span class="o">=</span><span class="mi">200</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Make a request against the Personio API, expecting a json response that may be paginated,</span>
+<span class="sd">        i.e. not all results might have been returned after the first request. Will continue</span>
+<span class="sd">        to make requests until no more results are provided by the Personio API.</span>
+<span class="sd">        Returns the parsed json response as dictionary. Will raise a PersonioApiError if the</span>
+<span class="sd">        request fails.</span>
+
+<span class="sd">        :param path: the URL path for this request (relative to the Personio API base URL)</span>
+<span class="sd">        :param method: the HTTP request method (default: GET)</span>
+<span class="sd">        :param params: dictionary of URL parameters (optional)</span>
+<span class="sd">        :param data: dictionary of data to send in the request body (optional)</span>
+<span class="sd">        :param auth_rotation: set to True, if authentication keys should be rotated</span>
+<span class="sd">               during this request (default: True for json requests)</span>
+<span class="sd">        :param limit: the max. number of items to return in response to a single request.</span>
+<span class="sd">               A higher limit means fewer requests will be made (though there is an upper bound</span>
+<span class="sd">               that is enforced on the server side)</span>
+<span class="sd">        :return: the parsed json response, when the request was successful, or a PersonioApiError</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># prepare the params dict (need limit and offset as parameters)</span>
+        <span class="k">if</span> <span class="n">params</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">params</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">params</span><span class="p">[</span><span class="s1">&#39;limit&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">limit</span>
+        <span class="n">params</span><span class="p">[</span><span class="s1">&#39;offset&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="c1"># continue making requests until no more data is returned</span>
+        <span class="n">data_acc</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">request_json</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">method</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">auth_rotation</span><span class="o">=</span><span class="n">auth_rotation</span><span class="p">)</span>
+            <span class="n">resp_data</span> <span class="o">=</span> <span class="n">response</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">resp_data</span><span class="p">:</span>
+                <span class="n">data_acc</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">resp_data</span><span class="p">)</span>
+                <span class="n">params</span><span class="p">[</span><span class="s1">&#39;offset&#39;</span><span class="p">]</span> <span class="o">+=</span> <span class="nb">len</span><span class="p">(</span><span class="n">resp_data</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">break</span>
+        <span class="c1"># return the accumulated data</span>
+        <span class="n">response</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">data_acc</span>
+        <span class="k">return</span> <span class="n">response</span></div>
+
 <div class="viewcode-block" id="Personio.request_image"><a class="viewcode-back" href="../../api.html#personio_py.Personio.request_image">[docs]</a>    <span class="k">def</span> <span class="nf">request_image</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s1">&#39;GET&#39;</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
                       <span class="n">auth_rotation</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bytes</span><span class="p">]:</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -316,7 +358,7 @@
 <span class="sd">        :return: list of ``Employee`` instances</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">request_json</span><span class="p">(</span><span class="s1">&#39;company/employees&#39;</span><span class="p">)</span>
-        <span class="n">employees</span> <span class="o">=</span> <span class="p">[</span><span class="n">Employee</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;attributes&#39;</span><span class="p">],</span> <span class="bp">self</span><span class="p">)</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">response</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">]]</span>
+        <span class="n">employees</span> <span class="o">=</span> <span class="p">[</span><span class="n">Employee</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">response</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">]]</span>
         <span class="k">return</span> <span class="n">employees</span></div>
 
 <div class="viewcode-block" id="Personio.get_employee"><a class="viewcode-back" href="../../api.html#personio_py.Personio.get_employee">[docs]</a>    <span class="k">def</span> <span class="nf">get_employee</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">employee_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Employee</span><span class="p">:</span>
@@ -327,8 +369,7 @@
 <span class="sd">        :return: an ``Employee`` instance or a PersonioApiError, if the employee does not exist</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">request_json</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;company/employees/</span><span class="si">{employee_id}</span><span class="s1">&#39;</span><span class="p">)</span>
-        <span class="n">employee_dict</span> <span class="o">=</span> <span class="n">response</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">][</span><span class="s1">&#39;attributes&#39;</span><span class="p">]</span>
-        <span class="n">employee</span> <span class="o">=</span> <span class="n">Employee</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">employee_dict</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
+        <span class="n">employee</span> <span class="o">=</span> <span class="n">Employee</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">response</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">],</span> <span class="bp">self</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">employee</span></div>
 
 <div class="viewcode-block" id="Personio.get_employee_picture"><a class="viewcode-back" href="../../api.html#personio_py.Personio.get_employee_picture">[docs]</a>    <span class="k">def</span> <span class="nf">get_employee_picture</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">employee_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">width</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bytes</span><span class="p">]:</span>
@@ -378,22 +419,21 @@
 <div class="viewcode-block" id="Personio.get_attendances"><a class="viewcode-back" href="../../api.html#personio_py.Personio.get_attendances">[docs]</a>    <span class="k">def</span> <span class="nf">get_attendances</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">employee_ids</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]],</span> <span class="n">start_date</span><span class="p">:</span> <span class="n">datetime</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
                         <span class="n">end_date</span><span class="p">:</span> <span class="n">datetime</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Attendance</span><span class="p">]:</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        placeholder; not ready to be used</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c1"># TODO automatically resolve paginated requests</span>
+<span class="sd">        Get a list of all attendance records for the employees with the specified IDs</span>
 
-        <span class="n">employee_ids</span><span class="p">,</span> <span class="n">start_date</span><span class="p">,</span> <span class="n">end_date</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_normalize_timeframe_params</span><span class="p">(</span>
-            <span class="n">employee_ids</span><span class="p">,</span> <span class="n">start_date</span><span class="p">,</span> <span class="n">end_date</span><span class="p">)</span>
-        <span class="n">params</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s2">&quot;start_date&quot;</span><span class="p">:</span> <span class="n">start_date</span><span class="o">.</span><span class="n">isoformat</span><span class="p">()[:</span><span class="mi">10</span><span class="p">],</span>
-            <span class="s2">&quot;end_date&quot;</span><span class="p">:</span> <span class="n">end_date</span><span class="o">.</span><span class="n">isoformat</span><span class="p">()[:</span><span class="mi">10</span><span class="p">],</span>
-            <span class="s2">&quot;employees[]&quot;</span><span class="p">:</span> <span class="n">employee_ids</span><span class="p">,</span>
-            <span class="s2">&quot;limit&quot;</span><span class="p">:</span> <span class="mi">200</span><span class="p">,</span>
-            <span class="s2">&quot;offset&quot;</span><span class="p">:</span> <span class="mi">0</span>
-        <span class="p">}</span>
-        <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">request_json</span><span class="p">(</span><span class="s1">&#39;company/attendances&#39;</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">)</span>
-        <span class="n">attendances</span> <span class="o">=</span> <span class="p">[</span><span class="n">Attendance</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">response</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">]]</span>
-        <span class="k">return</span> <span class="n">attendances</span></div>
+<span class="sd">        Note that internally, multiple requests may be made by this function due to limitations</span>
+<span class="sd">        of the Personio API: Only a limited number of records can be retrieved in a single request</span>
+<span class="sd">        and only a limited number of employee IDs can be passed as URL parameters. The results</span>
+<span class="sd">        are still presented as a single list, no matter how many requests are made.</span>
+
+<span class="sd">        :param employee_ids: a single employee ID or a list of employee IDs.</span>
+<span class="sd">               Attendance records for all matching employee IDs will be retrieved.</span>
+<span class="sd">        :param start_date: only return attendance records from this date (inclusive, optional)</span>
+<span class="sd">        :param end_date: only return attendance records up to this date (inclusive, optional)</span>
+<span class="sd">        :return: list of ``Attendance`` records for the specified employees</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_employee_metadata</span><span class="p">(</span>
+            <span class="s1">&#39;company/attendances&#39;</span><span class="p">,</span> <span class="n">Attendance</span><span class="p">,</span> <span class="n">employee_ids</span><span class="p">,</span> <span class="n">start_date</span><span class="p">,</span> <span class="n">end_date</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Personio.create_attendances"><a class="viewcode-back" href="../../api.html#personio_py.Personio.create_attendances">[docs]</a>    <span class="k">def</span> <span class="nf">create_attendances</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attendances</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Attendance</span><span class="p">]):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -428,22 +468,21 @@
 <div class="viewcode-block" id="Personio.get_absences"><a class="viewcode-back" href="../../api.html#personio_py.Personio.get_absences">[docs]</a>    <span class="k">def</span> <span class="nf">get_absences</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">employee_ids</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]],</span> <span class="n">start_date</span><span class="p">:</span> <span class="n">datetime</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
                      <span class="n">end_date</span><span class="p">:</span> <span class="n">datetime</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Absence</span><span class="p">]:</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        placeholder; not ready to be used</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c1"># TODO automatically resolve paginated requests</span>
+<span class="sd">        Get a list of all absence records for the employees with the specified IDs.</span>
 
-        <span class="n">employee_ids</span><span class="p">,</span> <span class="n">start_date</span><span class="p">,</span> <span class="n">end_date</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_normalize_timeframe_params</span><span class="p">(</span>
-            <span class="n">employee_ids</span><span class="p">,</span> <span class="n">start_date</span><span class="p">,</span> <span class="n">end_date</span><span class="p">)</span>
-        <span class="n">params</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s2">&quot;start_date&quot;</span><span class="p">:</span> <span class="n">start_date</span><span class="o">.</span><span class="n">isoformat</span><span class="p">()[:</span><span class="mi">10</span><span class="p">],</span>
-            <span class="s2">&quot;end_date&quot;</span><span class="p">:</span> <span class="n">end_date</span><span class="o">.</span><span class="n">isoformat</span><span class="p">()[:</span><span class="mi">10</span><span class="p">],</span>
-            <span class="s2">&quot;employees[]&quot;</span><span class="p">:</span> <span class="n">employee_ids</span><span class="p">,</span>
-            <span class="s2">&quot;limit&quot;</span><span class="p">:</span> <span class="mi">200</span><span class="p">,</span>
-            <span class="s2">&quot;offset&quot;</span><span class="p">:</span> <span class="mi">0</span>
-        <span class="p">}</span>
-        <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">request_json</span><span class="p">(</span><span class="s1">&#39;company/time-offs&#39;</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">)</span>
-        <span class="n">absences</span> <span class="o">=</span> <span class="p">[</span><span class="n">Absence</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;attributes&#39;</span><span class="p">],</span> <span class="bp">self</span><span class="p">)</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">response</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">]]</span>
-        <span class="k">return</span> <span class="n">absences</span></div>
+<span class="sd">        Note that internally, multiple requests may be made by this function due to limitations</span>
+<span class="sd">        of the Personio API: Only a limited number of records can be retrieved in a single request</span>
+<span class="sd">        and only a limited number of employee IDs can be passed as URL parameters. The results</span>
+<span class="sd">        are still presented as a single list, no matter how many requests are made.</span>
+
+<span class="sd">        :param employee_ids: a single employee ID or a list of employee IDs.</span>
+<span class="sd">               Absence records for all matching employee IDs will be retrieved.</span>
+<span class="sd">        :param start_date: only return absence records from this date (inclusive, optional)</span>
+<span class="sd">        :param end_date: only return absence records up to this date (inclusive, optional)</span>
+<span class="sd">        :return: list of ``Absence`` records for the specified employees</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_employee_metadata</span><span class="p">(</span>
+            <span class="s1">&#39;company/time-offs&#39;</span><span class="p">,</span> <span class="n">Absence</span><span class="p">,</span> <span class="n">employee_ids</span><span class="p">,</span> <span class="n">start_date</span><span class="p">,</span> <span class="n">end_date</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Personio.get_absence"><a class="viewcode-back" href="../../api.html#personio_py.Personio.get_absence">[docs]</a>    <span class="k">def</span> <span class="nf">get_absence</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">absence_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Absence</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -465,6 +504,27 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># TODO implement</span>
         <span class="k">pass</span></div>
+
+    <span class="k">def</span> <span class="nf">_get_employee_metadata</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">resource_cls</span><span class="p">:</span> <span class="n">Type</span><span class="p">[</span><span class="n">PersonioResource</span><span class="p">],</span>
+            <span class="n">employee_ids</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]],</span> <span class="n">start_date</span><span class="p">:</span> <span class="n">datetime</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">end_date</span><span class="p">:</span> <span class="n">datetime</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="c1"># resolve params to match API requirements</span>
+        <span class="n">employee_ids</span><span class="p">,</span> <span class="n">start_date</span><span class="p">,</span> <span class="n">end_date</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_normalize_timeframe_params</span><span class="p">(</span>
+            <span class="n">employee_ids</span><span class="p">,</span> <span class="n">start_date</span><span class="p">,</span> <span class="n">end_date</span><span class="p">)</span>
+        <span class="n">params</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;start_date&quot;</span><span class="p">:</span> <span class="n">start_date</span><span class="o">.</span><span class="n">isoformat</span><span class="p">()[:</span><span class="mi">10</span><span class="p">],</span>
+            <span class="s2">&quot;end_date&quot;</span><span class="p">:</span> <span class="n">end_date</span><span class="o">.</span><span class="n">isoformat</span><span class="p">()[:</span><span class="mi">10</span><span class="p">],</span>
+        <span class="p">}</span>
+        <span class="c1"># request in batches of up to 50 employees (keeps URL length well below 2000 chars)</span>
+        <span class="n">data_acc</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">employee_ids</span><span class="p">),</span> <span class="mi">50</span><span class="p">):</span>
+            <span class="n">params</span><span class="p">[</span><span class="s2">&quot;employees[]&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">employee_ids</span><span class="p">[</span><span class="n">i</span><span class="p">:</span><span class="n">i</span> <span class="o">+</span> <span class="mi">50</span><span class="p">]</span>
+            <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">request_paginated</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">)</span>
+            <span class="n">data_acc</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">response</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">])</span>
+        <span class="c1"># create objects from accumulated API responses</span>
+        <span class="n">parsed_data</span> <span class="o">=</span> <span class="p">[</span><span class="n">resource_cls</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">data_acc</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">parsed_data</span>
 
     <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">_normalize_timeframe_params</span><span class="p">(</span>

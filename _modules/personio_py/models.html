@@ -160,8 +160,9 @@
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">NamedTuple</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Type</span><span class="p">,</span> <span class="n">TypeVar</span>
 
 <span class="kn">from</span> <span class="nn">personio_py</span> <span class="kn">import</span> <span class="n">PersonioError</span><span class="p">,</span> <span class="n">UnsupportedMethodError</span>
-<span class="kn">from</span> <span class="nn">personio_py.mapping</span> <span class="kn">import</span> <span class="n">DateFieldMapping</span><span class="p">,</span> <span class="n">DateTimeFieldMapping</span><span class="p">,</span> <span class="n">DurationFieldMapping</span><span class="p">,</span> \
-    <span class="n">DynamicMapping</span><span class="p">,</span> <span class="n">FieldMapping</span><span class="p">,</span> <span class="n">ListFieldMapping</span><span class="p">,</span> <span class="n">NumericFieldMapping</span><span class="p">,</span> <span class="n">ObjectFieldMapping</span>
+<span class="kn">from</span> <span class="nn">personio_py.mapping</span> <span class="kn">import</span> <span class="n">BooleanFieldMapping</span><span class="p">,</span> <span class="n">DateFieldMapping</span><span class="p">,</span> <span class="n">DateTimeFieldMapping</span><span class="p">,</span> \
+    <span class="n">DurationFieldMapping</span><span class="p">,</span> <span class="n">DynamicMapping</span><span class="p">,</span> <span class="n">FieldMapping</span><span class="p">,</span> <span class="n">ListFieldMapping</span><span class="p">,</span> <span class="n">NumericFieldMapping</span><span class="p">,</span> \
+    <span class="n">ObjectFieldMapping</span>
 
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
     <span class="c1"># only type checkers may import Personio, otherwise we get an evil circular import error</span>
@@ -235,8 +236,6 @@
 
 <div class="viewcode-block" id="PersonioResource.from_dict"><a class="viewcode-back" href="../../api.html#personio_py.models.PersonioResource.from_dict">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">d</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span> <span class="n">client</span><span class="p">:</span> <span class="s1">&#39;Personio&#39;</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s1">&#39;__class__&#39;</span><span class="p">:</span>
-        <span class="c1"># TODO from/to dict should probably always serialize from/to the full dict,</span>
-        <span class="c1">#  not a subset like d[&#39;attributes&#39;]</span>
         <span class="n">kwargs</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_map_fields</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">client</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">client</span><span class="o">=</span><span class="n">client</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
@@ -342,13 +341,17 @@
 <div class="viewcode-block" id="WritablePersonioResource.from_dict"><a class="viewcode-back" href="../../api.html#personio_py.models.WritablePersonioResource.from_dict">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">d</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span> <span class="n">client</span><span class="p">:</span> <span class="s1">&#39;Personio&#39;</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
                   <span class="n">dynamic_fields</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">DynamicMapping</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s1">&#39;__class__&#39;</span><span class="p">:</span>
-        <span class="n">kwargs</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_map_fields</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">client</span><span class="p">)</span>
+        <span class="bp">cls</span><span class="o">.</span><span class="n">_check_api_type</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
+        <span class="n">kwargs</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_map_fields</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;attributes&#39;</span><span class="p">],</span> <span class="n">client</span><span class="p">)</span>
+        <span class="k">if</span> <span class="s1">&#39;id&#39;</span> <span class="ow">in</span> <span class="n">d</span><span class="p">:</span>
+            <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;id_&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">d</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span>
         <span class="n">dynamic_fields</span> <span class="o">=</span> <span class="n">dynamic_fields</span> <span class="ow">or</span> <span class="p">(</span><span class="n">client</span><span class="o">.</span><span class="n">dynamic_fields</span> <span class="k">if</span> <span class="n">client</span> <span class="k">else</span> <span class="kc">None</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">client</span><span class="o">=</span><span class="n">client</span><span class="p">,</span> <span class="n">dynamic_fields</span><span class="o">=</span><span class="n">dynamic_fields</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="WritablePersonioResource.to_dict"><a class="viewcode-back" href="../../api.html#personio_py.models.WritablePersonioResource.to_dict">[docs]</a>    <span class="k">def</span> <span class="nf">to_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
         <span class="c1"># we prefer typed values from the dynamic dict over the raw values</span>
-        <span class="n">d</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()</span>
+        <span class="c1"># (because they might have been changed by the user)</span>
+        <span class="n">attr</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()</span>
         <span class="n">dynamic_mapping_dict</span> <span class="o">=</span> <span class="p">{</span><span class="n">dyn</span><span class="o">.</span><span class="n">field_id</span><span class="p">:</span> <span class="n">dyn</span> <span class="k">for</span> <span class="n">dyn</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">dynamic_fields</span> <span class="ow">or</span> <span class="p">[]}</span>
         <span class="k">for</span> <span class="n">dyn</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">dynamic_raw</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
             <span class="k">if</span> <span class="n">dyn</span><span class="o">.</span><span class="n">field_id</span> <span class="ow">in</span> <span class="n">dynamic_mapping_dict</span><span class="p">:</span>
@@ -360,8 +363,20 @@
                     <span class="n">serialized</span> <span class="o">=</span> <span class="n">field_mapping</span><span class="o">.</span><span class="n">serialize</span><span class="p">(</span><span class="n">rich_value</span><span class="p">)</span>
                     <span class="k">if</span> <span class="n">raw_value</span> <span class="o">!=</span> <span class="n">serialized</span><span class="p">:</span>
                         <span class="n">dyn</span> <span class="o">=</span> <span class="n">dyn</span><span class="o">.</span><span class="n">clone</span><span class="p">(</span><span class="n">new_value</span><span class="o">=</span><span class="n">serialized</span><span class="p">)</span>
-            <span class="n">d</span><span class="p">[</span><span class="sa">f</span><span class="s1">&#39;dynamic_</span><span class="si">{dyn.field_id}</span><span class="s1">&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">dyn</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()</span>
-        <span class="k">return</span> <span class="n">d</span></div>
+            <span class="n">attr</span><span class="p">[</span><span class="sa">f</span><span class="s1">&#39;dynamic_</span><span class="si">{dyn.field_id}</span><span class="s1">&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">dyn</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_api_type_name</span><span class="p">,</span>
+            <span class="s1">&#39;attributes&#39;</span><span class="p">:</span> <span class="n">attr</span><span class="p">,</span>
+        <span class="p">}</span></div>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">_check_api_type</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">d</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]):</span>
+        <span class="n">api_type_name</span> <span class="o">=</span> <span class="n">d</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">api_type_name</span> <span class="o">!=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_api_type_name</span><span class="p">:</span>
+            <span class="n">log_once</span><span class="p">(</span>
+                <span class="n">logging</span><span class="o">.</span><span class="n">WARNING</span><span class="p">,</span>
+                <span class="sa">f</span><span class="s2">&quot;Unexpected API type &#39;</span><span class="si">{api_type_name}</span><span class="s2">&#39; for class </span><span class="si">{cls.__name__}</span><span class="s2">, &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;expected &#39;</span><span class="si">{cls._api_type_name}</span><span class="s2">&#39; instead&quot;</span><span class="p">)</span>
 
 <div class="viewcode-block" id="WritablePersonioResource.create"><a class="viewcode-back" href="../../api.html#personio_py.models.WritablePersonioResource.create">[docs]</a>    <span class="k">def</span> <span class="nf">create</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">client</span><span class="p">:</span> <span class="s1">&#39;Personio&#39;</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_can_create</span><span class="p">:</span>
@@ -402,7 +417,6 @@
         <span class="k">return</span> <span class="n">client</span></div>
 
 
-<span class="c1"># TODO adjust (this mixin concept has issues)</span>
 <div class="viewcode-block" id="LabeledAttributesMixin"><a class="viewcode-back" href="../../api.html#personio_py.models.LabeledAttributesMixin">[docs]</a><span class="k">class</span> <span class="nc">LabeledAttributesMixin</span><span class="p">(</span><span class="n">PersonioResource</span><span class="p">):</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
@@ -634,10 +648,8 @@
 
 <div class="viewcode-block" id="Absence"><a class="viewcode-back" href="../../api.html#personio_py.models.Absence">[docs]</a><span class="k">class</span> <span class="nc">Absence</span><span class="p">(</span><span class="n">WritablePersonioResource</span><span class="p">):</span>
 
-    <span class="c1"># TODO implement</span>
-
+    <span class="n">_api_type_name</span> <span class="o">=</span> <span class="s2">&quot;TimeOffPeriod&quot;</span>
     <span class="n">_can_update</span> <span class="o">=</span> <span class="kc">False</span>
-
     <span class="n">_field_mapping_list</span> <span class="o">=</span> <span class="p">[</span>
         <span class="n">NumericFieldMapping</span><span class="p">(</span><span class="s1">&#39;id&#39;</span><span class="p">,</span> <span class="s1">&#39;id_&#39;</span><span class="p">,</span> <span class="nb">int</span><span class="p">),</span>
         <span class="n">FieldMapping</span><span class="p">(</span><span class="s1">&#39;status&#39;</span><span class="p">,</span> <span class="s1">&#39;status&#39;</span><span class="p">,</span> <span class="nb">str</span><span class="p">),</span>
@@ -645,8 +657,8 @@
         <span class="n">DateFieldMapping</span><span class="p">(</span><span class="s1">&#39;start_date&#39;</span><span class="p">,</span> <span class="s1">&#39;start_date&#39;</span><span class="p">),</span>
         <span class="n">DateFieldMapping</span><span class="p">(</span><span class="s1">&#39;end_date&#39;</span><span class="p">,</span> <span class="s1">&#39;end_date&#39;</span><span class="p">),</span>
         <span class="n">NumericFieldMapping</span><span class="p">(</span><span class="s1">&#39;days_count&#39;</span><span class="p">,</span> <span class="s1">&#39;days_count&#39;</span><span class="p">,</span> <span class="nb">float</span><span class="p">),</span>
-        <span class="n">NumericFieldMapping</span><span class="p">(</span><span class="s1">&#39;half_day_start&#39;</span><span class="p">,</span> <span class="s1">&#39;half_day_start&#39;</span><span class="p">,</span> <span class="nb">float</span><span class="p">),</span>
-        <span class="n">NumericFieldMapping</span><span class="p">(</span><span class="s1">&#39;half_day_end&#39;</span><span class="p">,</span> <span class="s1">&#39;half_day_end&#39;</span><span class="p">,</span> <span class="nb">float</span><span class="p">),</span>
+        <span class="n">NumericFieldMapping</span><span class="p">(</span><span class="s1">&#39;half_day_start&#39;</span><span class="p">,</span> <span class="s1">&#39;half_day_start&#39;</span><span class="p">,</span> <span class="nb">int</span><span class="p">),</span>
+        <span class="n">NumericFieldMapping</span><span class="p">(</span><span class="s1">&#39;half_day_end&#39;</span><span class="p">,</span> <span class="s1">&#39;half_day_end&#39;</span><span class="p">,</span> <span class="nb">int</span><span class="p">),</span>
         <span class="n">ObjectFieldMapping</span><span class="p">(</span><span class="s1">&#39;time_off_type&#39;</span><span class="p">,</span> <span class="s1">&#39;time_off_type&#39;</span><span class="p">,</span> <span class="n">AbsenceType</span><span class="p">),</span>
         <span class="n">ObjectFieldMapping</span><span class="p">(</span><span class="s1">&#39;employee&#39;</span><span class="p">,</span> <span class="s1">&#39;employee&#39;</span><span class="p">,</span> <span class="n">ShortEmployee</span><span class="p">),</span>
         <span class="n">FieldMapping</span><span class="p">(</span><span class="s1">&#39;created_by&#39;</span><span class="p">,</span> <span class="s1">&#39;created_by&#39;</span><span class="p">,</span> <span class="nb">str</span><span class="p">),</span>
@@ -664,8 +676,8 @@
                  <span class="n">start_date</span><span class="p">:</span> <span class="n">datetime</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
                  <span class="n">end_date</span><span class="p">:</span> <span class="n">datetime</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
                  <span class="n">days_count</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-                 <span class="n">half_day_start</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-                 <span class="n">half_day_end</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                 <span class="n">half_day_start</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                 <span class="n">half_day_end</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
                  <span class="n">time_off_type</span><span class="p">:</span> <span class="n">AbsenceType</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
                  <span class="n">employee</span><span class="p">:</span> <span class="n">ShortEmployee</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
                  <span class="n">created_by</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -698,7 +710,7 @@
 
     <span class="n">_api_type_name</span> <span class="o">=</span> <span class="s2">&quot;AttendancePeriod&quot;</span>
     <span class="n">_field_mapping_list</span> <span class="o">=</span> <span class="p">[</span>
-        <span class="c1"># note: the id is not in the attributes dict, but one level higher</span>
+        <span class="c1"># note: the id is actually not in the attributes dict, but one level higher</span>
         <span class="n">NumericFieldMapping</span><span class="p">(</span><span class="s1">&#39;id&#39;</span><span class="p">,</span> <span class="s1">&#39;id_&#39;</span><span class="p">,</span> <span class="nb">int</span><span class="p">),</span>
         <span class="n">NumericFieldMapping</span><span class="p">(</span><span class="s1">&#39;employee&#39;</span><span class="p">,</span> <span class="s1">&#39;employee_id&#39;</span><span class="p">,</span> <span class="nb">int</span><span class="p">),</span>
         <span class="n">DateFieldMapping</span><span class="p">(</span><span class="s1">&#39;date&#39;</span><span class="p">,</span> <span class="s1">&#39;date&#39;</span><span class="p">),</span>
@@ -706,8 +718,8 @@
         <span class="n">DurationFieldMapping</span><span class="p">(</span><span class="s1">&#39;end_time&#39;</span><span class="p">,</span> <span class="s1">&#39;end_time&#39;</span><span class="p">),</span>
         <span class="n">NumericFieldMapping</span><span class="p">(</span><span class="s1">&#39;break&#39;</span><span class="p">,</span> <span class="s1">&#39;break_duration&#39;</span><span class="p">,</span> <span class="nb">int</span><span class="p">),</span>
         <span class="n">FieldMapping</span><span class="p">(</span><span class="s1">&#39;comment&#39;</span><span class="p">,</span> <span class="s1">&#39;comment&#39;</span><span class="p">,</span> <span class="nb">str</span><span class="p">),</span>
-        <span class="n">FieldMapping</span><span class="p">(</span><span class="s1">&#39;is_holiday&#39;</span><span class="p">,</span> <span class="s1">&#39;is_holiday&#39;</span><span class="p">,</span> <span class="nb">bool</span><span class="p">),</span>
-        <span class="n">FieldMapping</span><span class="p">(</span><span class="s1">&#39;is_on_time_off&#39;</span><span class="p">,</span> <span class="s1">&#39;is_on_time_off&#39;</span><span class="p">,</span> <span class="nb">bool</span><span class="p">),</span>
+        <span class="n">BooleanFieldMapping</span><span class="p">(</span><span class="s1">&#39;is_holiday&#39;</span><span class="p">,</span> <span class="s1">&#39;is_holiday&#39;</span><span class="p">),</span>
+        <span class="n">BooleanFieldMapping</span><span class="p">(</span><span class="s1">&#39;is_on_time_off&#39;</span><span class="p">,</span> <span class="s1">&#39;is_on_time_off&#39;</span><span class="p">),</span>
     <span class="p">]</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
@@ -735,12 +747,12 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">is_holiday</span> <span class="o">=</span> <span class="n">is_holiday</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">is_on_time_off</span> <span class="o">=</span> <span class="n">is_on_time_off</span>
 
-<div class="viewcode-block" id="Attendance.from_dict"><a class="viewcode-back" href="../../api.html#personio_py.models.Attendance.from_dict">[docs]</a>    <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">d</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span> <span class="n">client</span><span class="p">:</span> <span class="s1">&#39;Personio&#39;</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-                  <span class="n">dynamic_fields</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">DynamicMapping</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s1">&#39;__class__&#39;</span><span class="p">:</span>
-        <span class="n">attendance</span><span class="p">:</span> <span class="n">Attendance</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;attributes&#39;</span><span class="p">],</span> <span class="n">client</span><span class="p">,</span> <span class="n">dynamic_fields</span><span class="p">)</span>
-        <span class="n">attendance</span><span class="o">.</span><span class="n">id_</span> <span class="o">=</span> <span class="n">d</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span>
-        <span class="k">return</span> <span class="n">attendance</span></div>
+<div class="viewcode-block" id="Attendance.to_dict"><a class="viewcode-back" href="../../api.html#personio_py.models.Attendance.to_dict">[docs]</a>    <span class="k">def</span> <span class="nf">to_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+        <span class="c1"># yes, this is weird an unnecessary, but that&#39;s how the api works</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()</span>
+        <span class="n">d</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">id_</span>
+        <span class="k">del</span> <span class="n">d</span><span class="p">[</span><span class="s1">&#39;attributes&#39;</span><span class="p">][</span><span class="s1">&#39;id&#39;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">d</span></div>
 
     <span class="k">def</span> <span class="nf">_create</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">client</span><span class="p">:</span> <span class="s1">&#39;Personio&#39;</span><span class="p">):</span>
         <span class="k">pass</span>
