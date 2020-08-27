@@ -268,7 +268,18 @@ class Personio:
     def get_attendances(self, employee_ids: Union[int, List[int]], start_date: datetime = None,
                         end_date: datetime = None) -> List[Attendance]:
         """
-        placeholder; not ready to be used
+        Get a list of all attendance records for the employees with the specified IDs
+
+        Note that internally, multiple requests may be made by this function due to limitations
+        of the Personio API: Only a limited number of records can be retrieved in a single request
+        and only a limited number of employee IDs can be passed as URL parameters. The results
+        are still presented as a single list, no matter how many requests are made.
+
+        :param employee_ids: a single employee ID or a list of employee IDs.
+               Attendance records for all matching employee IDs will be retrieved.
+        :param start_date: only return attendance records from this date (inclusive, optional)
+        :param end_date: only return attendance records up to this date (inclusive, optional)
+        :return: list of ``Attendance`` records for the specified employees
         """
         return self._get_employee_metadata(
             'company/attendances', Attendance, employee_ids, start_date, end_date)
@@ -306,12 +317,15 @@ class Personio:
     def get_absences(self, employee_ids: Union[int, List[int]], start_date: datetime = None,
                      end_date: datetime = None) -> List[Absence]:
         """
-        Get a list of all absence records for the employees with the specified IDs
+        Get a list of all absence records for the employees with the specified IDs.
+
+        Note that internally, multiple requests may be made by this function due to limitations
+        of the Personio API: Only a limited number of records can be retrieved in a single request
+        and only a limited number of employee IDs can be passed as URL parameters. The results
+        are still presented as a single list, no matter how many requests are made.
 
         :param employee_ids: a single employee ID or a list of employee IDs.
                Absence records for all matching employee IDs will be retrieved.
-               The number of IDs that can be used in a single request is limited;
-               try to stay below 100 to be safe.
         :param start_date: only return absence records from this date (inclusive, optional)
         :param end_date: only return absence records up to this date (inclusive, optional)
         :return: list of ``Absence`` records for the specified employees
@@ -354,7 +368,7 @@ class Personio:
         # request in batches of up to 50 employees (keeps URL length well below 2000 chars)
         data_acc = []
         for i in range(0, len(employee_ids), 50):
-            params["employees[]"] = employee_ids[i:i+50]
+            params["employees[]"] = employee_ids[i:i + 50]
             response = self.request_paginated(path, params=params)
             data_acc.extend(response['data'])
         # create objects from accumulated API responses
