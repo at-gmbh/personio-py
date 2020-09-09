@@ -235,12 +235,16 @@ If the authentication failed, a <code class="docutils literal notranslate"><span
 <dl class="method">
 <dt id="personio_py.Personio.get_absence_types">
 <code class="sig-name descname">get_absence_types</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; List[personio_py.models.AbsenceType]<a class="reference internal" href="_modules/personio_py/client.html#Personio.get_absence_types"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#personio_py.Personio.get_absence_types" title="Permalink to this definition">¶</a></dt>
-<dd><p>placeholder; not ready to be used</p>
+<dd><p>Get a list of all available absence types, e.g. “paid vacation” or “parental leave”.</p>
+<p>The absence types are used to classify the absences of employees
+(see <code class="docutils literal notranslate"><span class="pre">get_absences</span></code> to get a list of all absences for the employees).
+Each <code class="docutils literal notranslate"><span class="pre">Absence</span></code> also contains the <code class="docutils literal notranslate"><span class="pre">AbsenceType</span></code> for this instance; the purpose
+of this function is to provide you with a list of all possible options that can show up.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="personio_py.Personio.get_absences">
-<code class="sig-name descname">get_absences</code><span class="sig-paren">(</span><em class="sig-param">employee_ids: Union[int, List[int]], start_date: datetime.datetime = None, end_date: datetime.datetime = None</em><span class="sig-paren">)</span> &#x2192; List[personio_py.models.Absence]<a class="reference internal" href="_modules/personio_py/client.html#Personio.get_absences"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#personio_py.Personio.get_absences" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_absences</code><span class="sig-paren">(</span><em class="sig-param">employees: Union[int, List[int], personio_py.models.Employee, List[personio_py.models.Employee]], start_date: datetime.datetime = None, end_date: datetime.datetime = None</em><span class="sig-paren">)</span> &#x2192; List[personio_py.models.Absence]<a class="reference internal" href="_modules/personio_py/client.html#Personio.get_absences"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#personio_py.Personio.get_absences" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get a list of all absence records for the employees with the specified IDs.</p>
 <p>Note that internally, multiple requests may be made by this function due to limitations
 of the Personio API: Only a limited number of records can be retrieved in a single request
@@ -249,8 +253,8 @@ are still presented as a single list, no matter how many requests are made.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>employee_ids</strong> – a single employee ID or a list of employee IDs.
-Absence records for all matching employee IDs will be retrieved.</p></li>
+<li><p><strong>employees</strong> – a single employee or a list of employee objects or IDs.
+Absence records for all matching employees will be retrieved.</p></li>
 <li><p><strong>start_date</strong> – only return absence records from this date (inclusive, optional)</p></li>
 <li><p><strong>end_date</strong> – only return absence records up to this date (inclusive, optional)</p></li>
 </ul>
@@ -263,7 +267,7 @@ Absence records for all matching employee IDs will be retrieved.</p></li>
 
 <dl class="method">
 <dt id="personio_py.Personio.get_attendances">
-<code class="sig-name descname">get_attendances</code><span class="sig-paren">(</span><em class="sig-param">employee_ids: Union[int, List[int]], start_date: datetime.datetime = None, end_date: datetime.datetime = None</em><span class="sig-paren">)</span> &#x2192; List[personio_py.models.Attendance]<a class="reference internal" href="_modules/personio_py/client.html#Personio.get_attendances"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#personio_py.Personio.get_attendances" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_attendances</code><span class="sig-paren">(</span><em class="sig-param">employees: Union[int, List[int], personio_py.models.Employee, List[personio_py.models.Employee]], start_date: datetime.datetime = None, end_date: datetime.datetime = None</em><span class="sig-paren">)</span> &#x2192; List[personio_py.models.Attendance]<a class="reference internal" href="_modules/personio_py/client.html#Personio.get_attendances"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#personio_py.Personio.get_attendances" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get a list of all attendance records for the employees with the specified IDs</p>
 <p>Note that internally, multiple requests may be made by this function due to limitations
 of the Personio API: Only a limited number of records can be retrieved in a single request
@@ -272,8 +276,8 @@ are still presented as a single list, no matter how many requests are made.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>employee_ids</strong> – a single employee ID or a list of employee IDs.
-Attendance records for all matching employee IDs will be retrieved.</p></li>
+<li><p><strong>employees</strong> – a single employee or a list of employee objects or IDs.
+Attendance records for all matching employees will be retrieved.</p></li>
 <li><p><strong>start_date</strong> – only return attendance records from this date (inclusive, optional)</p></li>
 <li><p><strong>end_date</strong> – only return attendance records up to this date (inclusive, optional)</p></li>
 </ul>
@@ -300,13 +304,14 @@ Attendance records for all matching employee IDs will be retrieved.</p></li>
 
 <dl class="method">
 <dt id="personio_py.Personio.get_employee_picture">
-<code class="sig-name descname">get_employee_picture</code><span class="sig-paren">(</span><em class="sig-param">employee_id: int</em>, <em class="sig-param">width: int = None</em><span class="sig-paren">)</span> &#x2192; Optional[bytes]<a class="reference internal" href="_modules/personio_py/client.html#Personio.get_employee_picture"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#personio_py.Personio.get_employee_picture" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get the profile picture of the employee with the specified ID as image file
+<code class="sig-name descname">get_employee_picture</code><span class="sig-paren">(</span><em class="sig-param">employee: Union[int, personio_py.models.Employee], width: int = None</em><span class="sig-paren">)</span> &#x2192; Optional[bytes]<a class="reference internal" href="_modules/personio_py/client.html#Personio.get_employee_picture"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#personio_py.Personio.get_employee_picture" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the profile picture of the specified employee as image file
 (usually png or jpg).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>employee_id</strong> – the Personio ID of the employee to fetch</p></li>
+<li><p><strong>employee</strong> – get the picture of this employee or the employee with
+the specified Personio ID</p></li>
 <li><p><strong>width</strong> – optionally scale the profile picture to this width.
 Defaults to the original width of the profile picture.</p></li>
 </ul>
@@ -447,7 +452,7 @@ that is enforced on the server side)</p></li>
 </div>
 <div class="section" id="module-personio_py.models">
 <span id="models"></span><h2>models<a class="headerlink" href="#module-personio_py.models" title="Permalink to this headline">¶</a></h2>
-<p>definition of ORMs for objects that are available in the Personio API</p>
+<p>Definition of ORMs for objects that are available in the Personio API</p>
 <dl class="class">
 <dt id="personio_py.models.Absence">
 <em class="property">class </em><code class="sig-prename descclassname">personio_py.models.</code><code class="sig-name descname">Absence</code><span class="sig-paren">(</span><em class="sig-param">client: Personio = None</em>, <em class="sig-param">dynamic: Dict[str</em>, <em class="sig-param">Any] = None</em>, <em class="sig-param">dynamic_raw: List[DynamicAttr] = None</em>, <em class="sig-param">id_: int = None</em>, <em class="sig-param">status: str = None</em>, <em class="sig-param">comment: str = None</em>, <em class="sig-param">start_date: datetime.datetime = None</em>, <em class="sig-param">end_date: datetime.datetime = None</em>, <em class="sig-param">days_count: float = None</em>, <em class="sig-param">half_day_start: int = None</em>, <em class="sig-param">half_day_end: int = None</em>, <em class="sig-param">time_off_type: personio_py.models.AbsenceType = None</em>, <em class="sig-param">employee: personio_py.models.ShortEmployee = None</em>, <em class="sig-param">created_by: str = None</em>, <em class="sig-param">certificate: personio_py.models.Certificate = None</em>, <em class="sig-param">created_at: datetime.datetime = None</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/personio_py/models.html#Absence"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#personio_py.models.Absence" title="Permalink to this definition">¶</a></dt>
@@ -464,6 +469,23 @@ that is enforced on the server side)</p></li>
 <dt id="personio_py.models.AbsenceType">
 <em class="property">class </em><code class="sig-prename descclassname">personio_py.models.</code><code class="sig-name descname">AbsenceType</code><span class="sig-paren">(</span><em class="sig-param">id_: int = None</em>, <em class="sig-param">name: str = None</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/personio_py/models.html#AbsenceType"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#personio_py.models.AbsenceType" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#personio_py.models.PersonioResource" title="personio_py.models.PersonioResource"><code class="xref py py-class docutils literal notranslate"><span class="pre">personio_py.models.PersonioResource</span></code></a></p>
+<dl class="method">
+<dt id="personio_py.models.AbsenceType.to_dict">
+<code class="sig-name descname">to_dict</code><span class="sig-paren">(</span><em class="sig-param">nested=False</em><span class="sig-paren">)</span> &#x2192; Dict[str, Any]<a class="reference internal" href="_modules/personio_py/models.html#AbsenceType.to_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#personio_py.models.AbsenceType.to_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert this PersonioResource to a dictionary that has the same structure as the
+json data from the Personio API.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>nested</strong> – indicate that this resource is part of a nested dictionary
+(Personio resources can have a different serialization when they are part of
+a nested dictionary…)</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>the Personio resource as dictionary (same structure as in the Personio API)</p>
+</dd>
+</dl>
+</dd></dl>
+
 </dd></dl>
 
 <dl class="class">
@@ -472,8 +494,20 @@ that is enforced on the server side)</p></li>
 <dd><p>Bases: <a class="reference internal" href="#personio_py.models.WritablePersonioResource" title="personio_py.models.WritablePersonioResource"><code class="xref py py-class docutils literal notranslate"><span class="pre">personio_py.models.WritablePersonioResource</span></code></a></p>
 <dl class="method">
 <dt id="personio_py.models.Attendance.to_dict">
-<code class="sig-name descname">to_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; Dict[str, Any]<a class="reference internal" href="_modules/personio_py/models.html#Attendance.to_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#personio_py.models.Attendance.to_dict" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<code class="sig-name descname">to_dict</code><span class="sig-paren">(</span><em class="sig-param">nested=False</em><span class="sig-paren">)</span> &#x2192; Dict[str, Any]<a class="reference internal" href="_modules/personio_py/models.html#Attendance.to_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#personio_py.models.Attendance.to_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert this PersonioResource to a dictionary that has the same structure as the
+json data from the Personio API.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>nested</strong> – indicate that this resource is part of a nested dictionary
+(Personio resources can have a different serialization when they are part of
+a nested dictionary…)</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>the Personio resource as dictionary (same structure as in the Personio API)</p>
+</dd>
+</dl>
+</dd></dl>
 
 </dd></dl>
 
@@ -565,10 +599,34 @@ that is enforced on the server side)</p></li>
 <dt id="personio_py.models.LabeledAttributesMixin">
 <em class="property">class </em><code class="sig-prename descclassname">personio_py.models.</code><code class="sig-name descname">LabeledAttributesMixin</code><span class="sig-paren">(</span><em class="sig-param">*args</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/personio_py/models.html#LabeledAttributesMixin"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#personio_py.models.LabeledAttributesMixin" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#personio_py.models.PersonioResource" title="personio_py.models.PersonioResource"><code class="xref py py-class docutils literal notranslate"><span class="pre">personio_py.models.PersonioResource</span></code></a></p>
+<p>Personio Resources that use the <code class="docutils literal notranslate"><span class="pre">LabeledAttributesMixin</span></code> expect data in a different format
+than the regular key-value pattern. Example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="s2">&quot;first_name&quot;</span><span class="p">:</span> <span class="p">{</span>
+  <span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="s2">&quot;First name&quot;</span><span class="p">,</span>
+  <span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="s2">&quot;Richard&quot;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Instead of <code class="docutils literal notranslate"><span class="pre">&quot;first_name&quot;:</span> <span class="pre">&quot;Richard&quot;</span></code> we get a dictionary where the label of the field and
+its value are attributes of another dictionary.</p>
+<p>This format is currently used by <code class="docutils literal notranslate"><span class="pre">Employee</span></code> and <code class="docutils literal notranslate"><span class="pre">ShortEmployee</span></code> and was probably chosen
+because Personio allows to specify custom fields for employees with custom label names.</p>
 <dl class="method">
 <dt id="personio_py.models.LabeledAttributesMixin.to_dict">
-<code class="sig-name descname">to_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; Dict[str, Any]<a class="reference internal" href="_modules/personio_py/models.html#LabeledAttributesMixin.to_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#personio_py.models.LabeledAttributesMixin.to_dict" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<code class="sig-name descname">to_dict</code><span class="sig-paren">(</span><em class="sig-param">nested=False</em><span class="sig-paren">)</span> &#x2192; Dict[str, Any]<a class="reference internal" href="_modules/personio_py/models.html#LabeledAttributesMixin.to_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#personio_py.models.LabeledAttributesMixin.to_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert this PersonioResource to a dictionary that has the same structure as the
+json data from the Personio API.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>nested</strong> – indicate that this resource is part of a nested dictionary
+(Personio resources can have a different serialization when they are part of
+a nested dictionary…)</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>the Personio resource as dictionary (same structure as in the Personio API)</p>
+</dd>
+</dl>
+</dd></dl>
 
 </dd></dl>
 
@@ -585,12 +643,39 @@ that is enforced on the server side)</p></li>
 <dl class="method">
 <dt id="personio_py.models.PersonioResource.from_dict">
 <em class="property">classmethod </em><code class="sig-name descname">from_dict</code><span class="sig-paren">(</span><em class="sig-param">d: Dict[str, Any], client: Personio = None</em><span class="sig-paren">)</span> &#x2192; __class__<a class="reference internal" href="_modules/personio_py/models.html#PersonioResource.from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#personio_py.models.PersonioResource.from_dict" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Create an instance of this PersonioResource from the specified dictionary data,
+which is parsed version of the json data from the Personio API.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>d</strong> – create an instance from this data</p></li>
+<li><p><strong>client</strong> – the Personio API client (optional). Used to provide additional operations
+on this resource, when available (e.g. request more data or write changes back
+to Personio)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>a new instance of this class based on the provided data</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="method">
 <dt id="personio_py.models.PersonioResource.to_dict">
-<code class="sig-name descname">to_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; Dict[str, Any]<a class="reference internal" href="_modules/personio_py/models.html#PersonioResource.to_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#personio_py.models.PersonioResource.to_dict" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<code class="sig-name descname">to_dict</code><span class="sig-paren">(</span><em class="sig-param">nested=False</em><span class="sig-paren">)</span> &#x2192; Dict[str, Any]<a class="reference internal" href="_modules/personio_py/models.html#PersonioResource.to_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#personio_py.models.PersonioResource.to_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert this PersonioResource to a dictionary that has the same structure as the
+json data from the Personio API.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>nested</strong> – indicate that this resource is part of a nested dictionary
+(Personio resources can have a different serialization when they are part of
+a nested dictionary…)</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>the Personio resource as dictionary (same structure as in the Personio API)</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="method">
 <dt id="personio_py.models.PersonioResource.to_tuple">
@@ -639,12 +724,39 @@ that is enforced on the server side)</p></li>
 <dl class="method">
 <dt id="personio_py.models.WritablePersonioResource.from_dict">
 <em class="property">classmethod </em><code class="sig-name descname">from_dict</code><span class="sig-paren">(</span><em class="sig-param">d: Dict[str, Any], client: Personio = None, dynamic_fields: List[personio_py.mapping.DynamicMapping] = None</em><span class="sig-paren">)</span> &#x2192; __class__<a class="reference internal" href="_modules/personio_py/models.html#WritablePersonioResource.from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#personio_py.models.WritablePersonioResource.from_dict" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Create an instance of this PersonioResource from the specified dictionary data,
+which is parsed version of the json data from the Personio API.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>d</strong> – create an instance from this data</p></li>
+<li><p><strong>client</strong> – the Personio API client (optional). Used to provide additional operations
+on this resource, when available (e.g. request more data or write changes back
+to Personio)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>a new instance of this class based on the provided data</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="method">
 <dt id="personio_py.models.WritablePersonioResource.to_dict">
-<code class="sig-name descname">to_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; Dict[str, Any]<a class="reference internal" href="_modules/personio_py/models.html#WritablePersonioResource.to_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#personio_py.models.WritablePersonioResource.to_dict" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<code class="sig-name descname">to_dict</code><span class="sig-paren">(</span><em class="sig-param">nested=False</em><span class="sig-paren">)</span> &#x2192; Dict[str, Any]<a class="reference internal" href="_modules/personio_py/models.html#WritablePersonioResource.to_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#personio_py.models.WritablePersonioResource.to_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert this PersonioResource to a dictionary that has the same structure as the
+json data from the Personio API.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>nested</strong> – indicate that this resource is part of a nested dictionary
+(Personio resources can have a different serialization when they are part of
+a nested dictionary…)</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>the Personio resource as dictionary (same structure as in the Personio API)</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="method">
 <dt id="personio_py.models.WritablePersonioResource.update">
