@@ -123,6 +123,26 @@ def test_get_absences():
 
 
 @responses.activate
+def test_get_absence_types():
+    # mock the get absence types endpoint
+    responses.add(
+        responses.GET, 'https://api.personio.de/v1/company/time-off-types', status=200,
+        json=json_dict_absence_types, adding_headers={'Authorization': 'Bearer foo'})
+    # configure personio & get absences for alan
+    personio = mock_personio()
+    absence_types = personio.get_absence_types()
+    # non-empty contents
+    assert len(absence_types) == 3
+    for at in absence_types:
+        assert at.id_ > 0
+        assert isinstance(at.name, str)
+    # serialization matches input
+    for source_dict, at in zip(json_dict_absence_types['data'], absence_types):
+        target_dict = at.to_dict()
+        assert source_dict == target_dict
+
+
+@responses.activate
 def test_get_attendance():
     # mock the get absences endpoint (with different array offsets)
     responses.add(

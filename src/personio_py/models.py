@@ -1,5 +1,5 @@
 """
-definition of ORMs for objects that are available in the Personio API
+Definition of ORMs for objects that are available in the Personio API
 """
 import json
 import logging
@@ -85,16 +85,49 @@ class PersonioResource:
 
     @classmethod
     def from_dict(cls, d: Dict[str, Any], client: 'Personio' = None) -> '__class__':
+        """
+        Create an instance of this PersonioResource from the specified dictionary data,
+        which is parsed version of the json data from the Personio API.
+
+        :param d: create an instance from this data
+        :param client: the Personio API client (optional). Used to provide additional operations
+               on this resource, when available (e.g. request more data or write changes back
+               to Personio)
+        :return: a new instance of this class based on the provided data
+        """
+        # handle 'type' & 'attributes', if available
+        if 'type' in d and 'attributes' in d:
+            cls._check_api_type(d)
+            d = d['attributes']
+        # map the dictionary contents to the constructor's parameter names
         kwargs = cls._map_fields(d, client)
         return cls(client=client, **kwargs)
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self, nested=False) -> Dict[str, Any]:
+        """
+        Convert this PersonioResource to a dictionary that has the same structure as the
+        json data from the Personio API.
+
+        :param nested: indicate that this resource is part of a nested dictionary
+               (Personio resources can have a different serialization when they are part of
+               a nested dictionary...)
+        :return: the Personio resource as dictionary (same structure as in the Personio API)
+        """
         d = {}
         for mapping in self._field_mapping_list:
             value = getattr(self, mapping.class_field)
             if value is not None:
                 d[mapping.api_field] = mapping.serialize(value)
         return d
+
+    @classmethod
+    def _check_api_type(cls, d: Dict[str, Any]):
+        api_type_name = d['type']
+        if api_type_name != cls._api_type_name:
+            log_once(
+                logging.WARNING,
+                f"Unexpected API type '{api_type_name}' for class {cls.__name__}, "
+                f"expected '{cls._api_type_name}' instead")
 
     @classmethod
     def _namedtuple(cls) -> Type[Tuple]:
@@ -197,10 +230,10 @@ class WritablePersonioResource(PersonioResource):
         dynamic_fields = dynamic_fields or (client.dynamic_fields if client else None)
         return cls(client=client, dynamic_fields=dynamic_fields, **kwargs)
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self, nested=False) -> Dict[str, Any]:
         # we prefer typed values from the dynamic dict over the raw values
         # (because they might have been changed by the user)
-        attr = super().to_dict()
+        attr = super().to_dict(nested)
         dynamic_mapping_dict = {dyn.field_id: dyn for dyn in self.dynamic_fields or []}
         for dyn in self.dynamic_raw.values():
             if dyn.field_id in dynamic_mapping_dict:
@@ -217,15 +250,6 @@ class WritablePersonioResource(PersonioResource):
             'type': self._api_type_name,
             'attributes': attr,
         }
-
-    @classmethod
-    def _check_api_type(cls, d: Dict[str, Any]):
-        api_type_name = d['type']
-        if api_type_name != cls._api_type_name:
-            log_once(
-                logging.WARNING,
-                f"Unexpected API type '{api_type_name}' for class {cls.__name__}, "
-                f"expected '{cls._api_type_name}' instead")
 
     def create(self, client: 'Personio' = None):
         if self._can_create:
@@ -267,11 +291,26 @@ class WritablePersonioResource(PersonioResource):
 
 
 class LabeledAttributesMixin(PersonioResource):
+    """
+    Personio Resources that use the ``LabeledAttributesMixin`` expect data in a different format
+    than the regular key-value pattern. Example::
+
+        "first_name": {
+          "label": "First name",
+          "value": "Richard"
+        }
+
+    Instead of ``"first_name": "Richard"`` we get a dictionary where the label of the field and
+    its value are attributes of another dictionary.
+
+    This format is currently used by ``Employee`` and ``ShortEmployee`` and was probably chosen
+    because Personio allows to specify custom fields for employees with custom label names.
+    """
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self, nested=False) -> Dict[str, Any]:
         d = {}
         label_mapping = self._label_mapping()
         for mapping in self._field_mapping_list:
@@ -333,6 +372,15 @@ class AbsenceType(PersonioResource):
         super().__init__(**kwargs)
         self.id_ = id_
         self.name = name
+
+    def to_dict(self, nested=False) -> Dict[str, Any]:
+        if nested:
+            return super().to_dict()
+        else:
+            return {
+                'type': self._api_type_name,
+                'attributes': super().to_dict(),
+            }
 
 
 class Certificate(PersonioResource):
@@ -596,7 +644,7 @@ class Attendance(WritablePersonioResource):
         self.is_holiday = is_holiday
         self.is_on_time_off = is_on_time_off
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self, nested=False) -> Dict[str, Any]:
         # yes, this is weird an unnecessary, but that's how the api works
         d = super().to_dict()
         d['id'] = self.id_

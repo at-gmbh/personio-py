@@ -156,9 +156,12 @@ class ObjectFieldMapping(FieldMapping):
 
     def serialize(self, value: 'PersonioResourceType') -> Dict:
         if self.field_type._flat_dict:
-            return value.to_dict()
+            return value.to_dict(nested=True)
         else:
-            return {'type': self.field_type._api_type_name, 'attributes': value.to_dict()}
+            return {
+                'type': self.field_type._api_type_name,
+                'attributes': value.to_dict(nested=True)
+            }
 
     def deserialize(self, value: Dict, client: 'Personio' = None) \
             -> Optional['PersonioResourceType']:

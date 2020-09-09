@@ -1,4 +1,6 @@
-import json
+"""
+Implementation of the Personio API functions
+"""
 import logging
 import os
 from datetime import datetime
@@ -309,10 +311,16 @@ class Personio:
 
     def get_absence_types(self) -> List[AbsenceType]:
         """
-        placeholder; not ready to be used
+        Get a list of all available absence types, e.g. "paid vacation" or "parental leave".
+
+        The absence types are used to classify the absences of employees
+        (see ``get_absences`` to get a list of all absences for the employees).
+        Each ``Absence`` also contains the ``AbsenceType`` for this instance; the purpose
+        of this function is to provide you with a list of all possible options that can show up.
         """
-        # TODO implement
-        pass
+        response = self.request_json('company/time-off-types')
+        absence_types = [AbsenceType.from_dict(d, self) for d in response['data']]
+        return absence_types
 
     def get_absences(self, employee_ids: Union[int, List[int]], start_date: datetime = None,
                      end_date: datetime = None) -> List[Absence]:

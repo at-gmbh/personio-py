@@ -164,7 +164,7 @@ json_string_employees = """
           "label": "Team",
           "value": null
         },
-		"dynamic_1146702": {
+        "dynamic_1146702": {
           "label": "Country of Birth",
           "value": "USA"
         },
@@ -708,6 +708,33 @@ json_string_employee_ada = """
 }
 """
 json_dict_employee_ada = json.loads(json_string_employee_ada)
+
+json_string_absence_types = """
+{
+  "success": true,
+  "data": [{
+      "type": "TimeOffType",
+      "attributes": {
+        "id": 195824,
+        "name": "vacation"
+      }
+    }, {
+      "type": "TimeOffType",
+      "attributes": {
+        "id": 195825,
+        "name": "paid leave"
+      }
+    }, {
+      "type": "TimeOffType",
+      "attributes": {
+        "id": 195826,
+        "name": "sick"
+      }
+    }
+  ]
+}
+"""
+json_dict_absence_types = json.loads(json_string_absence_types)
 
 json_string_absence_alan = """
 {
