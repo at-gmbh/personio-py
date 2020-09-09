@@ -4,7 +4,7 @@ Implementation of the Personio API functions
 import logging
 import os
 from datetime import datetime
-from typing import Any, Dict, List, Optional, Tuple, Type, Union
+from typing import Any, Dict, List, Optional, Tuple, Type, TypeVar, Union
 from urllib.parse import urljoin
 
 import requests
@@ -15,6 +15,8 @@ from personio_py.errors import MissingCredentialsError, PersonioApiError, Person
 from personio_py.models import PersonioResource
 
 logger = logging.getLogger('personio_py')
+
+PersonioResourceType = TypeVar('PersonioResourceType', bound=PersonioResource, covariant=True)
 
 
 class Personio:
@@ -267,8 +269,8 @@ class Personio:
         # TODO implement
         pass
 
-    def get_attendances(self, employee_ids: Union[int, List[int]], start_date: datetime = None,
-                        end_date: datetime = None) -> List[Attendance]:
+    def get_attendances(self, employees: Union[int, List[int], Employee, List[Employee]],
+                        start_date: datetime = None, end_date: datetime = None) -> List[Attendance]:
         """
         Get a list of all attendance records for the employees with the specified IDs
 
@@ -277,14 +279,14 @@ class Personio:
         and only a limited number of employee IDs can be passed as URL parameters. The results
         are still presented as a single list, no matter how many requests are made.
 
-        :param employee_ids: a single employee ID or a list of employee IDs.
-               Attendance records for all matching employee IDs will be retrieved.
+        :param employees: a single employee or a list of employee objects or IDs.
+               Attendance records for all matching employees will be retrieved.
         :param start_date: only return attendance records from this date (inclusive, optional)
         :param end_date: only return attendance records up to this date (inclusive, optional)
         :return: list of ``Attendance`` records for the specified employees
         """
         return self._get_employee_metadata(
-            'company/attendances', Attendance, employee_ids, start_date, end_date)
+            'company/attendances', Attendance, employees, start_date, end_date)
 
     def create_attendances(self, attendances: List[Attendance]):
         """
@@ -322,8 +324,8 @@ class Personio:
         absence_types = [AbsenceType.from_dict(d, self) for d in response['data']]
         return absence_types
 
-    def get_absences(self, employee_ids: Union[int, List[int]], start_date: datetime = None,
-                     end_date: datetime = None) -> List[Absence]:
+    def get_absences(self, employees: Union[int, List[int], Employee, List[Employee]],
+                     start_date: datetime = None, end_date: datetime = None) -> List[Absence]:
         """
         Get a list of all absence records for the employees with the specified IDs.
 
@@ -332,14 +334,14 @@ class Personio:
         and only a limited number of employee IDs can be passed as URL parameters. The results
         are still presented as a single list, no matter how many requests are made.
 
-        :param employee_ids: a single employee ID or a list of employee IDs.
-               Absence records for all matching employee IDs will be retrieved.
+        :param employees: a single employee or a list of employee objects or IDs.
+               Absence records for all matching employees will be retrieved.
         :param start_date: only return absence records from this date (inclusive, optional)
         :param end_date: only return absence records up to this date (inclusive, optional)
         :return: list of ``Absence`` records for the specified employees
         """
         return self._get_employee_metadata(
-            'company/time-offs', Absence, employee_ids, start_date, end_date)
+            'company/time-offs', Absence, employees, start_date, end_date)
 
     def get_absence(self, absence_id: int) -> Absence:
         """
@@ -363,20 +365,20 @@ class Personio:
         pass
 
     def _get_employee_metadata(
-            self, path: str, resource_cls: Type[PersonioResource],
-            employee_ids: Union[int, List[int]], start_date: datetime = None,
-            end_date: datetime = None):
+            self, path: str, resource_cls: Type[PersonioResourceType],
+            employees: Union[int, List[int], Employee, List[Employee]], start_date: datetime = None,
+            end_date: datetime = None) -> List[PersonioResourceType]:
         # resolve params to match API requirements
-        employee_ids, start_date, end_date = self._normalize_timeframe_params(
-            employee_ids, start_date, end_date)
+        employees, start_date, end_date = self._normalize_timeframe_params(
+            employees, start_date, end_date)
         params = {
             "start_date": start_date.isoformat()[:10],
             "end_date": end_date.isoformat()[:10],
         }
         # request in batches of up to 50 employees (keeps URL length well below 2000 chars)
         data_acc = []
-        for i in range(0, len(employee_ids), 50):
-            params["employees[]"] = employee_ids[i:i + 50]
+        for i in range(0, len(employees), 50):
+            params["employees[]"] = employees[i:i + 50]
             response = self.request_paginated(path, params=params)
             data_acc.extend(response['data'])
         # create objects from accumulated API responses
@@ -385,8 +387,9 @@ class Personio:
 
     @classmethod
     def _normalize_timeframe_params(
-            cls, employee_ids: Union[int, List[int]], start_date: datetime = None,
-            end_date: datetime = None) -> Tuple[List[int], datetime, datetime]:
+            cls, employees: Union[int, List[int], Employee, List[Employee]],
+            start_date: datetime = None, end_date: datetime = None) \
+            -> Tuple[List[int], datetime, datetime]:
         """
         Whenever we need a list of employee IDs, a start date and an end date, this function comes
         in handy:
@@ -395,17 +398,18 @@ class Personio:
         * sets the start date way into the past, if it was not provided
         * sets the end date way into the future, if it was not provided
 
-        :param employee_ids: a single employee ID or a list of employee IDs
+        :param employees: a single employee or a list of employees (employee objects or just IDs)
         :param start_date: a start date (optional)
         :param end_date: an end date (optional)
         :return: a tuple of (list of employee IDs, start date, end date), no None values.
         """
-        if not employee_ids:
+        if not employees:
             raise ValueError("need at least one employee ID, got nothing")
         if start_date is None:
             start_date = datetime(1900, 1, 1)
         if end_date is None:
             end_date = datetime(datetime.now().year + 10, 1, 1)
-        if not isinstance(employee_ids, list):
-            employee_ids = [employee_ids]
+        if not isinstance(employees, list):
+            employees = [employees]
+        employee_ids = [(e.id_ if isinstance(e, Employee) else e) for e in employees]
         return employee_ids, start_date, end_date

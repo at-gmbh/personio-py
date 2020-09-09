@@ -38,11 +38,8 @@ def test_authenticate_fail():
 
 @responses.activate
 def test_get_employees():
-    # mock the get employees endpoint
-    responses.add(
-        responses.GET, 'https://api.personio.de/v1/company/employees', status=200,
-        json=json_dict_employees, adding_headers={'Authorization': 'Bearer rotated_dummy_token'})
-    # configure personio
+    # mock data & configure personio
+    mock_employees()
     personio = mock_personio()
     personio.dynamic_fields = [
         DynamicMapping(1146666, 'birthday', date),
@@ -97,14 +94,8 @@ def test_auth_rotation_fail():
 
 @responses.activate
 def test_get_absences():
-    # mock the get absences endpoint (with different array offsets)
-    responses.add(
-        responses.GET, re.compile('https://api.personio.de/v1/company/time-offs?.*offset=0.*'),
-        status=200, json=json_dict_absence_alan, adding_headers={'Authorization': 'Bearer foo'})
-    responses.add(
-        responses.GET, re.compile('https://api.personio.de/v1/company/time-offs?.*offset=3.*'),
-        status=200, json=json_dict_empty_response, adding_headers={'Authorization': 'Bearer bar'})
     # configure personio & get absences for alan
+    mock_absences()
     personio = mock_personio()
     absences = personio.get_absences(2116365)
     # validate
@@ -120,6 +111,20 @@ def test_get_absences():
     source_dict = json_dict_absence_alan['data'][0]
     target_dict = marathon.to_dict()
     compare_labeled_attributes(source_dict, target_dict)
+
+
+@responses.activate
+def test_get_absences_from_employee_objects():
+    # mock endpoints & get absences for all employees
+    mock_employees()
+    mock_absences()
+    personio = mock_personio()
+    employees = personio.get_employees()
+    assert employees
+    absences = personio.get_absences(employees)
+    # the response is not important (it does not match the input), but the function should accept
+    # a list of Employee objects as parameter and return a result
+    assert absences
 
 
 @responses.activate
@@ -176,6 +181,23 @@ def mock_personio():
     resp_json = {'success': True, 'data': {'token': 'dummy_token'}}
     responses.add(responses.POST, 'https://api.personio.de/v1/auth', json=resp_json, status=200)
     return Personio(client_id='test', client_secret='test')
+
+
+def mock_employees():
+    # mock the get employees endpoint
+    responses.add(
+        responses.GET, 'https://api.personio.de/v1/company/employees', status=200,
+        json=json_dict_employees, adding_headers={'Authorization': 'Bearer rotated_dummy_token'})
+
+
+def mock_absences():
+    # mock the get absences endpoint (with different array offsets)
+    responses.add(
+        responses.GET, re.compile('https://api.personio.de/v1/company/time-offs?.*offset=0.*'),
+        status=200, json=json_dict_absence_alan, adding_headers={'Authorization': 'Bearer foo'})
+    responses.add(
+        responses.GET, re.compile('https://api.personio.de/v1/company/time-offs?.*offset=3.*'),
+        status=200, json=json_dict_empty_response, adding_headers={'Authorization': 'Bearer bar'})
 
 
 def compare_labeled_attributes(expected: Dict, actual: Dict):
