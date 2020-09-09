@@ -783,7 +783,7 @@ class Employee(WritablePersonioResource, LabeledAttributesMixin):
     def picture(self, client: 'Personio' = None, width: int = None) -> bytes:
         if self._picture is None:
             client = get_client(self, client)
-            self._picture = client.get_employee_picture(self.id_, width=width)
+            self._picture = client.get_employee_picture(self, width=width)
         return self._picture
 
     def __str__(self):

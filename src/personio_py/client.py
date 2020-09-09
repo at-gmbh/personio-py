@@ -225,16 +225,19 @@ class Personio:
         employee = Employee.from_dict(response['data'], self)
         return employee
 
-    def get_employee_picture(self, employee_id: int, width: int = None) -> Optional[bytes]:
+    def get_employee_picture(self, employee: Union[int, Employee], width: int = None) \
+            -> Optional[bytes]:
         """
-        Get the profile picture of the employee with the specified ID as image file
+        Get the profile picture of the specified employee as image file
         (usually png or jpg).
 
-        :param employee_id: the Personio ID of the employee to fetch
+        :param employee: get the picture of this employee or the employee with
+               the specified Personio ID
         :param width: optionally scale the profile picture to this width.
                Defaults to the original width of the profile picture.
         :return: the profile picture as png or jpg file (bytes)
         """
+        employee_id = employee.id_ if isinstance(employee, Employee) else int(employee)
         path = f'company/employees/{employee_id}/profile-picture'
         if width:
             path += f'/{width}'
