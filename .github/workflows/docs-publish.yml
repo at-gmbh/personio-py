@@ -5,8 +5,12 @@ on:
     branches:
     - master
     paths:
+    # on documentation change (changelog & contribution guidlines are a part of that)
     - 'docs/**'
     - 'CHANGELOG.md'
+    - 'CONTRIBUTING.md'
+    # also when docstrings in the source code change
+    - 'src/**'
 
 jobs:
   build:
