@@ -102,7 +102,7 @@ class Personio:
             _headers.update(headers)
         # make the request
         url = urljoin(self.base_url, path)
-        response = requests.request(method, url, headers=_headers, params=params, data=data)
+        response = requests.request(method, url, headers=_headers, params=params, json=data)
         # re-new the authorization header
         authorization = response.headers.get('Authorization')
         if authorization:
@@ -127,8 +127,7 @@ class Personio:
                during this request (default: True for json requests)
         :return: the parsed json response, when the request was successful, or a PersonioApiError
         """
-        headers = {'accept': 'application/json'}
-        response = self.request(path, method, params, data, headers, auth_rotation=auth_rotation)
+        response = self.request(path, method, params, data, auth_rotation=auth_rotation)
         if response.ok:
             try:
                 return response.json()
