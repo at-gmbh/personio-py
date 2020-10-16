@@ -291,11 +291,25 @@ class Personio:
 
     def create_attendances(self, attendances: List[Attendance]):
         """
-        placeholder; not ready to be used
+        Create all given attendance records.
+
+        Note: Attendances are created sequentially. This function stops on first error.
+        All attendance records before the error will be created, all records after the error will be skipped.
+
+        :param attendances: A list attendance records to be created.
         """
-        # attendances can be created individually, but here you can push a huge bunch of items
-        # in a single request, which can be significantly faster
-        raise NotImplementedError()
+        # Extract and send only the data expected by the personio API
+        data_to_send = []
+        for attendance in attendances:
+            data_to_send.append({
+                "employee": attendance.employee_id,
+                "date": attendance.date.strftime("%Y-%m-%d"),
+                "start_time": attendance.start_time,
+                "end_time": attendance.end_time,
+                "break": attendance.break_duration,
+                "comment": attendance.comment})
+        response = self.request_json(path='company/attendances', method='POST', data={"attendances": data_to_send})
+        return response
 
     def update_attendance(self, attendance_id: int):
         """
