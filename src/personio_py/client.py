@@ -298,24 +298,45 @@ class Personio:
 
         :param attendances: A list attendance records to be created.
         """
-        # Extract and send only the data expected by the personio API
         data_to_send = []
         for attendance in attendances:
-            data_to_send.append({
-                "employee": attendance.employee_id,
-                "date": attendance.date.strftime("%Y-%m-%d"),
-                "start_time": attendance.start_time,
-                "end_time": attendance.end_time,
-                "break": attendance.break_duration,
-                "comment": attendance.comment})
+            data_to_send.append(attendance.to_body_params(patch_existing_attendance=False))
         response = self.request_json(path='company/attendances', method='POST', data={"attendances": data_to_send})
         return response
 
-    def update_attendance(self, attendance_id: int):
+    def update_attendance(self, attendance, remote_query_id=False):
         """
-        placeholder; not ready to be used
+        Update an existing attendance record
+
+        Either an attendance id or o remote query is required. Remote queries are only executed if required.
+        An Attendance object returned by get_attendances() include the attendance id. DO NOT SET THE ID YOURSELF.
+
+        :param attendance: The Attendance object holding the new data.
+        :param remote_query_id: Allow a remote query for the id if it is not set within the given Attendance object.
+        :raises:
+            ValueError: If a query is required but not allowed or the query does not provide exactly one result.
         """
-        raise NotImplementedError()
+        if attendance.id_ is not None:
+            # remote query not necessary
+            response = self.request_json(path='company/attendances/' + str(attendance.id_), method='PATCH',
+                                         data=attendance.to_body_params(patch_existing_attendance=True))
+            return response
+        else:
+            if remote_query_id:
+                if attendance.employee_id is None:
+                    raise ValueError("For a remote query an employee_id is required")
+                if attendance.date is None:
+                    raise ValueError("For a remote query a date is required")
+                matching_remote_attendances = self.get_attendances(employees=[attendance.employee_id],
+                                                                   start_date=attendance.date, end_date=attendance.date)
+                if len(matching_remote_attendances) == 0:
+                    raise ValueError("The attendance to patch was not found")
+                elif len(matching_remote_attendances) > 1:
+                    raise ValueError("More than one attendance found.")
+                attendance.id_ = matching_remote_attendances[0].id_
+                self.update_attendance(attendance)
+            else:
+                raise ValueError("You either need to provide the attendance id or allow a remote query.")
 
     def delete_attendance(self, attendance_id: int):
         """
