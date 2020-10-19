@@ -289,7 +289,7 @@ class Personio:
         return self._get_employee_metadata(
             'company/attendances', Attendance, employees, start_date, end_date)
 
-    def create_attendances(self, attendances: List[Attendance]):
+    def create_attendances(self, attendances: List[Attendance]) -> bool:
         """
         Create all given attendance records.
 
@@ -300,7 +300,11 @@ class Personio:
         """
         data_to_send = [attendance.to_body_params(patch_existing_attendance=False) for attendance in attendances]
         response = self.request_json(path='company/attendances', method='POST', data={"attendances": data_to_send})
-        return response
+        if response['success']:
+            for i in range(len(attendances)):
+                attendances[i].id_ = response['data']['id'][i]
+            return True
+        return False
 
     def update_attendance(self, attendance: Attendance, remote_query_id=False):
         """
