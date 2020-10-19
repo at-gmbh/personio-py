@@ -407,9 +407,12 @@ class Personio:
 
     def get_absence(self, absence_id: int) -> Absence:
         """
-        placeholder; not ready to be used
+        Get an absence record from a given id.
+
+        :param absence_id: The absence id to fetch.
         """
-        raise NotImplementedError()
+        response = self.request_json('company/time-offs/' + str(absence_id))
+        return Absence.from_dict(response['data'], self)
 
     def create_absence(self, absence: Absence):
         """
