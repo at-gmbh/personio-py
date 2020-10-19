@@ -602,6 +602,19 @@ class Absence(WritablePersonioResource):
     def _delete(self, client: 'Personio'):
         pass
 
+    def to_body_params(self):
+        data = {
+            'empolyee_id': self.employee.id_,
+            'time_off_type_id': self.time_off_type.id_,
+            'start_date': self.start_date,
+            'end_date': self.end_date,
+            'half_day_start': self.half_day_start,
+            'half_day_end': self.half_day_end
+        }
+        if self.comment is not None:
+            data['comment'] = self.comment
+        return data
+
 
 class Attendance(WritablePersonioResource):
 

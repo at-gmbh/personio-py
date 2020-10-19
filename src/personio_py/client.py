@@ -422,7 +422,10 @@ class Personio:
         """
         placeholder; not ready to be used
         """
-        raise NotImplementedError()
+
+        data = absence.to_body_params()
+        response = self.request_json('company/time-offs', method='POST', data=data)
+        return response
 
     def delete_absence(self, absence_id: int):
         """
