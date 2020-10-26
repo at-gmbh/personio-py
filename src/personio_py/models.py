@@ -289,6 +289,9 @@ class WritablePersonioResource(PersonioResource):
             client.authenticate()
         return client
 
+    def set_client(self, client: 'Personio'):
+        self._client = client
+
 
 class LabeledAttributesMixin(PersonioResource):
     """
@@ -665,13 +668,13 @@ class Attendance(WritablePersonioResource):
         return d
 
     def _create(self, client: 'Personio'):
-        pass
+        self._client.create_attendances([self])
 
-    def _update(self, client: 'Personio'):
-        pass
+    def _update(self, client: 'Personio', allow_remote_query: bool = False):
+        self._client.update_attendance(self, remote_query_id=allow_remote_query)
 
-    def _delete(self, client: 'Personio'):
-        pass
+    def _delete(self, client: 'Personio', allow_remote_query: bool = False):
+        self._client.delete_attendance(self, remote_query_id=allow_remote_query)
 
     def to_body_params(self, patch_existing_attendance=False):
         """

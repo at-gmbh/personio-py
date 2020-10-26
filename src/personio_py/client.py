@@ -303,6 +303,7 @@ class Personio:
         if response['success']:
             for i in range(len(attendances)):
                 attendances[i].id_ = response['data']['id'][i]
+                attendances[i].set_client(self)
             return True
         return False
 
