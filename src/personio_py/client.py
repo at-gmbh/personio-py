@@ -303,7 +303,7 @@ class Personio:
         if response['success']:
             for i in range(len(attendances)):
                 attendances[i].id_ = response['data']['id'][i]
-                attendances[i].set_client(self)
+                attendances[i].client = self
             return True
         return False
 
@@ -421,14 +421,15 @@ class Personio:
 
     def create_absence(self, absence: Absence):
         """
-        placeholder; not ready to be used
-        """
+        Creates an absence record on the Personio servers
 
+        :param absence: The absence object to be created
+        """
         data = absence.to_body_params()
         response = self.request_json('company/time-offs', method='POST', data=data)
         return response
 
-    def delete_absence(self, absence_id: int):
+    def delete_absence(self, absence_id: int, remote_query_id=False):
         """
         placeholder; not ready to be used
         """

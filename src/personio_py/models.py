@@ -67,7 +67,7 @@ class PersonioResource:
 
     def __init__(self, client: 'Personio' = None, **kwargs):
         super().__init__()
-        self._client = client
+        self.client = client
 
     @classmethod
     def _field_mapping(cls) -> Dict[str, FieldMapping]:
@@ -282,15 +282,12 @@ class WritablePersonioResource(PersonioResource):
         UnsupportedMethodError('delete', self.__class__)
 
     def _check_client(self, client: 'Personio' = None) -> 'Personio':
-        client = client or self._client
+        client = client or self.client
         if not client:
             raise PersonioError()
         if not client.authenticated:
             client.authenticate()
         return client
-
-    def set_client(self, client: 'Personio'):
-        self._client = client
 
 
 class LabeledAttributesMixin(PersonioResource):
@@ -600,10 +597,10 @@ class Absence(WritablePersonioResource):
         self.created_at = created_at
 
     def _create(self, client: 'Personio'):
-        pass
+        get_client(self, client).create_absence(self)
 
-    def _delete(self, client: 'Personio'):
-        pass
+    def _delete(self, client: 'Personio', allow_remote_query: bool = False):
+        get_client(self, client).delete_absence(self.id_, remote_query_id=allow_remote_query)
 
     def to_body_params(self):
         data = {
@@ -668,13 +665,13 @@ class Attendance(WritablePersonioResource):
         return d
 
     def _create(self, client: 'Personio'):
-        self._client.create_attendances([self])
+        get_client(self, client).create_attendances([self])
 
     def _update(self, client: 'Personio', allow_remote_query: bool = False):
-        self._client.update_attendance(self, remote_query_id=allow_remote_query)
+        get_client(self, client).update_attendance(self, remote_query_id=allow_remote_query)
 
     def _delete(self, client: 'Personio', allow_remote_query: bool = False):
-        self._client.delete_attendance(self, remote_query_id=allow_remote_query)
+        get_client(self, client).delete_attendance(self, remote_query_id=allow_remote_query)
 
     def to_body_params(self, patch_existing_attendance=False):
         """
