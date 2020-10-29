@@ -255,7 +255,7 @@ class Personio:
             'employee[position]': employee.position,
             'employee[department]': employee.department.name,
             'employee[hire_date]': employee.hire_date.isoformat()[:10],
-            'employee[weekly_hours]': employee.weekly_working_hours,
+            'employee[weekly_hours]': employee.weekly_working_hours
         }
         response = self.request_json('company/employees', method='POST', data=data)
         employee.id_ = response['data']['id']
@@ -378,6 +378,28 @@ class Personio:
         attendance.id_ = matching_remote_attendances[0].id_
         return attendance
 
+    def __add_remote_absence_id(self, absence: Absence) -> Absence:
+        """
+        Queries the API for an absence record matching the given Absence object and adds the remote id.
+
+        :param absence: The absence object to be updated
+        :return: The absence object with the absence_id set
+        """
+        if absence.employee is None:
+            raise ValueError("For a remote query an employee_id is required")
+        if absence.start_date is None:
+            raise ValueError("For a remote query a start date is required")
+        if absence.end_date is None:
+            raise ValueError("For a remote query an end date is required")
+        matching_remote_absences = self.get_absences(employees=[absence.employee.id_],
+                                                     start_date=absence.start_date, end_date=absence.end_date)
+        if len(matching_remote_absences) == 0:
+            raise ValueError("The absence to patch was not found")
+        elif len(matching_remote_absences) > 1:
+            raise ValueError("More than one absence found.")
+        absence.id_ = matching_remote_absences[0].id_
+        return absence
+
     def get_absence_types(self) -> List[AbsenceType]:
         """
         Get a list of all available absence types, e.g. "paid vacation" or "parental leave".
@@ -419,7 +441,7 @@ class Personio:
         response = self.request_json('company/time-offs/' + str(absence_id))
         return Absence.from_dict(response['data'], self)
 
-    def create_absence(self, absence: Absence):
+    def create_absence(self, absence: Absence) -> bool:
         """
         Creates an absence record on the Personio servers
 
@@ -427,13 +449,36 @@ class Personio:
         """
         data = absence.to_body_params()
         response = self.request_json('company/time-offs', method='POST', data=data)
-        return response
+        if response['success']:
+            absence.id_ = response['data']['attributes']['id']
+            return True
+        return False
 
-    def delete_absence(self, absence_id: int, remote_query_id=False):
+    def delete_absence(self, absence: Absence or int, remote_query_id=False):
         """
-        placeholder; not ready to be used
+        Delete an existing record
+
+        Either an absence id or o remote query is required. Remote queries are only executed if required.
+
+        :param absence: The Absence object holding the new data or an absence record id to delete.
+        :param remote_query_id: Allow a remote query for the id if it is not set within the given Absence object.
+        :raises:
+            ValueError: If a query is required but not allowed or the query does not provide exactly one result.
         """
-        raise NotImplementedError()
+        if isinstance(absence, int):
+            response = self.request_json(path='company/time-offs/' + str(absence), method='DELETE')
+            return response
+        elif isinstance(absence, Absence):
+            if absence.id_ is not None:
+                return self.delete_absence(absence.id_)
+            else:
+                if remote_query_id:
+                    absence = self.__add_remote_absence_id(absence)
+                    self.delete_absence(absence.id_)
+                else:
+                    raise ValueError("You either need to provide the absence id or allow a remote query.")
+        else:
+            raise ValueError("absence must be an Absence object or an integer")
 
     def _get_employee_metadata(
             self, path: str, resource_cls: Type[PersonioResourceType],

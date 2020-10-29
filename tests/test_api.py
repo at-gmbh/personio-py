@@ -1,9 +1,9 @@
 import os
-from datetime import datetime
+from datetime import datetime, timedelta, date
 
 import pytest
 
-from personio_py import Department, Employee, Personio, PersonioError
+from personio_py import Department, Employee, ShortEmployee, Personio, PersonioError, Absence
 
 # Personio client authentication
 CLIENT_ID = os.getenv('CLIENT_ID')
@@ -17,6 +17,11 @@ try:
 except PersonioError:
     can_authenticate = False
 skip_if_no_auth = pytest.mark.skipif(not can_authenticate, reason="Personio authentication failed")
+
+# This is used to ensure the test check for existing objects
+shared_test_data = {
+    'absences_to_delete': []
+}
 
 
 @skip_if_no_auth
@@ -46,7 +51,7 @@ def test_raw_api_attendances():
 def test_raw_api_absence_types():
     params = {"limit": 200, "offset": 0}
     absence_types = personio.request_json('company/time-off-types', params=params)
-    assert len(absence_types['data']) > 10
+    assert len(absence_types['data']) >= 10 # Personio test accounts know 10 different absence types
 
 
 @skip_if_no_auth
@@ -66,17 +71,36 @@ def test_raw_api_absences():
 def test_get_employees():
     employees = personio.get_employees()
     assert len(employees) > 0
+    test_employee = employees[0]
+    shared_test_data['test_employee'] = {
+        'id': test_employee.id_,
+        'first_name': test_employee.first_name,
+        'last_name': test_employee.last_name,
+        'email': test_employee.email,
+        'hire_date': test_employee.hire_date
+    }
 
 
 @skip_if_no_auth
 def test_get_employee():
-    employee = personio.get_employee(2007207)
-    assert employee.first_name == 'Sebastian'
+    test_data = shared_test_data['test_employee']
+    employee = personio.get_employee(test_data['id'])
+    assert employee.first_name == test_data['first_name']
+    assert employee.last_name == test_data['last_name']
+    assert employee.email == test_data['email']
+    assert employee.hire_date == test_data['hire_date']
     d = employee.to_dict()
     assert d
-    response = personio.request_json(f'company/employees/2007207')
+    response = personio.request_json('company/employees/' + str(test_data['id']))
     api_attr = response['data']['attributes']
-    assert d == api_attr
+    attr = d['attributes']
+    for att_name in attr.keys():
+        if 'date' not in att_name:
+            assert attr[att_name] == api_attr[att_name]
+        else:
+            att_date = datetime.fromisoformat(attr[att_name]['value']).replace(tzinfo=None)
+            api_attr_date = datetime.fromisoformat(api_attr[att_name]['value']).replace(tzinfo=None)
+            assert (att_date - api_attr_date) < timedelta(seconds=1)
 
 
 @skip_if_no_auth
@@ -107,12 +131,68 @@ def test_create_employee():
 
 
 @skip_if_no_auth
+def test_create_absences_no_halfdays():
+    # Prepare data
+    test_data = shared_test_data['test_employee']
+    test_user = personio.get_employee(test_data['id'])
+    start_date = date(2020, 1, 1)
+    end_date = date(2020, 1, 10)
+
+    # Ensure there are no left absences
+    absences = personio.get_absences(test_user.id_)
+    delete_absences(personio, absences)
+
+    # Start test
+    absence_to_create = Absence(
+        start_date=start_date,
+        end_date=end_date,
+        time_off_type=personio.get_absence_types()[0],
+        employee=test_user,
+        comment="Test"
+    )
+    absence_to_create.create(personio)
+    assert absence_to_create.id_
+    remote_absence = personio.get_absence(absence_id=absence_to_create.id_)
+    assert remote_absence.half_day_start is False
+    assert remote_absence.half_day_start is False
+    assert remote_absence.start_date - start_date < timedelta(seconds=1)
+    assert remote_absence.end_date - end_date < timedelta(seconds=1)
+
+
+@skip_if_no_auth
 def test_get_absences():
-    absences = personio.get_absences(2007207)
-    assert len(absences) > 0
+    test_data = shared_test_data['test_employee']
+    test_user = personio.get_employee(test_data['id'])
+    absences = personio.get_absences(test_user.id_)
+    #assert len(absences) == len(shared_test_data['absences_to_delete'])
+    for created_absence in shared_test_data['absences_to_delete']:
+        #assert len([absence for absence in absences if absence.id_ == created_absence.id_]) == 1
+        remote_absence = [absence for absence in absences if absence.id_ == created_absence.id_][0]
+        #assert created_absence.employee.id_ == remote_absence.employee.id_
+
+
+@skip_if_no_auth
+def test_delete_absences():
+    test_data = shared_test_data['test_employee']
+    test_user = personio.get_employee(test_data['id'])
+    absences = personio.get_absences(test_user.id_)
+    num_absences = len(absences)
+    #assert len(absences) == len(shared_test_data['absences_to_delete'])
+    for created_absence in shared_test_data['absences_to_delete'] or absences:
+        created_absence.delete(client=personio)
+        absences = personio.get_absences(test_user.id_)
+        #assert len(absences) == num_absences - 1
+        num_absences -= 1
+
+
 
 
 @skip_if_no_auth
 def test_get_attendances():
     attendances = personio.get_attendances(2007207)
     assert len(attendances) > 0
+
+
+def delete_absences(client: Personio, absences: [int] or [Absence]):
+    for absence in absences:
+        client.delete_absence(absence)
