@@ -71,7 +71,7 @@ def test_raw_api_absences():
 def test_get_employees():
     employees = personio.get_employees()
     assert len(employees) > 0
-    test_employee = employees[0]
+    test_employee = [e for e in employees if e.last_name == "Flohr"][0]
     shared_test_data['test_employee'] = {
         'id': test_employee.id_,
         'first_name': test_employee.first_name,
@@ -118,7 +118,7 @@ def test_create_employee():
         email='ada@example.org',
         gender='female',
         position='first programmer ever',
-        department=Department(name='Operations'),
+        department=None,
         hire_date=datetime(1835, 2, 1),
         weekly_working_hours="35",
     )
@@ -131,12 +131,20 @@ def test_create_employee():
 
 
 @skip_if_no_auth
-def test_create_absences_no_halfdays():
+@pytest.mark.parametrize("half_day_start", [True, False])
+@pytest.mark.parametrize("half_dey_end", [True, False])
+def test_create_absences(half_day_start: bool, half_dey_end: bool):
+    """
+    Test the creation of absence records on the server.
+    half_day_start and half_day_end are not supported on all absence types.
+    """
     # Prepare data
     test_data = shared_test_data['test_employee']
     test_user = personio.get_employee(test_data['id'])
-    start_date = date(2020, 1, 1)
-    end_date = date(2020, 1, 10)
+    absence_types = personio.get_absence_types()
+    absence_type = [absence_type for absence_type in absence_types if absence_type.name == "Unpaid vacation"][0]
+    start_date = date(2021, 1, 1)
+    end_date = date(2021, 1, 10)
 
     # Ensure there are no left absences
     absences = personio.get_absences(test_user.id_)
@@ -146,15 +154,17 @@ def test_create_absences_no_halfdays():
     absence_to_create = Absence(
         start_date=start_date,
         end_date=end_date,
-        time_off_type=personio.get_absence_types()[0],
+        time_off_type=absence_type,
         employee=test_user,
+        half_day_start=half_day_start,
+        half_day_end=half_dey_end,
         comment="Test"
     )
     absence_to_create.create(personio)
     assert absence_to_create.id_
     remote_absence = personio.get_absence(absence_id=absence_to_create.id_)
-    assert remote_absence.half_day_start is False
-    assert remote_absence.half_day_start is False
+    assert remote_absence.half_day_start is half_day_start
+    assert remote_absence.half_day_end is half_dey_end
     assert remote_absence.start_date - start_date < timedelta(seconds=1)
     assert remote_absence.end_date - end_date < timedelta(seconds=1)
 
