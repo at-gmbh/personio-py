@@ -419,8 +419,7 @@
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        placeholder; not ready to be used</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c1"># TODO implement</span>
-        <span class="k">pass</span></div>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span></div>
 
 <div class="viewcode-block" id="Personio.get_attendances"><a class="viewcode-back" href="../../api.html#personio_py.Personio.get_attendances">[docs]</a>    <span class="k">def</span> <span class="nf">get_attendances</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">employees</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">Employee</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="n">Employee</span><span class="p">]],</span>
                         <span class="n">start_date</span><span class="p">:</span> <span class="n">datetime</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">end_date</span><span class="p">:</span> <span class="n">datetime</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Attendance</span><span class="p">]:</span>
@@ -447,22 +446,19 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># attendances can be created individually, but here you can push a huge bunch of items</span>
         <span class="c1"># in a single request, which can be significantly faster</span>
-        <span class="c1"># TODO implement</span>
-        <span class="k">pass</span></div>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span></div>
 
 <div class="viewcode-block" id="Personio.update_attendance"><a class="viewcode-back" href="../../api.html#personio_py.Personio.update_attendance">[docs]</a>    <span class="k">def</span> <span class="nf">update_attendance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attendance_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        placeholder; not ready to be used</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c1"># TODO implement</span>
-        <span class="k">pass</span></div>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span></div>
 
 <div class="viewcode-block" id="Personio.delete_attendance"><a class="viewcode-back" href="../../api.html#personio_py.Personio.delete_attendance">[docs]</a>    <span class="k">def</span> <span class="nf">delete_attendance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attendance_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        placeholder; not ready to be used</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c1"># TODO implement</span>
-        <span class="k">pass</span></div>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span></div>
 
 <div class="viewcode-block" id="Personio.get_absence_types"><a class="viewcode-back" href="../../api.html#personio_py.Personio.get_absence_types">[docs]</a>    <span class="k">def</span> <span class="nf">get_absence_types</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">AbsenceType</span><span class="p">]:</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -500,22 +496,19 @@
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        placeholder; not ready to be used</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c1"># TODO implement</span>
-        <span class="k">pass</span></div>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span></div>
 
 <div class="viewcode-block" id="Personio.create_absence"><a class="viewcode-back" href="../../api.html#personio_py.Personio.create_absence">[docs]</a>    <span class="k">def</span> <span class="nf">create_absence</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">absence</span><span class="p">:</span> <span class="n">Absence</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        placeholder; not ready to be used</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c1"># TODO implement</span>
-        <span class="k">pass</span></div>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span></div>
 
 <div class="viewcode-block" id="Personio.delete_absence"><a class="viewcode-back" href="../../api.html#personio_py.Personio.delete_absence">[docs]</a>    <span class="k">def</span> <span class="nf">delete_absence</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">absence_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        placeholder; not ready to be used</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c1"># TODO implement</span>
-        <span class="k">pass</span></div>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span></div>
 
     <span class="k">def</span> <span class="nf">_get_employee_metadata</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">resource_cls</span><span class="p">:</span> <span class="n">Type</span><span class="p">[</span><span class="n">PersonioResourceType</span><span class="p">],</span>
