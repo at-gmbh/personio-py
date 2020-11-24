@@ -268,8 +268,7 @@ class Personio:
         """
         placeholder; not ready to be used
         """
-        # TODO implement
-        pass
+        raise NotImplementedError()
 
     def get_attendances(self, employees: Union[int, List[int], Employee, List[Employee]],
                         start_date: datetime = None, end_date: datetime = None) -> List[Attendance]:
@@ -296,22 +295,19 @@ class Personio:
         """
         # attendances can be created individually, but here you can push a huge bunch of items
         # in a single request, which can be significantly faster
-        # TODO implement
-        pass
+        raise NotImplementedError()
 
     def update_attendance(self, attendance_id: int):
         """
         placeholder; not ready to be used
         """
-        # TODO implement
-        pass
+        raise NotImplementedError()
 
     def delete_attendance(self, attendance_id: int):
         """
         placeholder; not ready to be used
         """
-        # TODO implement
-        pass
+        raise NotImplementedError()
 
     def get_absence_types(self) -> List[AbsenceType]:
         """
