@@ -17,12 +17,44 @@ def test_create_attendances():
     assert len(attendances) == 1
 
 
-def delete_all_attendances_for_employee(employee: Employee, date: datetime = None):
-    if not date:
-        date = datetime(2020, 1, 1)
-    attendances = personio.get_attendances([employee.id_], start_date=date, end_date=date)
+@skip_if_no_auth
+def test_add_attendance_id():
+    employee_id = shared_test_data['test_employee']['id']
+    employee = personio.get_employee(employee_id)
+    delete_all_attendances_for_employee(employee)
+    attendance = create_attendance_for_user(employee_id, create=True)
+    attendance_id = attendance.id_
+    attendance_date = attendance.date
+    attendance.id_ = None
+    assert attendance.id_ is None
+    personio._Personio__add_remote_attendance_id(attendance)
+    assert attendance.id_ == attendance_id
+
+    # Test error conditions
+    attendance.id_ = None
+    attendance.employee_id = None
+    with pytest.raises(ValueError):
+        personio._Personio__add_remote_attendance_id(attendance)
+    attendance.employee_id = employee_id
+    attendance.date = None
+    with pytest.raises(ValueError):
+        personio._Personio__add_remote_attendance_id(attendance)
+    attendance.date = attendance_date
+    attendance.id_ = attendance_id
+    attendance.delete(personio)
+    with pytest.raises(ValueError):
+        personio._Personio__add_remote_attendance_id(attendance)
+    attendance_1 = create_attendance_for_user(employee_id, start_time="08:00", end_time="12:00", create=True)
+    attendance_2 = create_attendance_for_user(employee_id, start_time="13:00", end_time="17:00", create=True)
+    attendance_1.id_ = None
+    with pytest.raises(ValueError):
+        personio._Personio__add_remote_attendance_id(attendance_1)
+
+
+def delete_all_attendances_for_employee(employee: Employee):
+    attendances = personio.get_attendances([employee.id_])
     for attendance in attendances:
-        personio.delete_attendance(attendance)
+        attendance.delete(personio)
 
 
 def prepare_test_get_attendances() -> Employee:
