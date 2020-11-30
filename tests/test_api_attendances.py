@@ -1,6 +1,6 @@
 from tests.apitest_shared import *
 
-from personio_py import Employee, Attendance
+from personio_py import Employee, Attendance, PersonioApiError
 
 from datetime import datetime
 
@@ -15,6 +15,87 @@ def test_create_attendances():
     create_attendance_for_user(employee_id, create=True)
     attendances = personio.get_attendances([employee_id])
     assert len(attendances) == 1
+
+
+@skip_if_no_auth
+def test_delete_attendance_from_client_id():
+    employee_id = shared_test_data['test_employee']['id']
+    employee = personio.get_employee(employee_id)
+    delete_all_attendances_for_employee(employee)
+    attendance = create_attendance_for_user(employee_id, create=True)
+    assert len(personio.get_attendances([employee_id])) == 1
+    personio.delete_attendance(attendance.id_)
+    assert len(personio.get_attendances([employee_id])) == 0
+
+
+@skip_if_no_auth
+def test_delete_attendance_from_client_object_with_id():
+    employee_id = shared_test_data['test_employee']['id']
+    employee = personio.get_employee(employee_id)
+    delete_all_attendances_for_employee(employee)
+    attendance = create_attendance_for_user(employee_id, create=True)
+    assert len(personio.get_attendances([employee_id])) == 1
+    personio.delete_attendance(attendance)
+    assert len(personio.get_attendances([employee_id])) == 0
+
+
+@skip_if_no_auth
+def test_delete_attendance_from_client_object_no_id_query():
+    employee_id = shared_test_data['test_employee']['id']
+    employee = personio.get_employee(employee_id)
+    delete_all_attendances_for_employee(employee)
+    attendance = create_attendance_for_user(employee_id, create=True)
+    assert len(personio.get_attendances([employee_id])) == 1
+    attendance.id_ = None
+    personio.delete_attendance(attendance, remote_query_id=True)
+    assert len(personio.get_attendances([employee_id])) == 0
+
+
+@skip_if_no_auth
+def test_delete_attendance_from_client_object_no_id_no_query():
+    employee_id = shared_test_data['test_employee']['id']
+    employee = personio.get_employee(employee_id)
+    delete_all_attendances_for_employee(employee)
+    attendance = create_attendance_for_user(employee_id, create=True)
+    assert len(personio.get_attendances([employee_id])) == 1
+    attendance.id_ = None
+    with pytest.raises(ValueError):
+        personio.delete_attendance(attendance, remote_query_id=False)
+
+
+@skip_if_no_auth
+def test_delete_attendance_from_model_no_client():
+    employee_id = shared_test_data['test_employee']['id']
+    employee = personio.get_employee(employee_id)
+    delete_all_attendances_for_employee(employee)
+    attendance = create_attendance_for_user(employee_id, create=True)
+    assert len(personio.get_attendances([employee_id])) == 1
+    attendance.delete()
+    with pytest.raises(PersonioApiError):
+        personio.delete_attendance(attendance, remote_query_id=False)
+
+
+@skip_if_no_auth
+def test_delete_attendance_from_model_passed_client():
+    employee_id = shared_test_data['test_employee']['id']
+    employee = personio.get_employee(employee_id)
+    delete_all_attendances_for_employee(employee)
+    attendance = create_attendance_for_user(employee_id, create=True)
+    assert len(personio.get_attendances([employee_id])) == 1
+    attendance.delete(client=personio)
+    assert len(personio.get_attendances([employee_id])) == 0
+
+
+@skip_if_no_auth
+def test_delete_attendance_from_model_with_client():
+    employee_id = shared_test_data['test_employee']['id']
+    employee = personio.get_employee(employee_id)
+    delete_all_attendances_for_employee(employee)
+    attendance = create_attendance_for_user(employee_id, create=True)
+    assert len(personio.get_attendances([employee_id])) == 1
+    attendance.client = personio
+    attendance.delete()
+    assert len(personio.get_attendances([employee_id])) == 0
 
 
 @skip_if_no_auth
