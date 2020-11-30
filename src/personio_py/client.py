@@ -102,7 +102,7 @@ class Personio:
             _headers.update(headers)
         # make the request
         url = urljoin(self.base_url, path)
-        response = requests.request(method, url, headers=_headers, params=params, data=data)
+        response = requests.request(method, url, headers=_headers, params=params, json=data)
         # re-new the authorization header
         authorization = response.headers.get('Authorization')
         if authorization:
@@ -127,8 +127,7 @@ class Personio:
                during this request (default: True for json requests)
         :return: the parsed json response, when the request was successful, or a PersonioApiError
         """
-        headers = {'accept': 'application/json'}
-        response = self.request(path, method, params, data, headers, auth_rotation=auth_rotation)
+        response = self.request(path, method, params, data, auth_rotation=auth_rotation)
         if response.ok:
             try:
                 return response.json()
@@ -346,26 +345,63 @@ class Personio:
         return self._get_employee_metadata(
             'company/time-offs', Absence, employees, start_date, end_date)
 
-    def get_absence(self, absence_id: int) -> Absence:
+    def get_absence(self, absence: int or Absence, remote_query_id=False) -> Absence:
         """
-        placeholder; not ready to be used
-        """
-        # TODO implement
-        pass
+        Get an absence record from a given id.
 
-    def create_absence(self, absence: Absence):
+        :param absence: The absence id to fetch.
+        :param remote_query_id: Whether it is allowed to make a remote ID query.
         """
-        placeholder; not ready to be used
-        """
-        # TODO implement
-        pass
+        if isinstance(absence, int):
+            response = self.request_json('company/time-offs/' + str(absence))
+            return Absence.from_dict(response['data'], self)
+        else:
+            if absence.id_:
+                return self.get_absence(absence.id_)
+            elif absence.id_ is None and remote_query_id:
+                self.__add_remote_absence_id(absence)
+                return self.get_absence(absence.id_)
+            else:
+                raise ValueError("Id is required to get an absence record")
 
-    def delete_absence(self, absence_id: int):
+    def create_absence(self, absence: Absence) -> bool:
         """
-        placeholder; not ready to be used
+        Creates an absence record on the Personio servers
+
+        :param absence: The absence object to be created
         """
-        # TODO implement
-        pass
+        data = absence.to_body_params()
+        response = self.request_json('company/time-offs', method='POST', data=data)
+        if response['success']:
+            absence.id_ = response['data']['attributes']['id']
+            return True
+        return False
+
+    def delete_absence(self, absence: Absence or int, remote_query_id=False):
+        """
+        Delete an existing record
+
+        Either an absence id or o remote query is required. Remote queries are only executed if required.
+
+        :param absence: The Absence object holding the new data or an absence record id to delete.
+        :param remote_query_id: Allow a remote query for the id if it is not set within the given Absence object.
+        :raises:
+            ValueError: If a query is required but not allowed or the query does not provide exactly one result.
+        """
+        if isinstance(absence, int):
+            response = self.request_json(path='company/time-offs/' + str(absence), method='DELETE')
+            return response['success']
+        elif isinstance(absence, Absence):
+            if absence.id_ is not None:
+                return self.delete_absence(absence.id_)
+            else:
+                if remote_query_id:
+                    absence = self.__add_remote_absence_id(absence)
+                    return self.delete_absence(absence.id_)
+                else:
+                    raise ValueError("You either need to provide the absence id or allow a remote query.")
+        else:
+            raise ValueError("absence must be an Absence object or an integer")
 
     def _get_employee_metadata(
             self, path: str, resource_cls: Type[PersonioResourceType],
@@ -416,3 +452,25 @@ class Personio:
             employees = [employees]
         employee_ids = [(e.id_ if isinstance(e, Employee) else e) for e in employees]
         return employee_ids, start_date, end_date
+
+    def __add_remote_absence_id(self, absence: Absence) -> Absence:
+        """
+        Queries the API for an absence record matching the given Absence object and adds the remote id.
+
+        :param absence: The absence object to be updated
+        :return: The absence object with the absence_id set
+        """
+        if absence.employee is None:
+            raise ValueError("For a remote query an employee_id is required")
+        if absence.start_date is None:
+            raise ValueError("For a remote query a start date is required")
+        if absence.end_date is None:
+            raise ValueError("For a remote query an end date is required")
+        matching_remote_absences = self.get_absences(employees=[absence.employee.id_],
+                                                     start_date=absence.start_date, end_date=absence.end_date)
+        if len(matching_remote_absences) == 0:
+            raise ValueError("The absence to patch was not found")
+        elif len(matching_remote_absences) > 1:
+            raise ValueError("More than one absence found.")
+        absence.id_ = matching_remote_absences[0].id_
+        return absence

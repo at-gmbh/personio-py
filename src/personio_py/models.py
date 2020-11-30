@@ -573,8 +573,8 @@ class Absence(WritablePersonioResource):
                  start_date: datetime = None,
                  end_date: datetime = None,
                  days_count: float = None,
-                 half_day_start: int = None,
-                 half_day_end: int = None,
+                 half_day_start: bool = None,
+                 half_day_end: bool = None,
                  time_off_type: AbsenceType = None,
                  employee: ShortEmployee = None,
                  created_by: str = None,
@@ -588,19 +588,37 @@ class Absence(WritablePersonioResource):
         self.start_date = start_date
         self.end_date = end_date
         self.days_count = days_count
-        self.half_day_start = half_day_start
-        self.half_day_end = half_day_end
+        self.half_day_start = False
+        if half_day_start and half_day_start > 0:
+            self.half_day_start = True
+        self.half_day_end = False
+        if half_day_end and half_day_end > 0:
+            self.half_day_end = True
         self.time_off_type = time_off_type
         self.employee = employee
         self.created_by = created_by
         self.certificate = certificate
         self.created_at = created_at
 
-    def _create(self, client: 'Personio'):
-        pass
+    def _create(self, client: 'Personio' = None):
+        return get_client(self, client).create_absence(self)
 
-    def _delete(self, client: 'Personio'):
-        pass
+    def _delete(self, client: 'Personio' = None, allow_remote_query: bool = False):
+        return get_client(self, client).delete_absence(self, remote_query_id=allow_remote_query)
+
+    def to_body_params(self):
+        data = {
+            'employee_id': self.employee.id_,
+            'time_off_type_id': self.time_off_type.id_,
+            'start_date': self.start_date.strftime("%Y-%m-%d"),
+            'end_date': self.end_date.strftime("%Y-%m-%d"),
+            'half_day_start': self.half_day_start or False,
+            'half_day_end': self.half_day_end or False
+        }
+        if self.comment is not None:
+            data['comment'] = self.comment
+        print(data)
+        return data
 
 
 class Attendance(WritablePersonioResource):
