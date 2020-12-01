@@ -144,6 +144,60 @@ json_string_absence_alan = """
 """
 json_dict_absence_alan = json.loads(json_string_absence_alan)
 
+json_string_absence_alan_single = """
+{
+ "success": true,
+  "data": [{
+      "type": "TimeOffPeriod",
+      "attributes": {
+        "id": 17205942,
+        "status": "approved",
+        "comment": "marathon starts at noon",
+        "start_date": "1944-09-01T00:00:00+02:00",
+        "end_date": "1944-09-01T00:00:00+02:00",
+        "days_count": 0.5,
+        "half_day_start": 0,
+        "half_day_end": 1,
+        "time_off_type": {
+          "type": "TimeOffType",
+          "attributes": {
+            "id": 195824,
+            "name": "vacation"
+          }
+        },
+        "employee": {
+          "type": "Employee",
+          "attributes": {
+            "id": {
+              "label": "ID",
+              "value": 2116365
+            },
+            "first_name": {
+              "label": "First name",
+              "value": "Alan"
+            },
+            "last_name": {
+              "label": "Last name",
+              "value": "Turing"
+            },
+            "email": {
+              "label": "Email",
+              "value": "alan@example.org"
+            }
+          }
+        },
+        "created_by": "Alan Turing",
+        "certificate": {
+          "status": "not-required"
+        },
+        "created_at": "2020-08-21T18:07:06+02:00"
+      }
+    }
+    ]
+}
+"""
+json_dict_absence_alan_first = json.loads(json_string_absence_alan_single)
+
 
 json_string_absence_types = """
 {
@@ -171,3 +225,14 @@ json_string_absence_types = """
 }
 """
 json_dict_absence_types = json.loads(json_string_absence_types)
+
+json_string_delete_absence = """
+{
+    "success": true,
+    "data":
+    {
+        "message": "The absence period was deleted."
+    }
+}
+"""
+json_dict_delete_absence = json.loads(json_string_delete_absence)

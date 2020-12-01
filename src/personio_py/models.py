@@ -67,7 +67,7 @@ class PersonioResource:
 
     def __init__(self, client: 'Personio' = None, **kwargs):
         super().__init__()
-        self._client = client
+        self.client = client
 
     @classmethod
     def _field_mapping(cls) -> Dict[str, FieldMapping]:
@@ -282,7 +282,7 @@ class WritablePersonioResource(PersonioResource):
         UnsupportedMethodError('delete', self.__class__)
 
     def _check_client(self, client: 'Personio' = None) -> 'Personio':
-        client = client or self._client
+        client = client or self.client
         if not client:
             raise PersonioError()
         if not client.authenticated:
@@ -471,14 +471,14 @@ class ShortEmployee(LabeledAttributesMixin):
     def __init__(self, client: 'Personio' = None, id_: int = None, first_name: str = None,
                  last_name: str = None, email: str = None, **kwargs):
         super().__init__(**kwargs)
-        self._client = client
+        self.client = client
         self.id_ = id_
         self.first_name = first_name
         self.last_name = last_name
         self.email = email
 
     def resolve(self, client: 'Personio' = None) -> 'Employee':
-        client = client or self._client
+        client = client or self.client
         if client:
             return client.get_employee(self.id_)
         else:
@@ -819,7 +819,7 @@ def log_once(level: int, message: str):
 
 
 def get_client(resource: PersonioResource, client: 'Personio' = None):
-    if resource._client or client:
-        return resource._client or client
+    if resource.client or client:
+        return resource.client or client
     raise PersonioError(f"no Personio client reference is available, please provide it to "
                         f"your {type(resource).__name__} or as function parameter")

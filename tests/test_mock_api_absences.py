@@ -1,11 +1,73 @@
 from datetime import date
 
+import pytest
 import responses
 import re
 
+from personio_py import PersonioError
 from tests.test_mock_api import mock_personio, compare_labeled_attributes, mock_employees
 from tests.mock_data import json_dict_empty_response
-from tests.test_mock_api_absence_data import json_dict_absence_alan, json_dict_absence_types
+from tests.test_mock_api_absence_data import json_dict_absence_alan, json_dict_absence_types, json_dict_delete_absence, \
+    json_dict_absence_alan_first
+
+
+@responses.activate
+def test_delete_absence():
+    mock_delete_absence()
+    personio = mock_personio()
+    result = personio.delete_absence(2116365)
+    assert result is True
+
+    mock_absences()
+    absence = personio.get_absences(2116365)[0]
+    absence.delete()
+    absence.client = None
+    with pytest.raises(PersonioError):
+        absence.delete()
+    absence.delete(client=personio)
+    absence.client = personio
+    absence.id_ = None
+    with pytest.raises(ValueError):
+        absence.delete()
+    with pytest.raises(ValueError):
+        personio.delete_absence(None)
+
+
+@responses.activate
+def test_delete_absence_remote_query():
+    mock_single_absences()
+    personio = mock_personio()
+    absence = personio.get_absences(111222333)[0]
+    absence.id_ = None
+    mock_delete_absence()
+    personio.delete_absence(absence, remote_query_id=True)
+    absence.id_ = None
+    start_date = absence.start_date
+    absence.start_date = None
+    with pytest.raises(ValueError):
+        personio.delete_absence(absence, remote_query_id=True)
+    absence.start_date = start_date
+    end_date = absence.end_date
+    absence.end_date = None
+    with pytest.raises(ValueError):
+        personio.delete_absence(absence, remote_query_id=True)
+    absence.end_date = end_date
+    employee = absence.employee
+    absence.employee = None
+    with pytest.raises(ValueError):
+        personio.delete_absence(absence, remote_query_id=True)
+    absence.employee = employee
+    responses.reset()
+    mock_absences()
+    personio = mock_personio()
+    with pytest.raises(ValueError):
+        personio.delete_absence(absence, remote_query_id=True)
+    responses.reset()
+    mock_no_absences()
+    personio = mock_personio()
+    with pytest.raises(ValueError):
+        personio.delete_absence(absence, remote_query_id=True)
+
 
 
 @responses.activate
@@ -71,3 +133,27 @@ def mock_absences():
     responses.add(
         responses.GET, re.compile('https://api.personio.de/v1/company/time-offs?.*offset=3.*'),
         status=200, json=json_dict_empty_response, adding_headers={'Authorization': 'Bearer bar'})
+
+
+def mock_single_absences():
+    # mock the get absences endpoint (with different array offsets)
+    responses.add(
+        responses.GET, re.compile('https://api.personio.de/v1/company/time-offs?.*offset=0.*'),
+        status=200, json=json_dict_absence_alan_first, adding_headers={'Authorization': 'Bearer foo'})
+    responses.add(
+        responses.GET, re.compile('https://api.personio.de/v1/company/time-offs?.*offset=1.*'),
+        status=200, json=json_dict_empty_response, adding_headers={'Authorization': 'Bearer bar'})
+
+
+def mock_no_absences():
+    # mock the get absences endpoint
+    responses.add(
+        responses.GET, re.compile('https://api.personio.de/v1/company/time-offs?.*offset=0.*'),
+        status=200, json=json_dict_empty_response, adding_headers={'Authorization': 'Bearer bar'})
+
+
+def mock_delete_absence():
+    # mock the delete endpoint
+    responses.add(
+        responses.DELETE,  re.compile('https://api.personio.de/v1/company/time-offs/*'),
+        status=200, json=json_dict_delete_absence, adding_headers={'Authorization': 'Bearer bar'})

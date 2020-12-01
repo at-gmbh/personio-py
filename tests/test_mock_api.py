@@ -10,6 +10,7 @@ from tests.mock_data import *
 
 iso_date_match = re.compile(r'\d\d\d\d-\d\d-\d\d')
 
+
 @responses.activate
 def test_authenticate_ok():
     # mock a successful authentication response
