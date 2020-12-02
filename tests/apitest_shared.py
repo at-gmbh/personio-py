@@ -11,7 +11,7 @@ CLIENT_SECRET = os.getenv('CLIENT_SECRET')
 personio = Personio(client_id=CLIENT_ID, client_secret=CLIENT_SECRET)
 
 
-#@lru_cache
+@lru_cache
 def get_test_employee():
     return personio.get_employees()[0]
 
