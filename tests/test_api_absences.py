@@ -12,8 +12,7 @@ def test_create_absences(half_day_start: bool, half_day_end: bool):
     Test the creation of absence records on the server.
     """
     # Prepare data
-    test_data = shared_test_data['test_employee']
-    test_user = personio.get_employee(test_data['id'])
+    test_user = get_test_employee()
     start_date = date(2021, 1, 1)
     end_date = date(2021, 1, 10)
 
@@ -73,8 +72,7 @@ def test_get_absences_from_absence_object_without_id_no_remote_query():
 
 @skip_if_no_auth
 def test_delete_absences_from_model_no_client():
-    test_data = shared_test_data['test_employee']
-    test_user = personio.get_employee(test_data['id'])
+    test_user = get_test_employee()
     delete_all_absences_of_employee(test_user)
     absence = create_absence_for_user(test_user, create=True)
     with pytest.raises(PersonioError):
@@ -83,8 +81,7 @@ def test_delete_absences_from_model_no_client():
 
 @skip_if_no_auth
 def test_delete_absences_from_model_passed_client():
-    test_data = shared_test_data['test_employee']
-    test_user = personio.get_employee(test_data['id'])
+    test_user = get_test_employee()
     delete_all_absences_of_employee(test_user)
     absence = create_absence_for_user(test_user, create=True)
     assert absence.delete(client=personio) is True
@@ -92,18 +89,16 @@ def test_delete_absences_from_model_passed_client():
 
 @skip_if_no_auth
 def test_delete_absences_from_model_with_client():
-    test_data = shared_test_data['test_employee']
-    test_user = personio.get_employee(test_data['id'])
+    test_user = get_test_employee()
     delete_all_absences_of_employee(test_user)
     absence = create_absence_for_user(test_user, create=True)
-    absence._client = personio
+    absence.client = personio
     assert absence.delete() is True
 
 
 @skip_if_no_auth
 def test_delete_absence_from_absence_id():
-    test_data = shared_test_data['test_employee']
-    test_user = personio.get_employee(test_data['id'])
+    test_user = get_test_employee()
     delete_all_absences_of_employee(test_user)
     absence = create_absence_for_user(test_user, create=True)
     assert personio.delete_absence(absence.id_) is True
@@ -111,8 +106,7 @@ def test_delete_absence_from_absence_id():
 
 @skip_if_no_auth
 def test_delete_absences_from_client_object_with_id():
-    test_data = shared_test_data['test_employee']
-    test_user = personio.get_employee(test_data['id'])
+    test_user = get_test_employee()
     delete_all_absences_of_employee(test_user)
     absence = create_absence_for_user(test_user, create=True)
     assert personio.delete_absence(absence) is True
@@ -120,8 +114,7 @@ def test_delete_absences_from_client_object_with_id():
 
 @skip_if_no_auth
 def test_delete_absences_from_client_object_with_no_id_query():
-    test_data = shared_test_data['test_employee']
-    test_user = personio.get_employee(test_data['id'])
+    test_user = get_test_employee()
     delete_all_absences_of_employee(test_user)
     absence = create_absence_for_user(test_user, create=True)
     absence.id_ = None
@@ -130,8 +123,7 @@ def test_delete_absences_from_client_object_with_no_id_query():
 
 @skip_if_no_auth
 def test_delete_absences_from_client_object_with_no_id_no_query():
-    test_data = shared_test_data['test_employee']
-    test_user = personio.get_employee(test_data['id'])
+    test_user = get_test_employee()
     delete_all_absences_of_employee(test_user)
     absence = create_absence_for_user(test_user, create=True)
     absence.id_ = None
@@ -185,8 +177,7 @@ def create_absence_for_user(employee: Employee,
 
 
 def prepare_test_get_absences() -> Employee:
-    test_data = shared_test_data['test_employee']
-    test_user = personio.get_employee(test_data['id'])
+    test_user = get_test_employee()
 
     # Be sure there are no leftover absences
     delete_all_absences_of_employee(test_user)
