@@ -1,4 +1,4 @@
-from .apitest_shared import *
+from tests.apitest_shared import *
 
 
 @skip_if_no_auth
