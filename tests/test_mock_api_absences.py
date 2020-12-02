@@ -4,8 +4,25 @@ import pytest
 
 from personio_py import PersonioError, Absence, Employee
 from tests.test_mock_api import mock_personio, compare_labeled_attributes, mock_employees
-from tests.mock.absence_data import json_dict_absence_types
 from tests.mock.absences_mock_functions import *
+
+
+@responses.activate
+def test_get_absence():
+    personio = mock_personio()
+    mock_get_absence()
+    absence_id_only = Absence(id_=2628890)
+    absence = personio.get_absence(absence_id_only)
+    assert absence.employee.first_name == 'Alan'
+    assert absence.employee.last_name == 'Turing'
+    assert absence.id_ == 2628890
+    assert absence.start_date == date(2021, 1, 1)
+    assert absence.end_date == date(2021, 1, 10)
+    absence.id_ = None
+    with pytest.raises(ValueError):
+        personio.get_absence(absence, remote_query_id=False)
+    mock_single_absences()
+    personio.get_absence(absence, remote_query_id=True)
 
 
 @responses.activate
@@ -29,7 +46,6 @@ def test_create_absence():
         time_off_type=absence_type)
     absence.create()
     assert absence.id_
-
 
 
 @responses.activate

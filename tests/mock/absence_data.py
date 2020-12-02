@@ -289,3 +289,57 @@ json_string_absence_create_no_halfdays = """
 }
 """
 json_dict_absence_create_no_halfdays = json.loads(json_string_absence_create_no_halfdays)
+
+
+json_string_get_absence = """
+{
+   "success":true,
+   "data":{
+      "type":"TimeOffPeriod",
+      "attributes":{
+         "id":2628890,
+         "status":"approved",
+         "comment":"",
+         "start_date":"2021-01-01T00:00:00+01:00",
+         "end_date":"2021-01-10T00:00:00+01:00",
+         "days_count":5,
+         "half_day_start":0,
+         "half_day_end":1,
+         "time_off_type":{
+            "type":"TimeOffType",
+            "attributes":{
+               "id":243402,
+               "name":"Unpaid vacation",
+               "category":"unpaid_vacation"
+            }
+         },
+         "employee":{
+            "type":"Employee",
+            "attributes":{
+               "id":{
+                  "label":"ID",
+                  "value":2628890
+               },
+               "first_name":{
+                  "label":"First name",
+                  "value":"Alan"
+               },
+               "last_name":{
+                  "label":"Last name",
+                  "value":"Turing"
+               },
+               "email":{
+                  "label":"Email",
+                  "value":"alan.turing@cetitec.com"
+               }
+            }
+         },
+         "created_by":"API",
+         "certificate":{
+            "status":"not-required"
+         },
+         "created_at":"2020-12-02T17:28:34+01:00"
+      }
+   }
+}"""
+json_dict_get_absence = json.loads(json_string_get_absence)
