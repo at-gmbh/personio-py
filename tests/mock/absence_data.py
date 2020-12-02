@@ -229,10 +229,63 @@ json_dict_absence_types = json.loads(json_string_absence_types)
 json_string_delete_absence = """
 {
     "success": true,
-    "data":
-    {
+    "data": {
         "message": "The absence period was deleted."
     }
 }
 """
 json_dict_delete_absence = json.loads(json_string_delete_absence)
+
+json_string_absence_create_no_halfdays = """
+{
+   "success":true,
+   "data":{
+      "type":"TimeOffPeriod",
+      "attributes":{
+         "id":22809350,
+         "status":"approved",
+         "comment":"",
+         "start_date":"2021-01-01T00:00:00+01:00",
+         "end_date":"2021-01-10T00:00:00+01:00",
+         "days_count":5,
+         "half_day_start":1,
+         "half_day_end":1,
+         "time_off_type":{
+            "type":"TimeOffType",
+            "attributes":{
+               "id":243402,
+               "name":"Unpaid vacation",
+               "category":"unpaid_vacation"
+            }
+         },
+         "employee":{
+            "type":"Employee",
+            "attributes":{
+               "id":{
+                  "label":"ID",
+                  "value":2628890
+               },
+               "first_name":{
+                  "label":"First name",
+                  "value":"Alan"
+               },
+               "last_name":{
+                  "label":"Last name",
+                  "value":"Turing"
+               },
+               "email":{
+                  "label":"Email",
+                  "value":"alan.turing@cetitec.com"
+               }
+            }
+         },
+         "created_by":"API",
+         "certificate":{
+            "status":"not-required"
+         },
+         "created_at":"2020-12-01T18:24:11+01:00"
+      }
+   }
+}
+"""
+json_dict_absence_create_no_halfdays = json.loads(json_string_absence_create_no_halfdays)

@@ -1,14 +1,35 @@
 from datetime import date
 
 import pytest
-import responses
-import re
 
-from personio_py import PersonioError
+from personio_py import PersonioError, Absence, Employee
 from tests.test_mock_api import mock_personio, compare_labeled_attributes, mock_employees
-from tests.mock_data import json_dict_empty_response
-from tests.test_mock_api_absence_data import json_dict_absence_alan, json_dict_absence_types, json_dict_delete_absence, \
-    json_dict_absence_alan_first
+from tests.mock.absence_data import json_dict_absence_types
+from tests.mock.absences_mock_functions import *
+
+
+@responses.activate
+def test_create_absence():
+    mock_absence_types()
+    mock_create_absence_no_halfdays()
+    personio = mock_personio()
+    absence_type = personio.get_absence_types()[0]
+    employee = Employee(
+        first_name="Alan",
+        last_name='Turing',
+        email='alan.turing@cetitec.com'
+    )
+    absence = Absence(
+        client=personio,
+        employee=employee,
+        start_date=date(2020, 1, 1),
+        end_date=date(2020, 1, 10),
+        half_day_start=False,
+        half_day_end=False,
+        time_off_type=absence_type)
+    absence.create()
+    assert absence.id_
+
 
 
 @responses.activate
@@ -69,7 +90,6 @@ def test_delete_absence_remote_query():
         personio.delete_absence(absence, remote_query_id=True)
 
 
-
 @responses.activate
 def test_get_absences():
     # configure personio & get absences for alan
@@ -107,10 +127,7 @@ def test_get_absences_from_employee_objects():
 
 @responses.activate
 def test_get_absence_types():
-    # mock the get absence types endpoint
-    responses.add(
-        responses.GET, 'https://api.personio.de/v1/company/time-off-types', status=200,
-        json=json_dict_absence_types, adding_headers={'Authorization': 'Bearer foo'})
+    mock_absence_types()
     # configure personio & get absences for alan
     personio = mock_personio()
     absence_types = personio.get_absence_types()
@@ -123,37 +140,3 @@ def test_get_absence_types():
     for source_dict, at in zip(json_dict_absence_types['data'], absence_types):
         target_dict = at.to_dict()
         assert source_dict == target_dict
-
-
-def mock_absences():
-    # mock the get absences endpoint (with different array offsets)
-    responses.add(
-        responses.GET, re.compile('https://api.personio.de/v1/company/time-offs?.*offset=0.*'),
-        status=200, json=json_dict_absence_alan, adding_headers={'Authorization': 'Bearer foo'})
-    responses.add(
-        responses.GET, re.compile('https://api.personio.de/v1/company/time-offs?.*offset=3.*'),
-        status=200, json=json_dict_empty_response, adding_headers={'Authorization': 'Bearer bar'})
-
-
-def mock_single_absences():
-    # mock the get absences endpoint (with different array offsets)
-    responses.add(
-        responses.GET, re.compile('https://api.personio.de/v1/company/time-offs?.*offset=0.*'),
-        status=200, json=json_dict_absence_alan_first, adding_headers={'Authorization': 'Bearer foo'})
-    responses.add(
-        responses.GET, re.compile('https://api.personio.de/v1/company/time-offs?.*offset=1.*'),
-        status=200, json=json_dict_empty_response, adding_headers={'Authorization': 'Bearer bar'})
-
-
-def mock_no_absences():
-    # mock the get absences endpoint
-    responses.add(
-        responses.GET, re.compile('https://api.personio.de/v1/company/time-offs?.*offset=0.*'),
-        status=200, json=json_dict_empty_response, adding_headers={'Authorization': 'Bearer bar'})
-
-
-def mock_delete_absence():
-    # mock the delete endpoint
-    responses.add(
-        responses.DELETE,  re.compile('https://api.personio.de/v1/company/time-offs/*'),
-        status=200, json=json_dict_delete_absence, adding_headers={'Authorization': 'Bearer bar'})
