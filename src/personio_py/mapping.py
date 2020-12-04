@@ -68,6 +68,18 @@ class NumericFieldMapping(FieldMapping):
         return self.field_type(value) if isinstance(value, str) else value
 
 
+class BooleanFieldMapping(FieldMapping):
+
+    def __init__(self, api_field: str, class_field: str):
+        super().__init__(api_field, class_field, field_type=bool)
+
+    def serialize(self, value: bool) -> bool:
+        return value
+
+    def deserialize(self, value: str, **kwargs) -> bool:
+        return bool(value)
+
+
 class DateTimeFieldMapping(FieldMapping):
 
     def __init__(self, api_field: str, class_field: str):
@@ -144,9 +156,12 @@ class ObjectFieldMapping(FieldMapping):
 
     def serialize(self, value: 'PersonioResourceType') -> Dict:
         if self.field_type._flat_dict:
-            return value.to_dict()
+            return value.to_dict(nested=True)
         else:
-            return {'type': self.field_type._api_type_name, 'attributes': value.to_dict()}
+            return {
+                'type': self.field_type._api_type_name,
+                'attributes': value.to_dict(nested=True)
+            }
 
     def deserialize(self, value: Dict, client: 'Personio' = None) \
             -> Optional['PersonioResourceType']:

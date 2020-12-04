@@ -1,7 +1,10 @@
+"""
+Implementation of the Personio API functions
+"""
 import logging
 import os
 from datetime import datetime
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any, Dict, List, Optional, Tuple, Type, TypeVar, Union
 from urllib.parse import urljoin
 
 import requests
@@ -9,8 +12,11 @@ from requests import Response
 
 from personio_py import Absence, AbsenceType, Attendance, DynamicMapping, Employee
 from personio_py.errors import MissingCredentialsError, PersonioApiError, PersonioError
+from personio_py.models import PersonioResource
 
 logger = logging.getLogger('personio_py')
+
+PersonioResourceType = TypeVar('PersonioResourceType', bound=PersonioResource, covariant=True)
 
 
 class Personio:
@@ -96,7 +102,7 @@ class Personio:
             _headers.update(headers)
         # make the request
         url = urljoin(self.base_url, path)
-        response = requests.request(method, url, headers=_headers, params=params, data=data)
+        response = requests.request(method, url, headers=_headers, params=params, json=data)
         # re-new the authorization header
         authorization = response.headers.get('Authorization')
         if authorization:
@@ -121,8 +127,7 @@ class Personio:
                during this request (default: True for json requests)
         :return: the parsed json response, when the request was successful, or a PersonioApiError
         """
-        headers = {'accept': 'application/json'}
-        response = self.request(path, method, params, data, headers, auth_rotation=auth_rotation)
+        response = self.request(path, method, params, data, auth_rotation=auth_rotation)
         if response.ok:
             try:
                 return response.json()
@@ -161,10 +166,10 @@ class Personio:
         data_acc = []
         while True:
             response = self.request_json(path, method, params, data, auth_rotation=auth_rotation)
-            data = response['data']
-            if data:
-                data_acc.extend(data)
-                params['offset'] += len(data)
+            resp_data = response['data']
+            if resp_data:
+                data_acc.extend(resp_data)
+                params['offset'] += len(resp_data)
             else:
                 break
         # return the accumulated data
@@ -205,7 +210,7 @@ class Personio:
         :return: list of ``Employee`` instances
         """
         response = self.request_json('company/employees')
-        employees = [Employee.from_dict(d['attributes'], self) for d in response['data']]
+        employees = [Employee.from_dict(d, self) for d in response['data']]
         return employees
 
     def get_employee(self, employee_id: int) -> Employee:
@@ -216,20 +221,22 @@ class Personio:
         :return: an ``Employee`` instance or a PersonioApiError, if the employee does not exist
         """
         response = self.request_json(f'company/employees/{employee_id}')
-        employee_dict = response['data']['attributes']
-        employee = Employee.from_dict(employee_dict, self)
+        employee = Employee.from_dict(response['data'], self)
         return employee
 
-    def get_employee_picture(self, employee_id: int, width: int = None) -> Optional[bytes]:
+    def get_employee_picture(self, employee: Union[int, Employee], width: int = None) \
+            -> Optional[bytes]:
         """
-        Get the profile picture of the employee with the specified ID as image file
+        Get the profile picture of the specified employee as image file
         (usually png or jpg).
 
-        :param employee_id: the Personio ID of the employee to fetch
+        :param employee: get the picture of this employee or the employee with
+               the specified Personio ID
         :param width: optionally scale the profile picture to this width.
                Defaults to the original width of the profile picture.
         :return: the profile picture as png or jpg file (bytes)
         """
+        employee_id = employee.id_ if isinstance(employee, Employee) else int(employee)
         path = f'company/employees/{employee_id}/profile-picture'
         if width:
             path += f'/{width}'
@@ -261,28 +268,26 @@ class Personio:
         """
         placeholder; not ready to be used
         """
-        # TODO implement
-        pass
+        raise NotImplementedError()
 
-    def get_attendances(self, employee_ids: Union[int, List[int]], start_date: datetime = None,
-                        end_date: datetime = None) -> List[Attendance]:
+    def get_attendances(self, employees: Union[int, List[int], Employee, List[Employee]],
+                        start_date: datetime = None, end_date: datetime = None) -> List[Attendance]:
         """
-        placeholder; not ready to be used
-        """
-        # TODO automatically resolve paginated requests
+        Get a list of all attendance records for the employees with the specified IDs
 
-        employee_ids, start_date, end_date = self._normalize_timeframe_params(
-            employee_ids, start_date, end_date)
-        params = {
-            "start_date": start_date.isoformat()[:10],
-            "end_date": end_date.isoformat()[:10],
-            "employees[]": employee_ids,
-            "limit": 200,
-            "offset": 0
-        }
-        response = self.request_json('company/attendances', params=params)
-        attendances = [Attendance.from_dict(d, self) for d in response['data']]
-        return attendances
+        Note that internally, multiple requests may be made by this function due to limitations
+        of the Personio API: Only a limited number of records can be retrieved in a single request
+        and only a limited number of employee IDs can be passed as URL parameters. The results
+        are still presented as a single list, no matter how many requests are made.
+
+        :param employees: a single employee or a list of employee objects or IDs.
+               Attendance records for all matching employees will be retrieved.
+        :param start_date: only return attendance records from this date (inclusive, optional)
+        :param end_date: only return attendance records up to this date (inclusive, optional)
+        :return: list of ``Attendance`` records for the specified employees
+        """
+        return self._get_employee_metadata(
+            'company/attendances', Attendance, employees, start_date, end_date)
 
     def create_attendances(self, attendances: List[Attendance]):
         """
@@ -290,71 +295,96 @@ class Personio:
         """
         # attendances can be created individually, but here you can push a huge bunch of items
         # in a single request, which can be significantly faster
-        # TODO implement
-        pass
+        raise NotImplementedError()
 
     def update_attendance(self, attendance_id: int):
         """
         placeholder; not ready to be used
         """
-        # TODO implement
-        pass
+        raise NotImplementedError()
 
     def delete_attendance(self, attendance_id: int):
         """
         placeholder; not ready to be used
         """
-        # TODO implement
-        pass
+        raise NotImplementedError()
 
     def get_absence_types(self) -> List[AbsenceType]:
         """
-        placeholder; not ready to be used
-        """
-        # TODO implement
-        pass
+        Get a list of all available absence types, e.g. "paid vacation" or "parental leave".
 
-    def get_absences(self, employee_ids: Union[int, List[int]], start_date: datetime = None,
-                     end_date: datetime = None) -> List[Absence]:
+        The absence types are used to classify the absences of employees
+        (see ``get_absences`` to get a list of all absences for the employees).
+        Each ``Absence`` also contains the ``AbsenceType`` for this instance; the purpose
+        of this function is to provide you with a list of all possible options that can show up.
         """
-        placeholder; not ready to be used
+        response = self.request_json('company/time-off-types')
+        absence_types = [AbsenceType.from_dict(d, self) for d in response['data']]
+        return absence_types
+
+    def get_absences(self, employees: Union[int, List[int], Employee, List[Employee]],
+                     start_date: datetime = None, end_date: datetime = None) -> List[Absence]:
         """
-        employee_ids, start_date, end_date = self._normalize_timeframe_params(
-            employee_ids, start_date, end_date)
-        params = {
-            "employees[]": employee_ids,
-            "start_date": start_date.isoformat()[:10],
-            "end_date": end_date.isoformat()[:10],
-        }
-        response = self.request_paginated('company/time-offs', params=params)
-        absences = [Absence.from_dict(d['attributes'], self) for d in response['data']]
-        return absences
+        Get a list of all absence records for the employees with the specified IDs.
+
+        Note that internally, multiple requests may be made by this function due to limitations
+        of the Personio API: Only a limited number of records can be retrieved in a single request
+        and only a limited number of employee IDs can be passed as URL parameters. The results
+        are still presented as a single list, no matter how many requests are made.
+
+        :param employees: a single employee or a list of employee objects or IDs.
+               Absence records for all matching employees will be retrieved.
+        :param start_date: only return absence records from this date (inclusive, optional)
+        :param end_date: only return absence records up to this date (inclusive, optional)
+        :return: list of ``Absence`` records for the specified employees
+        """
+        return self._get_employee_metadata(
+            'company/time-offs', Absence, employees, start_date, end_date)
 
     def get_absence(self, absence_id: int) -> Absence:
         """
         placeholder; not ready to be used
         """
-        # TODO implement
-        pass
+        raise NotImplementedError()
 
     def create_absence(self, absence: Absence):
         """
         placeholder; not ready to be used
         """
-        # TODO implement
-        pass
+        raise NotImplementedError()
 
     def delete_absence(self, absence_id: int):
         """
         placeholder; not ready to be used
         """
-        # TODO implement
-        pass
+        raise NotImplementedError()
+
+    def _get_employee_metadata(
+            self, path: str, resource_cls: Type[PersonioResourceType],
+            employees: Union[int, List[int], Employee, List[Employee]], start_date: datetime = None,
+            end_date: datetime = None) -> List[PersonioResourceType]:
+        # resolve params to match API requirements
+        employees, start_date, end_date = self._normalize_timeframe_params(
+            employees, start_date, end_date)
+        params = {
+            "start_date": start_date.isoformat()[:10],
+            "end_date": end_date.isoformat()[:10],
+        }
+        # request in batches of up to 50 employees (keeps URL length well below 2000 chars)
+        data_acc = []
+        for i in range(0, len(employees), 50):
+            params["employees[]"] = employees[i:i + 50]
+            response = self.request_paginated(path, params=params)
+            data_acc.extend(response['data'])
+        # create objects from accumulated API responses
+        parsed_data = [resource_cls.from_dict(d, self) for d in data_acc]
+        return parsed_data
 
     @classmethod
     def _normalize_timeframe_params(
-            cls, employee_ids: Union[int, List[int]], start_date: datetime = None,
-            end_date: datetime = None) -> Tuple[List[int], datetime, datetime]:
+            cls, employees: Union[int, List[int], Employee, List[Employee]],
+            start_date: datetime = None, end_date: datetime = None) \
+            -> Tuple[List[int], datetime, datetime]:
         """
         Whenever we need a list of employee IDs, a start date and an end date, this function comes
         in handy:
@@ -363,17 +393,18 @@ class Personio:
         * sets the start date way into the past, if it was not provided
         * sets the end date way into the future, if it was not provided
 
-        :param employee_ids: a single employee ID or a list of employee IDs
+        :param employees: a single employee or a list of employees (employee objects or just IDs)
         :param start_date: a start date (optional)
         :param end_date: an end date (optional)
         :return: a tuple of (list of employee IDs, start date, end date), no None values.
         """
-        if not employee_ids:
+        if not employees:
             raise ValueError("need at least one employee ID, got nothing")
         if start_date is None:
             start_date = datetime(1900, 1, 1)
         if end_date is None:
             end_date = datetime(datetime.now().year + 10, 1, 1)
-        if not isinstance(employee_ids, list):
-            employee_ids = [employee_ids]
+        if not isinstance(employees, list):
+            employees = [employees]
+        employee_ids = [(e.id_ if isinstance(e, Employee) else e) for e in employees]
         return employee_ids, start_date, end_date
