@@ -341,7 +341,7 @@ class Personio:
         return self._get_employee_metadata(
             'company/time-offs', Absence, employees, start_date, end_date)
 
-    def get_absence(self, absence: int or Absence, remote_query_id=False) -> Absence:
+    def get_absence(self, absence: Union[Absence, int], remote_query_id=False) -> Absence:
         """
         Get an absence record from a given id.
 
@@ -373,7 +373,7 @@ class Personio:
             return True
         return False
 
-    def delete_absence(self, absence: Absence or int, remote_query_id=False):
+    def delete_absence(self, absence: Union[Absence, int], remote_query_id=False):
         """
         Delete an existing record
 
