@@ -67,7 +67,7 @@ class PersonioResource:
 
     def __init__(self, client: 'Personio' = None, **kwargs):
         super().__init__()
-        self.client = client
+        self._client = client
 
     @classmethod
     def _field_mapping(cls) -> Dict[str, FieldMapping]:
@@ -282,7 +282,7 @@ class WritablePersonioResource(PersonioResource):
         UnsupportedMethodError('delete', self.__class__)
 
     def _check_client(self, client: 'Personio' = None) -> 'Personio':
-        client = client or self.client
+        client = client or self._client
         if not client:
             raise PersonioError()
         if not client.authenticated:
@@ -819,7 +819,7 @@ def log_once(level: int, message: str):
 
 
 def get_client(resource: PersonioResource, client: 'Personio' = None):
-    if resource.client or client:
-        return resource.client or client
+    if resource._client or client:
+        return resource._client or client
     raise PersonioError(f"no Personio client reference is available, please provide it to "
                         f"your {type(resource).__name__} or as function parameter")

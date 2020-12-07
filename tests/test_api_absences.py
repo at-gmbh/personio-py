@@ -92,7 +92,7 @@ def test_delete_absences_from_model_with_client():
     test_user = get_test_employee()
     delete_all_absences_of_employee(test_user)
     absence = create_absence_for_user(test_user, create=True)
-    absence.client = personio
+    absence._client = personio
     assert absence.delete() is True
 
 
@@ -182,4 +182,3 @@ def prepare_test_get_absences() -> Employee:
     # Be sure there are no leftover absences
     delete_all_absences_of_employee(test_user)
     return test_user
-

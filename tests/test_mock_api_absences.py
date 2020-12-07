@@ -58,11 +58,11 @@ def test_delete_absence():
     mock_absences()
     absence = personio.get_absences(2116365)[0]
     absence.delete()
-    absence.client = None
+    absence._client = None
     with pytest.raises(PersonioError):
         absence.delete()
     absence.delete(client=personio)
-    absence.client = personio
+    absence._client = personio
     absence.id_ = None
     with pytest.raises(ValueError):
         absence.delete()
