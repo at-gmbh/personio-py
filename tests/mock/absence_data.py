@@ -3,6 +3,10 @@ import json
 json_string_absence_alan = """
 {
   "success": true,
+     "metadata":{
+        "current_page":1,
+        "total_pages":1
+   },
   "data": [{
       "type": "TimeOffPeriod",
       "attributes": {
@@ -147,6 +151,10 @@ json_dict_absence_alan = json.loads(json_string_absence_alan)
 json_string_absence_alan_single = """
 {
  "success": true,
+    "metadata":{
+        "current_page":1,
+        "total_pages":1
+   },
   "data": [{
       "type": "TimeOffPeriod",
       "attributes": {
@@ -202,6 +210,10 @@ json_dict_absence_alan_first = json.loads(json_string_absence_alan_single)
 json_string_absence_types = """
 {
   "success": true,
+     "metadata":{
+        "current_page":1,
+        "total_pages":1
+   },
   "data": [{
       "type": "TimeOffType",
       "attributes": {
@@ -229,6 +241,10 @@ json_dict_absence_types = json.loads(json_string_absence_types)
 json_string_delete_absence = """
 {
     "success": true,
+       "metadata":{
+        "current_page":1,
+        "total_pages":1
+   },
     "data": {
         "message": "The absence period was deleted."
     }
@@ -239,6 +255,10 @@ json_dict_delete_absence = json.loads(json_string_delete_absence)
 json_string_absence_create_no_halfdays = """
 {
    "success":true,
+      "metadata":{
+        "current_page":1,
+        "total_pages":1
+   },
    "data":{
       "type":"TimeOffPeriod",
       "attributes":{
@@ -294,6 +314,10 @@ json_dict_absence_create_no_halfdays = json.loads(json_string_absence_create_no_
 json_string_get_absence = """
 {
    "success":true,
+   "metadata":{
+        "current_page":1,
+        "total_pages":1
+   },
    "data":{
       "type":"TimeOffPeriod",
       "attributes":{
