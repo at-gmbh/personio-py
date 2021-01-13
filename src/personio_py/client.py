@@ -169,7 +169,10 @@ class Personio:
             resp_data = response['data']
             if resp_data:
                 data_acc.extend(resp_data)
-                params['offset'] += len(resp_data)
+                if response['metadata']['current_page'] == response['metadata']['total_pages']:
+                    break
+                else:
+                    params['offset'] += len(resp_data)
             else:
                 break
         # return the accumulated data
