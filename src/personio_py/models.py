@@ -573,8 +573,8 @@ class Absence(WritablePersonioResource):
                  start_date: datetime = None,
                  end_date: datetime = None,
                  days_count: float = None,
-                 half_day_start: bool = None,
-                 half_day_end: bool = None,
+                 half_day_start: bool = False,
+                 half_day_end: bool = False,
                  time_off_type: AbsenceType = None,
                  employee: ShortEmployee = None,
                  created_by: str = None,
@@ -588,12 +588,8 @@ class Absence(WritablePersonioResource):
         self.start_date = start_date
         self.end_date = end_date
         self.days_count = days_count
-        self.half_day_start = False
-        if half_day_start and half_day_start > 0:
-            self.half_day_start = True
-        self.half_day_end = False
-        if half_day_end and half_day_end > 0:
-            self.half_day_end = True
+        self.half_day_start = bool(half_day_start)
+        self.half_day_end = bool(half_day_end)
         self.time_off_type = time_off_type
         self.employee = employee
         self.created_by = created_by
@@ -617,7 +613,6 @@ class Absence(WritablePersonioResource):
         }
         if self.comment is not None:
             data['comment'] = self.comment
-        print(data)
         return data
 
 
