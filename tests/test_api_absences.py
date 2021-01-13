@@ -113,22 +113,13 @@ def test_delete_absences_from_client_object_with_id():
 
 
 @skip_if_no_auth
-def test_delete_absences_from_client_object_with_no_id_query():
-    test_user = get_test_employee()
-    delete_all_absences_of_employee(test_user)
-    absence = create_absence_for_user(test_user, create=True)
-    absence.id_ = None
-    assert personio.delete_absence(absence, remote_query_id=True) is True
-
-
-@skip_if_no_auth
-def test_delete_absences_from_client_object_with_no_id_no_query():
+def test_delete_absences_from_client_object_with_no_id():
     test_user = get_test_employee()
     delete_all_absences_of_employee(test_user)
     absence = create_absence_for_user(test_user, create=True)
     absence.id_ = None
     with pytest.raises(ValueError):
-        personio.delete_absence(absence, remote_query_id=False)
+        personio.delete_absence(absence)
 
 
 def delete_absences(client: Personio, absences: [int] or [Absence]):

@@ -599,8 +599,8 @@ class Absence(WritablePersonioResource):
     def _create(self, client: 'Personio' = None):
         return get_client(self, client).create_absence(self)
 
-    def _delete(self, client: 'Personio' = None, allow_remote_query: bool = False):
-        return get_client(self, client).delete_absence(self, remote_query_id=allow_remote_query)
+    def _delete(self, client: 'Personio' = None):
+        return get_client(self, client).delete_absence(self)
 
     def to_body_params(self):
         data = {
