@@ -344,12 +344,11 @@ class Personio:
         return self._get_employee_metadata(
             'company/time-offs', Absence, employees, start_date, end_date)
 
-    def get_absence(self, absence: Union[Absence, int], remote_query_id=False) -> Absence:
+    def get_absence(self, absence: Union[Absence, int]) -> Absence:
         """
         Get an absence record from a given id.
 
         :param absence: The absence id to fetch.
-        :param remote_query_id: Whether it is allowed to make a remote ID query.
         """
         if isinstance(absence, int):
             response = self.request_json('company/time-offs/' + str(absence))
@@ -357,11 +356,9 @@ class Personio:
         else:
             if absence.id_:
                 return self.get_absence(absence.id_)
-            elif absence.id_ is None and remote_query_id:
+            elif absence.id_ is None:
                 self.__add_remote_absence_id(absence)
                 return self.get_absence(absence.id_)
-            else:
-                raise ValueError("Id is required to get an absence record")
 
     def create_absence(self, absence: Absence) -> bool:
         """
@@ -380,8 +377,7 @@ class Personio:
         """
         Delete an existing record
 
-        Either an absence id or o remote query is required.
-        Remote queries are only executed if required.
+        An absence id is required.
 
         :param absence: The Absence object holding
         the new data or an absence record id to delete.

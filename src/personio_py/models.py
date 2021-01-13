@@ -276,7 +276,7 @@ class WritablePersonioResource(PersonioResource):
             client = self._check_client(client)
             return self._delete(client)
         else:
-            raise UnsupportedMethodError('delete', self.__class__)
+            raise ValueError("Cannot delete without an api client")
 
     def _delete(self, client: 'Personio'):
         UnsupportedMethodError('delete', self.__class__)

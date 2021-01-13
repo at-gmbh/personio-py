@@ -8,7 +8,7 @@ from tests.mock.absences_mock_functions import *
 
 
 @responses.activate
-def test_get_absence():
+def test_get_absence_from_id():
     personio = mock_personio()
     mock_get_absence()
     absence_id_only = Absence(id_=2628890)
@@ -18,11 +18,17 @@ def test_get_absence():
     assert absence.id_ == 2628890
     assert absence.start_date == date(2021, 1, 1)
     assert absence.end_date == date(2021, 1, 10)
-    absence.id_ = None
-    with pytest.raises(ValueError):
-        personio.get_absence(absence, remote_query_id=False)
+
+
+@responses.activate
+def test_get_absence_from_object_without_id():
+    personio = mock_personio()
+    mock_get_absence()
     mock_single_absences()
-    personio.get_absence(absence, remote_query_id=True)
+    absence_id_only = Absence(id_=2628890)
+    absence = personio.get_absence(absence_id_only)
+    absence.id_ = None
+    personio.get_absence(absence)
 
 
 @responses.activate
@@ -55,55 +61,37 @@ def test_delete_absence():
     result = personio.delete_absence(2116365)
     assert result is True
 
+
+@responses.activate
+def test_delete_absence_no_client():
+    personio = mock_personio()
     mock_absences()
     absence = personio.get_absences(2116365)[0]
-    absence.delete()
     absence._client = None
     with pytest.raises(PersonioError):
         absence.delete()
-    absence.delete(client=personio)
-    absence._client = personio
+
+
+@responses.activate
+def test_delete_absence_passed_client():
+    personio = mock_personio()
+    mock_absences()
+    mock_delete_absence()
+    absence = personio.get_absences(2116365)[0]
+    absence._client = None
+    assert absence.delete(client=personio) is True
+
+
+@responses.activate
+def test_delete_absence_no_id():
+    personio = mock_personio()
+    mock_absences()
+    absence = personio.get_absences(2116365)[0]
     absence.id_ = None
     with pytest.raises(ValueError):
         absence.delete()
     with pytest.raises(ValueError):
-        personio.delete_absence(None)
-
-
-@responses.activate
-def test_delete_absence_remote_query():
-    mock_single_absences()
-    personio = mock_personio()
-    absence = personio.get_absences(111222333)[0]
-    absence.id_ = None
-    mock_delete_absence()
-    personio.delete_absence(absence, remote_query_id=True)
-    absence.id_ = None
-    start_date = absence.start_date
-    absence.start_date = None
-    with pytest.raises(ValueError):
-        personio.delete_absence(absence, remote_query_id=True)
-    absence.start_date = start_date
-    end_date = absence.end_date
-    absence.end_date = None
-    with pytest.raises(ValueError):
-        personio.delete_absence(absence, remote_query_id=True)
-    absence.end_date = end_date
-    employee = absence.employee
-    absence.employee = None
-    with pytest.raises(ValueError):
-        personio.delete_absence(absence, remote_query_id=True)
-    absence.employee = employee
-    responses.reset()
-    mock_absences()
-    personio = mock_personio()
-    with pytest.raises(ValueError):
-        personio.delete_absence(absence, remote_query_id=True)
-    responses.reset()
-    mock_no_absences()
-    personio = mock_personio()
-    with pytest.raises(ValueError):
-        personio.delete_absence(absence, remote_query_id=True)
+        personio.delete_absence(absence)
 
 
 @responses.activate
