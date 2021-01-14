@@ -52,22 +52,13 @@ def test_get_absences_from_absence_object():
 
 
 @skip_if_no_auth
-def test_get_absences_from_absence_object_without_id_remote_query():
+def test_get_absences_from_absence_object_without_id():
     user = prepare_test_get_absences()
     remote_absence = create_absence_for_user(user, create=True)
     absence_id = remote_absence.id_
     remote_absence.id_ = None
-    absence = personio.get_absence(remote_absence, remote_query_id=True)
+    absence = personio.get_absence(remote_absence)
     assert absence.id_ == absence_id
-
-
-@skip_if_no_auth
-def test_get_absences_from_absence_object_without_id_no_remote_query():
-    user = prepare_test_get_absences()
-    remote_absence = create_absence_for_user(user, create=True)
-    remote_absence.id_ = None
-    with pytest.raises(ValueError):
-        personio.get_absence(remote_absence, remote_query_id=False)
 
 
 @skip_if_no_auth
