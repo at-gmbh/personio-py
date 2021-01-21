@@ -7,7 +7,7 @@ from datetime import datetime
 
 @skip_if_no_auth
 def test_create_attendances():
-    employee_id = shared_test_data['test_employee']['id']
+    employee_id = get_test_employee().id_
     employee = personio.get_employee(employee_id)
     delete_all_attendances_for_employee(employee)
     attendances = personio.get_attendances([employee_id])
@@ -19,7 +19,7 @@ def test_create_attendances():
 
 @skip_if_no_auth
 def test_delete_attendance_from_client_id():
-    employee_id = shared_test_data['test_employee']['id']
+    employee_id = get_test_employee().id_
     employee = personio.get_employee(employee_id)
     delete_all_attendances_for_employee(employee)
     attendance = create_attendance_for_user(employee_id, create=True)
@@ -30,7 +30,7 @@ def test_delete_attendance_from_client_id():
 
 @skip_if_no_auth
 def test_delete_attendance_from_client_object_with_id():
-    employee_id = shared_test_data['test_employee']['id']
+    employee_id = get_test_employee().id_
     employee = personio.get_employee(employee_id)
     delete_all_attendances_for_employee(employee)
     attendance = create_attendance_for_user(employee_id, create=True)
@@ -41,7 +41,7 @@ def test_delete_attendance_from_client_object_with_id():
 
 @skip_if_no_auth
 def test_delete_attendance_from_client_object_no_id_query():
-    employee_id = shared_test_data['test_employee']['id']
+    employee_id = get_test_employee().id_
     employee = personio.get_employee(employee_id)
     delete_all_attendances_for_employee(employee)
     attendance = create_attendance_for_user(employee_id, create=True)
@@ -53,7 +53,7 @@ def test_delete_attendance_from_client_object_no_id_query():
 
 @skip_if_no_auth
 def test_delete_attendance_from_client_object_no_id_no_query():
-    employee_id = shared_test_data['test_employee']['id']
+    employee_id = get_test_employee().id_
     employee = personio.get_employee(employee_id)
     delete_all_attendances_for_employee(employee)
     attendance = create_attendance_for_user(employee_id, create=True)
@@ -65,7 +65,7 @@ def test_delete_attendance_from_client_object_no_id_no_query():
 
 @skip_if_no_auth
 def test_delete_attendance_from_model_no_client():
-    employee_id = shared_test_data['test_employee']['id']
+    employee_id = get_test_employee().id_
     employee = personio.get_employee(employee_id)
     delete_all_attendances_for_employee(employee)
     attendance = create_attendance_for_user(employee_id, create=True)
@@ -77,7 +77,7 @@ def test_delete_attendance_from_model_no_client():
 
 @skip_if_no_auth
 def test_delete_attendance_from_model_passed_client():
-    employee_id = shared_test_data['test_employee']['id']
+    employee_id = get_test_employee().id_
     employee = personio.get_employee(employee_id)
     delete_all_attendances_for_employee(employee)
     attendance = create_attendance_for_user(employee_id, create=True)
@@ -88,7 +88,7 @@ def test_delete_attendance_from_model_passed_client():
 
 @skip_if_no_auth
 def test_delete_attendance_from_model_with_client():
-    employee_id = shared_test_data['test_employee']['id']
+    employee_id = get_test_employee().id_
     employee = personio.get_employee(employee_id)
     delete_all_attendances_for_employee(employee)
     attendance = create_attendance_for_user(employee_id, create=True)
@@ -100,7 +100,7 @@ def test_delete_attendance_from_model_with_client():
 
 @skip_if_no_auth
 def test_add_attendance_id():
-    employee_id = shared_test_data['test_employee']['id']
+    employee_id = get_test_employee().id_
     employee = personio.get_employee(employee_id)
     delete_all_attendances_for_employee(employee)
     attendance = create_attendance_for_user(employee_id, create=True)
@@ -139,7 +139,7 @@ def delete_all_attendances_for_employee(employee: Employee):
 
 
 def prepare_test_get_attendances() -> Employee:
-    test_data = shared_test_data['test_employee']
+    test_data = get_test_employee()
     test_user = personio.get_employee(test_data['id'])
 
     # Be sure there are no leftover attendances

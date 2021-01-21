@@ -289,8 +289,10 @@ class Personio:
         :param end_date: only return attendance records up to this date (inclusive, optional)
         :return: list of ``Attendance`` records for the specified employees
         """
-        return self._get_employee_metadata(
-            'company/attendances', Attendance, employees, start_date, end_date)
+        attendances = self._get_employee_metadata('company/attendances', Attendance, employees, start_date, end_date)
+        for attendance in attendances:
+            attendance._client = self
+        return attendances
 
     def create_attendances(self, attendances: List[Attendance]) -> bool:
         """

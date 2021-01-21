@@ -282,7 +282,7 @@ class WritablePersonioResource(PersonioResource):
         UnsupportedMethodError('delete', self.__class__)
 
     def _check_client(self, client: 'Personio' = None) -> 'Personio':
-        client = client or self.client
+        client = client or self._client
         if not client:
             raise PersonioError()
         if not client.authenticated:
