@@ -769,9 +769,6 @@ json_string_attendance_rms = """
 """
 json_dict_attendance_rms = json.loads(json_string_attendance_rms)
 
-
-import json
-
 json_string_absence_alan = """
 {
   "success": true,
@@ -978,7 +975,6 @@ json_string_absence_alan_single = """
 """
 json_dict_absence_alan_first = json.loads(json_string_absence_alan_single)
 
-
 json_string_absence_types = """
 {
   "success": true,
@@ -1081,7 +1077,6 @@ json_string_absence_create_no_halfdays = """
 }
 """
 json_dict_absence_create_no_halfdays = json.loads(json_string_absence_create_no_halfdays)
-
 
 json_string_get_absence = """
 {
