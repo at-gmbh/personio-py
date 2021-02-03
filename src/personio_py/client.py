@@ -351,7 +351,7 @@ class Personio:
         :param absence: The absence id to fetch.
         """
         if isinstance(absence, int):
-            response = self.request_json('company/time-offs/' + str(absence))
+            response = self.request_json(f'company/time-offs/{absence}')
             return Absence.from_dict(response['data'], self)
         else:
             if absence.id_:
