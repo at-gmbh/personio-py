@@ -356,7 +356,7 @@ class Personio:
         else:
             if absence.id_:
                 return self.get_absence(absence.id_)
-            elif absence.id_ is None:
+            else:
                 self.__add_remote_absence_id(absence)
                 return self.get_absence(absence.id_)
 
