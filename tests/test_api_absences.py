@@ -124,7 +124,7 @@ def create_absences(client: Personio, absences: [Absence]):
 
 
 def delete_all_absences_of_employee(employee: Employee):
-    absences = personio.get_absences(employee)
+    absences = personio.get_absences(employee, start_date=NOT_BEFORE, end_date=NOT_AFTER)
     delete_absences(personio, absences)
 
 
@@ -140,9 +140,9 @@ def create_absence_for_user(employee: Employee,
         absence_types = personio.get_absence_types()
         time_off_type = [absence_type for absence_type in absence_types if absence_type.name == "Unpaid vacation"][0]
     if not start_date:
-        start_date = date(2021, 1, 1)
+        start_date = date(2031, 1, 1)
     if not end_date:
-        end_date = date(2021, 1, 10)
+        end_date = date(2031, 1, 10)
 
     absence_to_create = Absence(
         start_date=start_date,
