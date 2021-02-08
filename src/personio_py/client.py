@@ -360,18 +360,19 @@ class Personio:
                 self.__add_remote_absence_id(absence)
                 return self.get_absence(absence.id_)
 
-    def create_absence(self, absence: Absence) -> bool:
+    def create_absence(self, absence: Absence) -> Absence:
         """
         Creates an absence record on the Personio servers
 
         :param absence: The absence object to be created
+        :raises PersonioError: If the absence could not be created on the Personio servers
         """
         data = absence.to_body_params()
         response = self.request_json('company/time-offs', method='POST', data=data)
         if response['success']:
             absence.id_ = response['data']['attributes']['id']
-            return True
-        return False
+            return absence
+        raise PersonioError("Could not create absence")
 
     def delete_absence(self, absence: Union[Absence, int]):
         """
