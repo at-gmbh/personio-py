@@ -13,8 +13,8 @@ def test_create_absences(half_day_start: bool, half_day_end: bool):
     """
     # Prepare data
     test_user = get_test_employee()
-    start_date = date(2021, 1, 1)
-    end_date = date(2021, 1, 10)
+    start_date = date(year=2022, month=1, day=1)
+    end_date = date(year=2022, month=1, day=10)
 
     # Ensure there are no left absences
     delete_all_absences_of_employee(test_user)
@@ -140,9 +140,9 @@ def create_absence_for_user(employee: Employee,
         absence_types = personio.get_absence_types()
         time_off_type = [absence_type for absence_type in absence_types if absence_type.name == "Unpaid vacation"][0]
     if not start_date:
-        start_date = date(2031, 1, 1)
+        start_date = date(year=2022, month=1, day=1)
     if not end_date:
-        end_date = date(2031, 1, 10)
+        end_date = date(year=2022, month=1, day=10)
 
     absence_to_create = Absence(
         start_date=start_date,

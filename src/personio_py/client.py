@@ -386,7 +386,7 @@ class Personio:
             or the query does not provide exactly one result.
         """
         if isinstance(absence, int):
-            response = self.request_json(path='company/time-offs/' + str(absence), method='DELETE')
+            response = self.request_json(path=f'company/time-offs/{absence}', method='DELETE')
             return response['success']
         elif isinstance(absence, Absence):
             if absence.id_ is not None:
@@ -464,8 +464,8 @@ class Personio:
                                                      start_date=absence.start_date,
                                                      end_date=absence.end_date)
         if len(matching_remote_absences) == 0:
-            raise ValueError("The absence to patch was not found")
+            raise PersonioError("The absence to patch was not found")
         elif len(matching_remote_absences) > 1:
-            raise ValueError("More than one absence found.")
+            raise PersonioError("More than one absence found.")
         absence.id_ = matching_remote_absences[0].id_
         return absence

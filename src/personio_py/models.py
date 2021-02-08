@@ -276,7 +276,7 @@ class WritablePersonioResource(PersonioResource):
             client = self._check_client(client)
             return self._delete(client)
         else:
-            raise ValueError("Cannot delete without an api client")
+            raise UnsupportedMethodError('delete', self.__class__)
 
     def _delete(self, client: 'Personio'):
         UnsupportedMethodError('delete', self.__class__)
@@ -471,14 +471,14 @@ class ShortEmployee(LabeledAttributesMixin):
     def __init__(self, client: 'Personio' = None, id_: int = None, first_name: str = None,
                  last_name: str = None, email: str = None, **kwargs):
         super().__init__(**kwargs)
-        self.client = client
+        self._client = client
         self.id_ = id_
         self.first_name = first_name
         self.last_name = last_name
         self.email = email
 
     def resolve(self, client: 'Personio' = None) -> 'Employee':
-        client = client or self.client
+        client = client or self._client
         if client:
             return client.get_employee(self.id_)
         else:
@@ -608,8 +608,8 @@ class Absence(WritablePersonioResource):
             'time_off_type_id': self.time_off_type.id_,
             'start_date': self.start_date.strftime("%Y-%m-%d"),
             'end_date': self.end_date.strftime("%Y-%m-%d"),
-            'half_day_start': self.half_day_start or False,
-            'half_day_end': self.half_day_end or False
+            'half_day_start': self.half_day_start,
+            'half_day_end': self.half_day_end
         }
         if self.comment is not None:
             data['comment'] = self.comment

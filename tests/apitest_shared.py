@@ -7,8 +7,8 @@ import pytest
 from personio_py import Personio, PersonioError
 
 # Test time. if used on a personio instance, only touch entries during this time range
-NOT_BEFORE = date(year=2030, month=1, day=1)
-NOT_AFTER = date(year=2030, month=12, day=31)
+NOT_BEFORE = date(year=2022, month=1, day=1)
+NOT_AFTER = date(year=2022, month=12, day=31)
 
 # Personio client authentication
 CLIENT_ID = os.getenv('CLIENT_ID')
