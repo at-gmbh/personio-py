@@ -19,7 +19,7 @@
 >>> ada = employees[0]
 >>> ada.last_name
 'Lovelace'
->>> absences = p.get_absences(ada.id_)
+>>> absences = p.get_absences(ada)
 >>> len(absences)
 12
 >>> absences[0].to_dict()
