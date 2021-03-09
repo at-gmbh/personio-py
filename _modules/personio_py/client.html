@@ -320,7 +320,10 @@
             <span class="n">resp_data</span> <span class="o">=</span> <span class="n">response</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">]</span>
             <span class="k">if</span> <span class="n">resp_data</span><span class="p">:</span>
                 <span class="n">data_acc</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">resp_data</span><span class="p">)</span>
-                <span class="n">params</span><span class="p">[</span><span class="s1">&#39;offset&#39;</span><span class="p">]</span> <span class="o">+=</span> <span class="nb">len</span><span class="p">(</span><span class="n">resp_data</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">response</span><span class="p">[</span><span class="s1">&#39;metadata&#39;</span><span class="p">][</span><span class="s1">&#39;current_page&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">response</span><span class="p">[</span><span class="s1">&#39;metadata&#39;</span><span class="p">][</span><span class="s1">&#39;total_pages&#39;</span><span class="p">]:</span>
+                    <span class="k">break</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">params</span><span class="p">[</span><span class="s1">&#39;offset&#39;</span><span class="p">]</span> <span class="o">+=</span> <span class="nb">len</span><span class="p">(</span><span class="n">resp_data</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">break</span>
         <span class="c1"># return the accumulated data</span>
@@ -492,23 +495,58 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_employee_metadata</span><span class="p">(</span>
             <span class="s1">&#39;company/time-offs&#39;</span><span class="p">,</span> <span class="n">Absence</span><span class="p">,</span> <span class="n">employees</span><span class="p">,</span> <span class="n">start_date</span><span class="p">,</span> <span class="n">end_date</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Personio.get_absence"><a class="viewcode-back" href="../../api.html#personio_py.Personio.get_absence">[docs]</a>    <span class="k">def</span> <span class="nf">get_absence</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">absence_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Absence</span><span class="p">:</span>
+<div class="viewcode-block" id="Personio.get_absence"><a class="viewcode-back" href="../../api.html#personio_py.Personio.get_absence">[docs]</a>    <span class="k">def</span> <span class="nf">get_absence</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">absence</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Absence</span><span class="p">,</span> <span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Absence</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        placeholder; not ready to be used</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span></div>
+<span class="sd">        Get an absence record from a given id.</span>
 
-<div class="viewcode-block" id="Personio.create_absence"><a class="viewcode-back" href="../../api.html#personio_py.Personio.create_absence">[docs]</a>    <span class="k">def</span> <span class="nf">create_absence</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">absence</span><span class="p">:</span> <span class="n">Absence</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        placeholder; not ready to be used</span>
+<span class="sd">        :param absence: The absence id to fetch.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span></div>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">absence</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+            <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">request_json</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;company/time-offs/</span><span class="si">{absence}</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">Absence</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">response</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">],</span> <span class="bp">self</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">absence</span><span class="o">.</span><span class="n">id_</span><span class="p">:</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_absence</span><span class="p">(</span><span class="n">absence</span><span class="o">.</span><span class="n">id_</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">__add_remote_absence_id</span><span class="p">(</span><span class="n">absence</span><span class="p">)</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_absence</span><span class="p">(</span><span class="n">absence</span><span class="o">.</span><span class="n">id_</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Personio.delete_absence"><a class="viewcode-back" href="../../api.html#personio_py.Personio.delete_absence">[docs]</a>    <span class="k">def</span> <span class="nf">delete_absence</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">absence_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+<div class="viewcode-block" id="Personio.create_absence"><a class="viewcode-back" href="../../api.html#personio_py.Personio.create_absence">[docs]</a>    <span class="k">def</span> <span class="nf">create_absence</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">absence</span><span class="p">:</span> <span class="n">Absence</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Absence</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        placeholder; not ready to be used</span>
+<span class="sd">        Creates an absence record on the Personio servers</span>
+
+<span class="sd">        :param absence: The absence object to be created</span>
+<span class="sd">        :raises PersonioError: If the absence could not be created on the Personio servers</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span></div>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">absence</span><span class="o">.</span><span class="n">to_body_params</span><span class="p">()</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">request_json</span><span class="p">(</span><span class="s1">&#39;company/time-offs&#39;</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s1">&#39;POST&#39;</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">response</span><span class="p">[</span><span class="s1">&#39;success&#39;</span><span class="p">]:</span>
+            <span class="n">absence</span><span class="o">.</span><span class="n">id_</span> <span class="o">=</span> <span class="n">response</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">][</span><span class="s1">&#39;attributes&#39;</span><span class="p">][</span><span class="s1">&#39;id&#39;</span><span class="p">]</span>
+            <span class="k">return</span> <span class="n">absence</span>
+        <span class="k">raise</span> <span class="n">PersonioError</span><span class="p">(</span><span class="s2">&quot;Could not create absence&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Personio.delete_absence"><a class="viewcode-back" href="../../api.html#personio_py.Personio.delete_absence">[docs]</a>    <span class="k">def</span> <span class="nf">delete_absence</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">absence</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Absence</span><span class="p">,</span> <span class="nb">int</span><span class="p">]):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Delete an existing record</span>
+
+<span class="sd">        An absence id is required.</span>
+
+<span class="sd">        :param absence: The Absence object holding</span>
+<span class="sd">        the new data or an absence record id to delete.</span>
+<span class="sd">        :raises:</span>
+<span class="sd">            ValueError: If a query is required but not allowed</span>
+<span class="sd">            or the query does not provide exactly one result.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">absence</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+            <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">request_json</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;company/time-offs/</span><span class="si">{absence}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s1">&#39;DELETE&#39;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">response</span><span class="p">[</span><span class="s1">&#39;success&#39;</span><span class="p">]</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">absence</span><span class="p">,</span> <span class="n">Absence</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">absence</span><span class="o">.</span><span class="n">id_</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">delete_absence</span><span class="p">(</span><span class="n">absence</span><span class="o">.</span><span class="n">id_</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Only an absence with an absence id can be deleted.&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;absence must be an Absence object or an integer&quot;</span><span class="p">)</span></div>
 
     <span class="k">def</span> <span class="nf">_get_employee_metadata</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">resource_cls</span><span class="p">:</span> <span class="n">Type</span><span class="p">[</span><span class="n">PersonioResourceType</span><span class="p">],</span>
@@ -558,7 +596,31 @@
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">employees</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
             <span class="n">employees</span> <span class="o">=</span> <span class="p">[</span><span class="n">employees</span><span class="p">]</span>
         <span class="n">employee_ids</span> <span class="o">=</span> <span class="p">[(</span><span class="n">e</span><span class="o">.</span><span class="n">id_</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="n">Employee</span><span class="p">)</span> <span class="k">else</span> <span class="n">e</span><span class="p">)</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">employees</span><span class="p">]</span>
-        <span class="k">return</span> <span class="n">employee_ids</span><span class="p">,</span> <span class="n">start_date</span><span class="p">,</span> <span class="n">end_date</span></div>
+        <span class="k">return</span> <span class="n">employee_ids</span><span class="p">,</span> <span class="n">start_date</span><span class="p">,</span> <span class="n">end_date</span>
+
+    <span class="k">def</span> <span class="nf">__add_remote_absence_id</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">absence</span><span class="p">:</span> <span class="n">Absence</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Absence</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Queries the API for an absence record matching</span>
+<span class="sd">        the given Absence object and adds the remote id.</span>
+
+<span class="sd">        :param absence: The absence object to be updated</span>
+<span class="sd">        :return: The absence object with the absence_id set</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">absence</span><span class="o">.</span><span class="n">employee</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;For a remote query an employee_id is required&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">absence</span><span class="o">.</span><span class="n">start_date</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;For a remote query a start date is required&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">absence</span><span class="o">.</span><span class="n">end_date</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;For a remote query an end date is required&quot;</span><span class="p">)</span>
+        <span class="n">matching_remote_absences</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_absences</span><span class="p">(</span><span class="n">employees</span><span class="o">=</span><span class="p">[</span><span class="n">absence</span><span class="o">.</span><span class="n">employee</span><span class="o">.</span><span class="n">id_</span><span class="p">],</span>
+                                                     <span class="n">start_date</span><span class="o">=</span><span class="n">absence</span><span class="o">.</span><span class="n">start_date</span><span class="p">,</span>
+                                                     <span class="n">end_date</span><span class="o">=</span><span class="n">absence</span><span class="o">.</span><span class="n">end_date</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">matching_remote_absences</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">PersonioError</span><span class="p">(</span><span class="s2">&quot;The absence to patch was not found&quot;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">matching_remote_absences</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">PersonioError</span><span class="p">(</span><span class="s2">&quot;More than one absence found.&quot;</span><span class="p">)</span>
+        <span class="n">absence</span><span class="o">.</span><span class="n">id_</span> <span class="o">=</span> <span class="n">matching_remote_absences</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">id_</span>
+        <span class="k">return</span> <span class="n">absence</span></div>
 </pre></div>
 
            </div>

@@ -724,8 +724,8 @@
                  <span class="n">start_date</span><span class="p">:</span> <span class="n">datetime</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
                  <span class="n">end_date</span><span class="p">:</span> <span class="n">datetime</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
                  <span class="n">days_count</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-                 <span class="n">half_day_start</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-                 <span class="n">half_day_end</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                 <span class="n">half_day_start</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+                 <span class="n">half_day_end</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
                  <span class="n">time_off_type</span><span class="p">:</span> <span class="n">AbsenceType</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
                  <span class="n">employee</span><span class="p">:</span> <span class="n">ShortEmployee</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
                  <span class="n">created_by</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -739,19 +739,32 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">start_date</span> <span class="o">=</span> <span class="n">start_date</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">end_date</span> <span class="o">=</span> <span class="n">end_date</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">days_count</span> <span class="o">=</span> <span class="n">days_count</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">half_day_start</span> <span class="o">=</span> <span class="n">half_day_start</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">half_day_end</span> <span class="o">=</span> <span class="n">half_day_end</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">half_day_start</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">(</span><span class="n">half_day_start</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">half_day_end</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">(</span><span class="n">half_day_end</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">time_off_type</span> <span class="o">=</span> <span class="n">time_off_type</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">employee</span> <span class="o">=</span> <span class="n">employee</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">created_by</span> <span class="o">=</span> <span class="n">created_by</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">certificate</span> <span class="o">=</span> <span class="n">certificate</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">created_at</span> <span class="o">=</span> <span class="n">created_at</span>
 
-    <span class="k">def</span> <span class="nf">_create</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">client</span><span class="p">:</span> <span class="s1">&#39;Personio&#39;</span><span class="p">):</span>
-        <span class="k">pass</span>
+    <span class="k">def</span> <span class="nf">_create</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">client</span><span class="p">:</span> <span class="s1">&#39;Personio&#39;</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">get_client</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">client</span><span class="p">)</span><span class="o">.</span><span class="n">create_absence</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">_delete</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">client</span><span class="p">:</span> <span class="s1">&#39;Personio&#39;</span><span class="p">):</span>
-        <span class="k">pass</span></div>
+    <span class="k">def</span> <span class="nf">_delete</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">client</span><span class="p">:</span> <span class="s1">&#39;Personio&#39;</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">get_client</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">client</span><span class="p">)</span><span class="o">.</span><span class="n">delete_absence</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Absence.to_body_params"><a class="viewcode-back" href="../../api.html#personio_py.models.Absence.to_body_params">[docs]</a>    <span class="k">def</span> <span class="nf">to_body_params</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;employee_id&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">employee</span><span class="o">.</span><span class="n">id_</span><span class="p">,</span>
+            <span class="s1">&#39;time_off_type_id&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_off_type</span><span class="o">.</span><span class="n">id_</span><span class="p">,</span>
+            <span class="s1">&#39;start_date&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">start_date</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">),</span>
+            <span class="s1">&#39;end_date&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">end_date</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">),</span>
+            <span class="s1">&#39;half_day_start&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">half_day_start</span><span class="p">,</span>
+            <span class="s1">&#39;half_day_end&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">half_day_end</span>
+        <span class="p">}</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">comment</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">data</span><span class="p">[</span><span class="s1">&#39;comment&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">comment</span>
+        <span class="k">return</span> <span class="n">data</span></div></div>
 
 
 <div class="viewcode-block" id="Attendance"><a class="viewcode-back" href="../../api.html#personio_py.models.Attendance">[docs]</a><span class="k">class</span> <span class="nc">Attendance</span><span class="p">(</span><span class="n">WritablePersonioResource</span><span class="p">):</span>

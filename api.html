@@ -198,8 +198,16 @@ If the authentication failed, a <code class="docutils literal notranslate"><span
 
 <dl class="method">
 <dt id="personio_py.Personio.create_absence">
-<code class="sig-name descname">create_absence</code><span class="sig-paren">(</span><em class="sig-param">absence: personio_py.models.Absence</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/personio_py/client.html#Personio.create_absence"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#personio_py.Personio.create_absence" title="Permalink to this definition">¶</a></dt>
-<dd><p>placeholder; not ready to be used</p>
+<code class="sig-name descname">create_absence</code><span class="sig-paren">(</span><em class="sig-param">absence: personio_py.models.Absence</em><span class="sig-paren">)</span> &#x2192; personio_py.models.Absence<a class="reference internal" href="_modules/personio_py/client.html#Personio.create_absence"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#personio_py.Personio.create_absence" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates an absence record on the Personio servers</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>absence</strong> – The absence object to be created</p>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><a class="reference internal" href="#personio_py.PersonioError" title="personio_py.PersonioError"><strong>PersonioError</strong></a> – If the absence could not be created on the Personio servers</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -216,8 +224,20 @@ If the authentication failed, a <code class="docutils literal notranslate"><span
 
 <dl class="method">
 <dt id="personio_py.Personio.delete_absence">
-<code class="sig-name descname">delete_absence</code><span class="sig-paren">(</span><em class="sig-param">absence_id: int</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/personio_py/client.html#Personio.delete_absence"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#personio_py.Personio.delete_absence" title="Permalink to this definition">¶</a></dt>
-<dd><p>placeholder; not ready to be used</p>
+<code class="sig-name descname">delete_absence</code><span class="sig-paren">(</span><em class="sig-param">absence: Union[personio_py.models.Absence, int]</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/personio_py/client.html#Personio.delete_absence"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#personio_py.Personio.delete_absence" title="Permalink to this definition">¶</a></dt>
+<dd><p>Delete an existing record</p>
+<p>An absence id is required.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>absence</strong> – The Absence object holding</p>
+</dd>
+</dl>
+<p>the new data or an absence record id to delete.
+:raises:</p>
+<blockquote>
+<div><p>ValueError: If a query is required but not allowed
+or the query does not provide exactly one result.</p>
+</div></blockquote>
 </dd></dl>
 
 <dl class="method">
@@ -228,8 +248,13 @@ If the authentication failed, a <code class="docutils literal notranslate"><span
 
 <dl class="method">
 <dt id="personio_py.Personio.get_absence">
-<code class="sig-name descname">get_absence</code><span class="sig-paren">(</span><em class="sig-param">absence_id: int</em><span class="sig-paren">)</span> &#x2192; personio_py.models.Absence<a class="reference internal" href="_modules/personio_py/client.html#Personio.get_absence"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#personio_py.Personio.get_absence" title="Permalink to this definition">¶</a></dt>
-<dd><p>placeholder; not ready to be used</p>
+<code class="sig-name descname">get_absence</code><span class="sig-paren">(</span><em class="sig-param">absence: Union[personio_py.models.Absence, int]</em><span class="sig-paren">)</span> &#x2192; personio_py.models.Absence<a class="reference internal" href="_modules/personio_py/client.html#Personio.get_absence"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#personio_py.Personio.get_absence" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get an absence record from a given id.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>absence</strong> – The absence id to fetch.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -455,8 +480,13 @@ that is enforced on the server side)</p></li>
 <p>Definition of ORMs for objects that are available in the Personio API</p>
 <dl class="class">
 <dt id="personio_py.models.Absence">
-<em class="property">class </em><code class="sig-prename descclassname">personio_py.models.</code><code class="sig-name descname">Absence</code><span class="sig-paren">(</span><em class="sig-param">client: Personio = None</em>, <em class="sig-param">dynamic: Dict[str</em>, <em class="sig-param">Any] = None</em>, <em class="sig-param">dynamic_raw: List[DynamicAttr] = None</em>, <em class="sig-param">id_: int = None</em>, <em class="sig-param">status: str = None</em>, <em class="sig-param">comment: str = None</em>, <em class="sig-param">start_date: datetime.datetime = None</em>, <em class="sig-param">end_date: datetime.datetime = None</em>, <em class="sig-param">days_count: float = None</em>, <em class="sig-param">half_day_start: int = None</em>, <em class="sig-param">half_day_end: int = None</em>, <em class="sig-param">time_off_type: personio_py.models.AbsenceType = None</em>, <em class="sig-param">employee: personio_py.models.ShortEmployee = None</em>, <em class="sig-param">created_by: str = None</em>, <em class="sig-param">certificate: personio_py.models.Certificate = None</em>, <em class="sig-param">created_at: datetime.datetime = None</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/personio_py/models.html#Absence"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#personio_py.models.Absence" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">personio_py.models.</code><code class="sig-name descname">Absence</code><span class="sig-paren">(</span><em class="sig-param">client: Personio = None</em>, <em class="sig-param">dynamic: Dict[str</em>, <em class="sig-param">Any] = None</em>, <em class="sig-param">dynamic_raw: List[DynamicAttr] = None</em>, <em class="sig-param">id_: int = None</em>, <em class="sig-param">status: str = None</em>, <em class="sig-param">comment: str = None</em>, <em class="sig-param">start_date: datetime.datetime = None</em>, <em class="sig-param">end_date: datetime.datetime = None</em>, <em class="sig-param">days_count: float = None</em>, <em class="sig-param">half_day_start: bool = False</em>, <em class="sig-param">half_day_end: bool = False</em>, <em class="sig-param">time_off_type: personio_py.models.AbsenceType = None</em>, <em class="sig-param">employee: personio_py.models.ShortEmployee = None</em>, <em class="sig-param">created_by: str = None</em>, <em class="sig-param">certificate: personio_py.models.Certificate = None</em>, <em class="sig-param">created_at: datetime.datetime = None</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/personio_py/models.html#Absence"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#personio_py.models.Absence" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#personio_py.models.WritablePersonioResource" title="personio_py.models.WritablePersonioResource"><code class="xref py py-class docutils literal notranslate"><span class="pre">personio_py.models.WritablePersonioResource</span></code></a></p>
+<dl class="method">
+<dt id="personio_py.models.Absence.to_body_params">
+<code class="sig-name descname">to_body_params</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/personio_py/models.html#Absence.to_body_params"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#personio_py.models.Absence.to_body_params" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 </dd></dl>
 
 <dl class="class">
