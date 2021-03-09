@@ -709,36 +709,73 @@ json_string_employee_ada = """
 """
 json_dict_employee_ada = json.loads(json_string_employee_ada)
 
-json_string_absence_types = """
+json_string_empty_response = """
 {
   "success": true,
+  "data": []
+}
+"""
+json_dict_empty_response = json.loads(json_string_empty_response)
+
+json_string_attendance_rms = """
+{
+  "success": true,
+  "metadata":{
+        "current_page":1,
+        "total_pages":1
+    },
   "data": [{
-      "type": "TimeOffType",
+      "id": 33479712,
+      "type": "AttendancePeriod",
       "attributes": {
-        "id": 195824,
-        "name": "vacation"
+        "employee": 2116366,
+        "date": "1985-03-20",
+        "start_time": "11:00",
+        "end_time": "12:30",
+        "break": 60,
+        "comment": "release day! GNU Emacs Version 13 is available as free software now *yay*",
+        "is_holiday": false,
+        "is_on_time_off": false
       }
     }, {
-      "type": "TimeOffType",
+      "id": 33479612,
+      "type": "AttendancePeriod",
       "attributes": {
-        "id": 195825,
-        "name": "paid leave"
+        "employee": 2116366,
+        "date": "1985-03-19",
+        "start_time": "10:30",
+        "end_time": "22:00",
+        "break": 120,
+        "comment": "just a couple more parentheses...",
+        "is_holiday": false,
+        "is_on_time_off": false
       }
     }, {
-      "type": "TimeOffType",
+      "id": 33479602,
+      "type": "AttendancePeriod",
       "attributes": {
-        "id": 195826,
-        "name": "sick"
+        "employee": 2116366,
+        "date": "1985-03-18",
+        "start_time": "10:00",
+        "end_time": "20:00",
+        "break": 90,
+        "comment": "working on GNU Emacs",
+        "is_holiday": false,
+        "is_on_time_off": false
       }
     }
   ]
 }
 """
-json_dict_absence_types = json.loads(json_string_absence_types)
+json_dict_attendance_rms = json.loads(json_string_attendance_rms)
 
 json_string_absence_alan = """
 {
   "success": true,
+     "metadata":{
+        "current_page":1,
+        "total_pages":1
+   },
   "data": [{
       "type": "TimeOffPeriod",
       "attributes": {
@@ -880,12 +917,220 @@ json_string_absence_alan = """
 """
 json_dict_absence_alan = json.loads(json_string_absence_alan)
 
-json_string_empty_response = """
+json_string_absence_alan_single = """
 {
-  "success": true,
-  "data": []
+ "success": true,
+    "metadata":{
+        "current_page":1,
+        "total_pages":1
+   },
+  "data": [{
+      "type": "TimeOffPeriod",
+      "attributes": {
+        "id": 17205942,
+        "status": "approved",
+        "comment": "marathon starts at noon",
+        "start_date": "1944-09-01T00:00:00+02:00",
+        "end_date": "1944-09-01T00:00:00+02:00",
+        "days_count": 0.5,
+        "half_day_start": 0,
+        "half_day_end": 1,
+        "time_off_type": {
+          "type": "TimeOffType",
+          "attributes": {
+            "id": 195824,
+            "name": "vacation"
+          }
+        },
+        "employee": {
+          "type": "Employee",
+          "attributes": {
+            "id": {
+              "label": "ID",
+              "value": 2116365
+            },
+            "first_name": {
+              "label": "First name",
+              "value": "Alan"
+            },
+            "last_name": {
+              "label": "Last name",
+              "value": "Turing"
+            },
+            "email": {
+              "label": "Email",
+              "value": "alan@example.org"
+            }
+          }
+        },
+        "created_by": "Alan Turing",
+        "certificate": {
+          "status": "not-required"
+        },
+        "created_at": "2020-08-21T18:07:06+02:00"
+      }
+    }
+    ]
 }
 """
-json_dict_empty_response = json.loads(json_string_empty_response)
+json_dict_absence_alan_first = json.loads(json_string_absence_alan_single)
 
+json_string_absence_types = """
+{
+  "success": true,
+     "metadata":{
+        "current_page":1,
+        "total_pages":1
+   },
+  "data": [{
+      "type": "TimeOffType",
+      "attributes": {
+        "id": 195824,
+        "name": "vacation"
+      }
+    }, {
+      "type": "TimeOffType",
+      "attributes": {
+        "id": 195825,
+        "name": "paid leave"
+      }
+    }, {
+      "type": "TimeOffType",
+      "attributes": {
+        "id": 195826,
+        "name": "sick"
+      }
+    }
+  ]
+}
+"""
+json_dict_absence_types = json.loads(json_string_absence_types)
 
+json_string_delete_absence = """
+{
+    "success": true,
+       "metadata":{
+        "current_page":1,
+        "total_pages":1
+   },
+    "data": {
+        "message": "The absence period was deleted."
+    }
+}
+"""
+json_dict_delete_absence = json.loads(json_string_delete_absence)
+
+json_string_absence_create_no_halfdays = """
+{
+   "success":true,
+      "metadata":{
+        "current_page":1,
+        "total_pages":1
+   },
+   "data":{
+      "type":"TimeOffPeriod",
+      "attributes":{
+         "id":22809350,
+         "status":"approved",
+         "comment":"",
+         "start_date":"2021-01-01T00:00:00+01:00",
+         "end_date":"2021-01-10T00:00:00+01:00",
+         "days_count":5,
+         "half_day_start":1,
+         "half_day_end":1,
+         "time_off_type":{
+            "type":"TimeOffType",
+            "attributes":{
+               "id":243402,
+               "name":"Unpaid vacation",
+               "category":"unpaid_vacation"
+            }
+         },
+         "employee":{
+            "type":"Employee",
+            "attributes":{
+               "id":{
+                  "label":"ID",
+                  "value":2628890
+               },
+               "first_name":{
+                  "label":"First name",
+                  "value":"Alan"
+               },
+               "last_name":{
+                  "label":"Last name",
+                  "value":"Turing"
+               },
+               "email":{
+                  "label":"Email",
+                  "value":"alan.turing@cetitec.com"
+               }
+            }
+         },
+         "created_by":"API",
+         "certificate":{
+            "status":"not-required"
+         },
+         "created_at":"2020-12-01T18:24:11+01:00"
+      }
+   }
+}
+"""
+json_dict_absence_create_no_halfdays = json.loads(json_string_absence_create_no_halfdays)
+
+json_string_get_absence = """
+{
+   "success":true,
+   "metadata":{
+        "current_page":1,
+        "total_pages":1
+   },
+   "data":{
+      "type":"TimeOffPeriod",
+      "attributes":{
+         "id":2628890,
+         "status":"approved",
+         "comment":"",
+         "start_date":"2021-01-01T00:00:00+01:00",
+         "end_date":"2021-01-10T00:00:00+01:00",
+         "days_count":5,
+         "half_day_start":0,
+         "half_day_end":1,
+         "time_off_type":{
+            "type":"TimeOffType",
+            "attributes":{
+               "id":243402,
+               "name":"Unpaid vacation",
+               "category":"unpaid_vacation"
+            }
+         },
+         "employee":{
+            "type":"Employee",
+            "attributes":{
+               "id":{
+                  "label":"ID",
+                  "value":2628890
+               },
+               "first_name":{
+                  "label":"First name",
+                  "value":"Alan"
+               },
+               "last_name":{
+                  "label":"Last name",
+                  "value":"Turing"
+               },
+               "email":{
+                  "label":"Email",
+                  "value":"alan.turing@cetitec.com"
+               }
+            }
+         },
+         "created_by":"API",
+         "certificate":{
+            "status":"not-required"
+         },
+         "created_at":"2020-12-02T17:28:34+01:00"
+      }
+   }
+}"""
+json_dict_get_absence = json.loads(json_string_get_absence)
