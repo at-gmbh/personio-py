@@ -47,12 +47,6 @@ def test_create_employee():
 
 
 @skip_if_no_auth
-def test_get_absences():
-    absences = personio.get_absences(2007207)
-    assert len(absences) > 0
-
-
-@skip_if_no_auth
 def test_get_attendances():
     attendances = personio.get_attendances(2007207)
     assert len(attendances) > 0
