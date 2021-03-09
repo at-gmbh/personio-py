@@ -1,5 +1,5 @@
 """
-Types of Errors specified by personio-py
+Types of Errors specified by personio-py.
 """
 from typing import Any, Dict, Type
 

@@ -1,5 +1,5 @@
 """
-mappings from Personio API fields to Python data types and vice versa are defined in this module
+Mappings from Personio API fields to Python data types and vice versa are defined in this module.
 """
 import logging
 import re

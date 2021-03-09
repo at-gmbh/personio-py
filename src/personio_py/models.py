@@ -1,5 +1,5 @@
 """
-Definition of ORMs for objects that are available in the Personio API
+Definition of ORMs for objects that are available in the Personio API.
 """
 import json
 import logging
@@ -675,6 +675,46 @@ class Attendance(WritablePersonioResource):
 
 
 class Employee(WritablePersonioResource, LabeledAttributesMixin):
+    """
+    Representation of an employee in Personio.
+
+    :param client: reference to the Personio client instance that requested this employee profile
+    :param dynamic:
+    :param dynamic_raw:
+    :param id_: numerical identifier of the employee in Personio
+    :param first_name: first name of the employee
+    :param last_name: last name of the employee
+    :param email: email address of the employee
+    :param gender: the gender that is legally recognized by the state that the employee works in
+    :param status:
+    :param position:
+    :param supervisor:
+    :param employment_type:
+    :param weekly_working_hours:
+    :param hire_date:
+    :param contract_end_date:
+    :param termination_date:
+    :param termination_type:
+    :param termination_reason:
+    :param probation_period_end:
+    :param created_at:
+    :param last_modified_at:
+    :param subcompany:
+    :param office:
+    :param department:
+    :param cost_centers:
+    :param holiday_calendar:
+    :param absence_entitlement:
+    :param work_schedule:
+    :param fix_salary:
+    :param fix_salary_interval:
+    :param hourly_salary:
+    :param vacation_day_balance:
+    :param last_working_day:
+    :param profile_picture:
+    :param team:
+    :param kwargs:
+    """
 
     _api_type_name = "Employee"
     _can_delete = False

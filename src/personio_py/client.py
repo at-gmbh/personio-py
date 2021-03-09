@@ -1,5 +1,5 @@
 """
-Implementation of the Personio API functions
+Implementation of the Personio API functions.
 """
 import logging
 import os
