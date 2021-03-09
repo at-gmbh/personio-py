@@ -679,41 +679,49 @@ class Employee(WritablePersonioResource, LabeledAttributesMixin):
     Representation of an employee in Personio.
 
     :param client: reference to the Personio client instance that requested this employee profile
-    :param dynamic:
-    :param dynamic_raw:
+    :param dynamic: dictionary of dynamic fields (), mapping from field alias (as defined
+           in ``DynamicMapping``) to value
+    :param dynamic_raw: raw contents of dynamic fields, mapping from numeric field id
+           to ``DynamicAttr`` object, which contains the assigned label and value
     :param id_: numerical identifier of the employee in Personio
     :param first_name: first name of the employee
     :param last_name: last name of the employee
     :param email: email address of the employee
     :param gender: the gender that is legally recognized by the state that the employee works in
-    :param status:
-    :param position:
-    :param supervisor:
-    :param employment_type:
-    :param weekly_working_hours:
-    :param hire_date:
-    :param contract_end_date:
-    :param termination_date:
-    :param termination_type:
-    :param termination_reason:
-    :param probation_period_end:
-    :param created_at:
-    :param last_modified_at:
-    :param subcompany:
-    :param office:
-    :param department:
-    :param cost_centers:
-    :param holiday_calendar:
-    :param absence_entitlement:
-    :param work_schedule:
-    :param fix_salary:
-    :param fix_salary_interval:
-    :param hourly_salary:
-    :param vacation_day_balance:
-    :param last_working_day:
-    :param profile_picture:
-    :param team:
-    :param kwargs:
+    :param status: the current employment status (active, inactive)
+    :param position: the current position / job title of the employee
+    :param supervisor: the employee's supervisor as ``ShortEmployee`` object
+    :param employment_type: employment type (internal / external)
+    :param weekly_working_hours: the current weekly working hours of the employee
+    :param hire_date: date when the employee was hired
+    :param contract_end_date: date when the contract of the employee will end,
+           in case of a fixed-term contract
+    :param termination_date: the termination date, if the contract was terminated
+    :param termination_type: the termination type (normal cancellation, summary dismissal, etc.),
+           if the contract was terminated
+    :param termination_reason: reason for the termination, if the contract was terminated
+    :param probation_period_end: end of the employee's probation period
+    :param created_at: date and time when the employee's Personio profile was created
+    :param last_modified_at: date and time when the employee's Personio profile was last modified
+    :param subcompany: name of the subsidiary the employee is working for, if applicable
+    :param office: the office the employee is usually working in (``Office`` object)
+    :param department: the office the employee is assigned to (``Department`` object)
+    :param cost_centers: the cost centers the employee is assigned to
+           (list of ``CostCenter`` objects)
+    :param holiday_calendar: the holiday calendar that applies to this employee
+           (``HolidayCalendar`` object)
+    :param absence_entitlement: a list of absence entitlements that apply to this employee
+           (list of ``AbsenceEntitlement`` objects)
+    :param work_schedule: the employee's work schedule (``WorkSchedule`` object)
+    :param fix_salary: the fixed salary of the employee, if applicable
+    :param fix_salary_interval: payment interval of the fixed salary (weekly, monthly, etc.)
+    :param hourly_salary: the hourly salary of the employee, if applicable
+    :param vacation_day_balance: the remaining number of vacation days of the employee
+           in the current year
+    :param last_working_day: date of the last working day, if the employee is leaving the company
+    :param profile_picture: URL to the employee's profile picture (authenticated access only)
+    :param team: the team that the employee is working in (``Team`` object)
+    :param kwargs: additional arguments will be passed to the superclass
     """
 
     _api_type_name = "Employee"
