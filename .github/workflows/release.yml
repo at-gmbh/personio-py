@@ -29,7 +29,9 @@ jobs:
         cd dist
         echo "::`echo -n ${{ github.token }} | sha256sum | head -c 64`::set-env name=WHEEL::$(ls *.whl)"
     - name: Test it
-      run: echo "wheel ${{ env.WHEEL }}"
+      env:
+        WHEEL: ${{ env.WHEEL }}
+      run: echo "wheel $WHEEL"
       # create a new draft release (so we only trigger the deployment pipeline after the draft has been published)
 #    - name: Create Release
 #      id: create_release
