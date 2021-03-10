@@ -4,12 +4,17 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased](https://github.com/at-gmbh/personio-py/compare/v0.1.1...HEAD)
+## [Unreleased](https://github.com/at-gmbh/personio-py/compare/v0.2.0...HEAD)
 
-* add support for new API functions: `get_absences`, `get_attendances`
+* ...
+
+## [0.2.0](https://github.com/at-gmbh/personio-py/tree/v0.2.0) - 2021-03-10
+
+* add support for new API functions: `get_absences`, `get_absence_types`, `create_absence`, `delete_absence`, `get_attendances` (thanks [philipflohr](https://github.com/philipflohr)!)
 * add support for paginated API requests (required for attendances & absences)
 * make `from_dict()` and `to_dict()` behave consistently
 * meta: improve CI builds & tests, better pre-commit hooks
+* lots of mock tests & documentation
 
 ## [0.1.1](https://github.com/at-gmbh/personio-py/tree/v0.1.1) - 2020-08-19
 
