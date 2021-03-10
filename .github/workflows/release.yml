@@ -27,8 +27,7 @@ jobs:
         pip install -r requirements.txt
         python setup.py sdist bdist_wheel
         cd dist
-        echo "::`echo -n ${{ github.token }} | sha256sum | head -c 64`::"
-        echo "::set-env name=WHEEL::$(ls *.whl)"
+        echo "::`echo -n ${{ github.token }} | sha256sum | head -c 64`::set-env name=WHEEL::$(ls *.whl)"
     - name: Test it
       run: echo "wheel ${{ env.WHEEL }}"
       # create a new draft release (so we only trigger the deployment pipeline after the draft has been published)
