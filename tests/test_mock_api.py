@@ -97,11 +97,8 @@ def test_auth_rotation_fail():
 def test_get_attendance():
     # mock the get absences endpoint (with different array offsets)
     responses.add(
-        responses.GET, re.compile('https://api.personio.de/v1/company/attendances?.*offset=0.*'),
+        responses.GET, re.compile('https://api.personio.de/v1/company/attendances?.*offset=1.*'),
         status=200, json=json_dict_attendance_rms, adding_headers={'Authorization': 'Bearer foo'})
-    responses.add(
-        responses.GET, re.compile('https://api.personio.de/v1/company/attendances?.*offset=3.*'),
-        status=200, json=json_dict_empty_response, adding_headers={'Authorization': 'Bearer bar'})
     # configure personio & get absences for alan
     personio = mock_personio()
     attendances = personio.get_attendances(2116366)
