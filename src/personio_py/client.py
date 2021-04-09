@@ -163,7 +163,7 @@ class Personio:
         if params is None:
             params = {}
         params['limit'] = limit
-        params['offset'] = 0
+        params['offset'] = 1
         # continue making requests until no more data is returned
         data_acc = []
         while True:
@@ -174,7 +174,7 @@ class Personio:
                 if response['metadata']['current_page'] == response['metadata']['total_pages']:
                     break
                 else:
-                    params['offset'] += len(resp_data)
+                    params['offset'] += 1
             else:
                 break
         # return the accumulated data
