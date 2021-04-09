@@ -158,20 +158,17 @@
 <p><strong>personio-py</strong> is a lightweight Personio API client library for Python. Also, it’s pretty intuitive to use. But don’t take my word for it, please have a look:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">personio_py</span> <span class="kn">import</span> <span class="n">Personio</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">p</span> <span class="o">=</span> <span class="n">Personio</span><span class="p">(</span><span class="n">client_id</span><span class="o">=</span><span class="s1">&#39;***&#39;</span><span class="p">,</span> <span class="n">client_secret</span><span class="o">=</span><span class="s1">&#39;***&#39;</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">employees</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">get_employees</span><span class="p">()</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="nb">len</span><span class="p">(</span><span class="n">employees</span><span class="p">)</span>
-<span class="go">42</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">ada</span> <span class="o">=</span> <span class="n">employees</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ada</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">search_first</span><span class="p">(</span><span class="s2">&quot;Ada&quot;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">ada</span><span class="o">.</span><span class="n">last_name</span>
 <span class="go">&#39;Lovelace&#39;</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">absences</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">get_absences</span><span class="p">(</span><span class="n">ada</span><span class="o">.</span><span class="n">id_</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">absences</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">get_absences</span><span class="p">(</span><span class="n">ada</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">len</span><span class="p">(</span><span class="n">absences</span><span class="p">)</span>
 <span class="go">12</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">absences</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()</span>
 <span class="go">{&#39;id&#39;: 42, &#39;status&#39;: &#39;approved&#39;, &#39;start_date&#39;: &#39;2020-08-01&#39;, &#39;end_date&#39;: &#39;2020-08-16&#39;, ...}</span>
 </pre></div>
 </div>
-<p><strong>personio-py</strong> aims to provide Python function wrappers and object mappings for all endpoints of the <a class="reference external" href="https://developer.personio.de/reference">Personio REST API</a>. Because personio-py is a third party library and the REST API may change from time to time, we cannot guarantee that all functions are covered, but we try our best.</p>
+<p><strong>personio-py</strong> aims to provide Python function wrappers and object mappings for all endpoints of the <a class="reference external" href="https://developer.personio.de/reference">Personio REST API</a>. Because personio-py is a third party library, and the REST API may change from time to time, we cannot guarantee that all functions are covered, but we try our best.</p>
 <p>If something appears to be broken, please have a look at the <a class="reference external" href="https://github.com/at-gmbh/personio-py/issues">open issues</a> and vote for an existing issue or create a new one, if you can’t find an issue that describes your problem.</p>
 <div class="section" id="index">
 <h2>Index<a class="headerlink" href="#index" title="Permalink to this headline">¶</a></h2>

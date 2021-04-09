@@ -164,6 +164,7 @@
 <span class="kn">from</span> <span class="nn">personio_py</span> <span class="kn">import</span> <span class="n">Absence</span><span class="p">,</span> <span class="n">AbsenceType</span><span class="p">,</span> <span class="n">Attendance</span><span class="p">,</span> <span class="n">DynamicMapping</span><span class="p">,</span> <span class="n">Employee</span>
 <span class="kn">from</span> <span class="nn">personio_py.errors</span> <span class="kn">import</span> <span class="n">MissingCredentialsError</span><span class="p">,</span> <span class="n">PersonioApiError</span><span class="p">,</span> <span class="n">PersonioError</span>
 <span class="kn">from</span> <span class="nn">personio_py.models</span> <span class="kn">import</span> <span class="n">PersonioResource</span>
+<span class="kn">from</span> <span class="nn">personio_py.search</span> <span class="kn">import</span> <span class="n">SearchIndex</span>
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s1">&#39;personio_py&#39;</span><span class="p">)</span>
 
@@ -194,6 +195,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">headers</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;accept&#39;</span><span class="p">:</span> <span class="s1">&#39;application/json&#39;</span><span class="p">}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">authenticated</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">dynamic_fields</span> <span class="o">=</span> <span class="n">dynamic_fields</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">search_index</span> <span class="o">=</span> <span class="n">SearchIndex</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
 
 <div class="viewcode-block" id="Personio.authenticate"><a class="viewcode-back" href="../../api.html#personio_py.Personio.authenticate">[docs]</a>    <span class="k">def</span> <span class="nf">authenticate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -547,6 +549,45 @@
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Only an absence with an absence id can be deleted.&quot;</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;absence must be an Absence object or an integer&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Personio.search"><a class="viewcode-back" href="../../api.html#personio_py.Personio.search">[docs]</a>    <span class="k">def</span> <span class="nf">search</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">query</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">active_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Employee</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Execute a search on the search index.</span>
+
+<span class="sd">        If the index does not exist, or has been invalidated or is expired, the full list</span>
+<span class="sd">        of employees will be requested from the API.</span>
+
+<span class="sd">        During the search we perform a case insensitive match on the keywords in the search index.</span>
+<span class="sd">        All tokens of the query will be matched individually. Tokens are separated by whitespace.</span>
+<span class="sd">        A full match (i.e. all tokens match the keywords in order) is preferred over</span>
+<span class="sd">        a partial match (only one or more tokens match).</span>
+
+<span class="sd">        For more details, please refer to :class:`SearchIndex`.</span>
+
+<span class="sd">        :param query: the query string</span>
+<span class="sd">        :param active_only: exclude inactive employees from the results (default: yes)</span>
+<span class="sd">        :return: the list of employees that matches the search query</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">search_index</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="n">active_only</span><span class="o">=</span><span class="n">active_only</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Personio.search_first"><a class="viewcode-back" href="../../api.html#personio_py.Personio.search_first">[docs]</a>    <span class="k">def</span> <span class="nf">search_first</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">query</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">active_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Employee</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Execute a search on the search index and return the first result (if there is one) or None.</span>
+
+<span class="sd">        This is basically the &quot;I&#39;m Feeling Lucky&quot; button.</span>
+<span class="sd">        For details about the search function, please refer to :class:`SearchIndex`.</span>
+
+<span class="sd">        :param query: the query string</span>
+<span class="sd">        :param active_only: exclude inactive employees from the results (default: yes)</span>
+<span class="sd">        :return: the first search result or None, if there were no results</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">search_index</span><span class="o">.</span><span class="n">search_first</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="n">active_only</span><span class="o">=</span><span class="n">active_only</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Personio.invalidate_index"><a class="viewcode-back" href="../../api.html#personio_py.Personio.invalidate_index">[docs]</a>    <span class="k">def</span> <span class="nf">invalidate_index</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Invalidates the search index. New data will be requested on the next search.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">search_index</span><span class="o">.</span><span class="n">invalidate</span><span class="p">()</span></div>
 
     <span class="k">def</span> <span class="nf">_get_employee_metadata</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">resource_cls</span><span class="p">:</span> <span class="n">Type</span><span class="p">[</span><span class="n">PersonioResourceType</span><span class="p">],</span>

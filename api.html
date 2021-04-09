@@ -359,6 +359,12 @@ Defaults to the original width of the profile picture.</p></li>
 </dd></dl>
 
 <dl class="method">
+<dt id="personio_py.Personio.invalidate_index">
+<code class="sig-name descname">invalidate_index</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/personio_py/client.html#Personio.invalidate_index"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#personio_py.Personio.invalidate_index" title="Permalink to this definition">¶</a></dt>
+<dd><p>Invalidates the search index. New data will be requested on the next search.</p>
+</dd></dl>
+
+<dl class="method">
 <dt id="personio_py.Personio.request">
 <code class="sig-name descname">request</code><span class="sig-paren">(</span><em class="sig-param">path: str</em>, <em class="sig-param">method='GET'</em>, <em class="sig-param">params: Dict[str</em>, <em class="sig-param">Any] = None</em>, <em class="sig-param">data: Dict[str</em>, <em class="sig-param">Any] = None</em>, <em class="sig-param">headers: Dict[str</em>, <em class="sig-param">str] = None</em>, <em class="sig-param">auth_rotation=True</em><span class="sig-paren">)</span> &#x2192; requests.models.Response<a class="reference internal" href="_modules/personio_py/client.html#Personio.request"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#personio_py.Personio.request" title="Permalink to this definition">¶</a></dt>
 <dd><p>Make a request against the Personio API.
@@ -456,6 +462,49 @@ that is enforced on the server side)</p></li>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>the parsed json response, when the request was successful, or a PersonioApiError</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="personio_py.Personio.search">
+<code class="sig-name descname">search</code><span class="sig-paren">(</span><em class="sig-param">query: str</em>, <em class="sig-param">active_only=True</em><span class="sig-paren">)</span> &#x2192; List[personio_py.models.Employee]<a class="reference internal" href="_modules/personio_py/client.html#Personio.search"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#personio_py.Personio.search" title="Permalink to this definition">¶</a></dt>
+<dd><p>Execute a search on the search index.</p>
+<p>If the index does not exist, or has been invalidated or is expired, the full list
+of employees will be requested from the API.</p>
+<p>During the search we perform a case insensitive match on the keywords in the search index.
+All tokens of the query will be matched individually. Tokens are separated by whitespace.
+A full match (i.e. all tokens match the keywords in order) is preferred over
+a partial match (only one or more tokens match).</p>
+<p>For more details, please refer to <code class="xref py py-class docutils literal notranslate"><span class="pre">SearchIndex</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>query</strong> – the query string</p></li>
+<li><p><strong>active_only</strong> – exclude inactive employees from the results (default: yes)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>the list of employees that matches the search query</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="personio_py.Personio.search_first">
+<code class="sig-name descname">search_first</code><span class="sig-paren">(</span><em class="sig-param">query: str</em>, <em class="sig-param">active_only=True</em><span class="sig-paren">)</span> &#x2192; Optional[personio_py.models.Employee]<a class="reference internal" href="_modules/personio_py/client.html#Personio.search_first"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#personio_py.Personio.search_first" title="Permalink to this definition">¶</a></dt>
+<dd><p>Execute a search on the search index and return the first result (if there is one) or None.</p>
+<p>This is basically the “I’m Feeling Lucky” button.
+For details about the search function, please refer to <code class="xref py py-class docutils literal notranslate"><span class="pre">SearchIndex</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>query</strong> – the query string</p></li>
+<li><p><strong>active_only</strong> – exclude inactive employees from the results (default: yes)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>the first search result or None, if there were no results</p>
 </dd>
 </dl>
 </dd></dl>
