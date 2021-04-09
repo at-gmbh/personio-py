@@ -6,7 +6,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## [Unreleased](https://github.com/at-gmbh/personio-py/compare/v0.2.0...HEAD)
 
-* ...
+* add a basic in-memory search index for employees ([#19](https://github.com/at-gmbh/personio-py/pull/19))
 
 ## [0.2.0](https://github.com/at-gmbh/personio-py/tree/v0.2.0) - 2021-03-10
 
