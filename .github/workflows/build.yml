@@ -17,6 +17,7 @@ on:
 jobs:
 
   linting:
+    name: Linting
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -41,7 +42,7 @@ jobs:
           flake8 src --count --exit-zero --max-complexity=10 --max-line-length=100 --ignore=F401,W504 --statistics
 
   build-and-test:
-    name: Test & Build (Python ${{ matrix.python-version }} on ${{ matrix.os }})
+    name: Build and Test (Python ${{ matrix.python-version }} on ${{ matrix.os }})
     strategy:
       matrix:
         python-version: [ '3.8', '3.10' ]
