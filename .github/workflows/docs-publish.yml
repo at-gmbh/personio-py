@@ -13,17 +13,32 @@ on:
       - 'src/**'
 
 jobs:
-  build:
+  docs:
     name: Sphinx Docs & Release on GitHub Pages
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - uses: ammaraskar/sphinx-action@master
-        name: Generate Sphinx Documentation
+      - uses: actions/setup-python@v2
         with:
-          pre-build-command: "pip install sphinx_rtd_theme~=1.0.0 recommonmark~=0.7.1 docutils==0.16 mistune~=0.8.4 m2r~=0.2.1"
-          build-command: "make html"
-          docs-folder: "docs/"
+          python-version: '3.10'
+      - name: Install Poetry
+        uses: snok/install-poetry@v1
+        with:
+          virtualenvs-create: true
+          virtualenvs-in-project: true
+      - name: Load cached venv
+        uses: actions/cache@v2
+        with:
+          path: .venv
+          key: venv-${{ runner.os }}-${{ hashFiles('**/poetry.lock') }}
+      - name: Install personio-py and all dependencies
+        run: |
+          poetry install --no-interaction
+      - name: Generate Sphinx Documentation
+        run: |
+          source .venv/bin/activate
+          cd docs
+          make html SPHINXOPTS="-W --keep-going"
       - uses: actions/upload-artifact@v2
         with:
           name: sphinx-docs
