@@ -1,0 +1,54 @@
+[tool.poetry]
+name = "personio-py"
+version = "1.0.0a1"
+description = "a lightweight Personio API client"
+authors = ["Sebastian Straub <sebastian.straub@alexanderthamm.com>"]
+license = "Apache-2.0"
+readme = "README.md"
+homepage = "https://github.com/at-gmbh/personio-py"
+repository = "https://github.com/at-gmbh/personio-py"
+documentation = "https://at-gmbh.github.io/personio-py/"
+packages = [
+    { include = "personio_py", from = "src" },
+]
+classifiers = [
+    # Full list: https://pypi.python.org/pypi?%3Aaction=list_classifiers
+    "License :: OSI Approved :: Apache Software License",
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Topic :: Internet :: WWW/HTTP",
+    "Topic :: Office/Business",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Typing :: Typed",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+]
+
+[tool.poetry.dependencies]
+python = "^3.8"
+requests = "^2.26.0"
+
+[tool.poetry.dev-dependencies]
+# testing
+pytest = "^6.2.5"
+pytest-cov = "^3.0.0"
+responses = "^0.16.0"
+# linting
+flake8 = "^4.0.1"
+bandit = "^1.7.1"
+# documentation
+Sphinx = "^4.3.2"
+sphinx-rtd-theme = "^1.0.0"
+recommonmark = "^0.7.1"
+mistune = "^0.8.4"
+m2r = "^0.2.1"
+# git hooks
+pre-commit = "^2.16.0"
+
+[build-system]
+requires = ["poetry_core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
