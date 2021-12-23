@@ -56,22 +56,19 @@ jobs:
       - name: Lint with flake8
         run: |
           # stop the build if there are Python syntax errors or undefined names
-          flake8 src --count --select=E9,F63,F7,F82 --show-source --statistics
+          poetry run flake8 src --count --select=E9,F63,F7,F82 --show-source --statistics
           # exit-zero treats all errors as warnings. ignore unused imports in __init__.py (F401) and line break after binary operator (W504)
-          flake8 src --count --exit-zero --max-complexity=10 --max-line-length=100 --ignore=F401,W504 --statistics
+          poetry run flake8 src --count --exit-zero --max-complexity=10 --max-line-length=100 --ignore=F401,W504 --statistics
       - name: Lint with bandit
         run: |
           # stop the build if there are any security issues reported by bandit
-          bandit -r src
+          poetry run bandit -r src
       # testing with pytest
       - name: Run tests
-        run: |
-          source $VENV
-          pytest tests --cov=src --cov-report=term
+        run: poetry run pytest tests --cov=src --cov-report=term
       # upload a distribution package
       - name: Build a distribution package (wheel)
-        run: |
-          poetry build
+        run: poetry build
       - name: Store distribution package
         uses: actions/upload-artifact@v2
         with:
