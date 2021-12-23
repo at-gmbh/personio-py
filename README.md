@@ -32,7 +32,7 @@ If something appears to be broken, please have a look at the [open issues](https
 ## Features
 
 * Aims to cover all functions of the Personio API (work in progress)
-* Python function wrappers for all API endpoints as part of the Personio class
+* Python function wrappers for all endpoints of the Personnel Data API as part of the Personio class
 * Object mappings for all API resources, e.g. an Employee is an object with properties for all the information that is provided by the REST API.
 * Completely transparent handling of authentication and key rotation
 * Support for Type Hints
@@ -101,6 +101,8 @@ Work in Progress
 
 * [`POST /company/employees`](https://developer.personio.de/reference#post_company-employees): create a new employee
 * [`PATCH /company/employees/{id}`](https://developer.personio.de/reference#patch_company-employees-employee-id): update an existing employee entry
+* [`GET /company/employees/{employee_id}/absences/balance`](https://developer.personio.de/reference#get_company-employees-employee-id-absences-balance): get the absence balance for a specific employee
+* [`GET /company/employees/custom-attributes`](https://developer.personio.de/reference#get_company-employees-custom-attributes): lists all the allowed attributes per API credentials including custom (dynamic) attributes.
 * [`POST /company/attendances`](https://developer.personio.de/reference#post_company-attendances): add attendance data for the company employees
 * [`DELETE /company/attendances/{id}`](https://developer.personio.de/reference#delete_company-attendances-id): delete the attendance entry with the specified ID
 * [`PATCH /company/attendances/{id}`](https://developer.personio.de/reference#patch_company-attendances-id): update the attendance entry with the specified ID
