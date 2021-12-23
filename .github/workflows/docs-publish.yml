@@ -3,50 +3,50 @@ name: docs-deploy
 on:
   push:
     branches:
-    - master
+      - master
     paths:
-    # on documentation change (changelog & contribution guidlines are a part of that)
-    - 'docs/**'
-    - 'CHANGELOG.md'
-    - 'CONTRIBUTING.md'
-    # also when docstrings in the source code change
-    - 'src/**'
+      # on documentation change (changelog & contribution guidlines are a part of that)
+      - 'docs/**'
+      - 'CHANGELOG.md'
+      - 'CONTRIBUTING.md'
+      # also when docstrings in the source code change
+      - 'src/**'
 
 jobs:
   build:
     name: Sphinx Docs & Release on GitHub Pages
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
-    - uses: ammaraskar/sphinx-action@master
-      name: Generate Sphinx Documentation
-      with:
-        pre-build-command: "pip install sphinx_rtd_theme~=0.4.3 recommonmark~=0.6.0 m2r~=0.2.1"
-        build-command: "make html"
-        docs-folder: "docs/"
-    - uses: actions/upload-artifact@v2
-      with:
-        name: sphinx-docs
-        path: docs/build/html/
-    - name: Commit Documentation Changes
-      run: |
-        set -uex
-        # clone just branch "gh-pages" in local folder "gh-pages"
-        git clone https://github.com/at-gmbh/personio-py --branch gh-pages --single-branch gh-pages
-        # delete existing files
-        cd gh-pages
-        ls | grep -v "README.md" | xargs rm -rf
-        # copy new files
-        cp -r ../docs/build/html/* .
-        # add all files to git & commit
-        git config --local user.email "action@github.com"
-        git config --local user.name "GitHub Action"
-        git add .
-        # this command will fail if no changes were present, so we ignore that.
-        git commit -m "update documentation" -a || true
-    - name: Push changes
-      uses: ad-m/github-push-action@master
-      with:
-        branch: gh-pages
-        directory: gh-pages
-        github_token: ${{ secrets.GITHUB_TOKEN }}
+      - uses: actions/checkout@v2
+      - uses: ammaraskar/sphinx-action@master
+        name: Generate Sphinx Documentation
+        with:
+          pre-build-command: "pip install sphinx_rtd_theme~=1.0.0 recommonmark~=0.7.1 mistune~=0.8.4 m2r~=0.2.1"
+          build-command: "make html"
+          docs-folder: "docs/"
+      - uses: actions/upload-artifact@v2
+        with:
+          name: sphinx-docs
+          path: docs/build/html/
+      - name: Commit Documentation Changes
+        run: |
+          set -uex
+          # clone just branch "gh-pages" in local folder "gh-pages"
+          git clone https://github.com/at-gmbh/personio-py --branch gh-pages --single-branch gh-pages
+          # delete existing files
+          cd gh-pages
+          ls | grep -v "README.md" | xargs rm -rf
+          # copy new files
+          cp -r ../docs/build/html/* .
+          # add all files to git & commit
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add .
+          # this command will fail if no changes were present, so we ignore that.
+          git commit -m "update documentation" -a || true
+      - name: Push changes
+        uses: ad-m/github-push-action@master
+        with:
+          branch: gh-pages
+          directory: gh-pages
+          github_token: ${{ secrets.GITHUB_TOKEN }}

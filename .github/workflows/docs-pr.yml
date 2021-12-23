@@ -3,28 +3,28 @@ name: docs-verify
 on:
   pull_request:
     branches:
-    - master
+      - master
     paths:
-    # on documentation change (changelog & contribution guidlines are a part of that)
-    - 'docs/**'
-    - 'CHANGELOG.md'
-    - 'CONTRIBUTING.md'
-    # also when docstrings in the source code change
-    - 'src/**'
+      # on documentation change (changelog & contribution guidlines are a part of that)
+      - 'docs/**'
+      - 'CHANGELOG.md'
+      - 'CONTRIBUTING.md'
+      # also when docstrings in the source code change
+      - 'src/**'
 
 jobs:
   docs:
     name: Generate Sphinx Docs
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
-    - uses: ammaraskar/sphinx-action@master
-      name: Generate Sphinx Documentation
-      with:
-        pre-build-command: "pip install sphinx_rtd_theme~=0.4.3 recommonmark~=0.6.0 m2r~=0.2.1"
-        build-command: "make html"
-        docs-folder: "docs/"
-    - uses: actions/upload-artifact@v2
-      with:
-        name: sphinx-docs
-        path: docs/build/html/
+      - uses: actions/checkout@v2
+      - uses: ammaraskar/sphinx-action@master
+        name: Generate Sphinx Documentation
+        with:
+          pre-build-command: "pip install sphinx_rtd_theme~=1.0.0 recommonmark~=0.7.1 mistune~=0.8.4 m2r~=0.2.1"
+          build-command: "make html"
+          docs-folder: "docs/"
+      - uses: actions/upload-artifact@v2
+        with:
+          name: sphinx-docs
+          path: docs/build/html/

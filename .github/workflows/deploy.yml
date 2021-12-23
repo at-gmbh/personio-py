@@ -3,26 +3,28 @@ name: deploy
 # will be triggered when a new release is published (draft releases are ignored)
 on:
   release:
-    types: [published]
+    types: [ published ]
 
 jobs:
   release:
     name: Deploy on PyPI
     runs-on: ubuntu-latest
     steps:
-      # checkout & build
-    - uses: actions/checkout@v2
-    - uses: actions/setup-python@v2
-      with:
-        python-version: 3.7
-    - name: Build Wheel
-      run: |
-        python -m pip install --upgrade pip
-        pip install wheel
-        pip install -r requirements.txt
-        python setup.py sdist bdist_wheel
+      # make use of python & poetry
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
+        with:
+          python-version: 3.8
+      - name: Install Poetry
+        uses: snok/install-poetry@v1
+        with:
+          virtualenvs-create: true
+          virtualenvs-in-project: true
+      # build wheel and sdist
+      - name: Build Wheel
+        run: poetry build
       # publish on PyPI (productive environment)
-    - name: Publish Package to PyPI
-      uses: pypa/gh-action-pypi-publish@master
-      with:
-        password: ${{ secrets.PYPI_API_TOKEN }}
+      - name: Publish Package to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          password: ${{ secrets.PYPI_API_TOKEN }}

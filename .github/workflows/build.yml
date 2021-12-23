@@ -3,59 +3,77 @@ name: build
 on:
   push:
     branches:
-    - master
+      - master
     paths-ignore:
-    - 'docs/**'
-    - '*.md'
+      - 'docs/**'
+      - '*.md'
   pull_request:
     branches:
-    - master
+      - master
     paths-ignore:
-    - 'docs/**'
-    - '*.md'
+      - 'docs/**'
+      - '*.md'
 
 jobs:
 
-  build:
-    runs-on: ${{ matrix.os }}
+  build-and-test:
+    name: Test & Build (Python ${{ matrix.python-version }} on ${{ matrix.os }})
     strategy:
       matrix:
-        python-version: [3.7, 3.9]
-        os: [ubuntu-latest, windows-latest]
-    name: Test & Build (Python ${{ matrix.python-version }} on ${{ matrix.os }})
+        python-version: [ 3.8, 3.10 ]
+        os: [ ubuntu-latest, windows-latest ]
+    defaults:
+      run:
+        shell: bash
+    runs-on: ${{ matrix.os }}
     steps:
-    - uses: actions/checkout@v2
-    - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v2
-      with:
-        python-version: ${{ matrix.python-version }}
-    - name: Display Python version
-      run: python -c "import sys; print(sys.version)"
-    - name: Install dependencies
-      run: |
-        # upgrade pip, install flake8 (for linting), bandit (another linter), pytest (for testing), wheel (for packaging) and the personio-py package
-        python -m pip install --upgrade pip
-        pip install flake8 pytest bandit responses wheel
-        pip install -r requirements.txt
-        python setup.py install
-    - name: Lint with flake8
-      run: |
-        # stop the build if there are Python syntax errors or undefined names
-        flake8 src --count --select=E9,F63,F7,F82 --show-source --statistics
-        # exit-zero treats all errors as warnings. ignore unused imports in __init__.py (F401) and line break after binary operator (W504)
-        flake8 src --count --exit-zero --max-complexity=10 --max-line-length=100 --ignore=F401,W504 --statistics
-    - name: Lint with bandit
-      run: |
-        # stop the build if there are any security issues reported by bandit
-        bandit -r src
-    - name: Test with pytest
-      run: |
-        pytest tests
-    - name: Build a distribution package (wheel)
-      run: |
-        python setup.py sdist bdist_wheel
-    - name: Store distribution package
-      uses: actions/upload-artifact@v2
-      with:
-        name: personio-py_${{ matrix.python-version }}_${{ matrix.os }}
-        path: dist/
+      # check-out repo and set-up python
+      - name: Check out repository
+        uses: actions/checkout@v2
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+      # install & configure poetry
+      - name: Install Poetry
+        uses: snok/install-poetry@v1
+        with:
+          virtualenvs-create: true
+          virtualenvs-in-project: true
+      # load cached dependencies, if cache exists, and install dependencies
+      - name: Load cached packages
+        id: cached-pip-wheels
+        uses: actions/cache@v2
+        with:
+          path: ~/.cache
+          key: wheels-${{ matrix.os }}-${{ matrix.python-version }}-${{ hashFiles('**/poetry.lock') }}
+      - name: Install dependencies
+        run: poetry install --no-interaction --no-root
+      # install the project
+      - name: Install library
+        run: poetry install --no-interaction
+      # linting with flake8 and bandit
+      - name: Lint with flake8
+        run: |
+          # stop the build if there are Python syntax errors or undefined names
+          flake8 src --count --select=E9,F63,F7,F82 --show-source --statistics
+          # exit-zero treats all errors as warnings. ignore unused imports in __init__.py (F401) and line break after binary operator (W504)
+          flake8 src --count --exit-zero --max-complexity=10 --max-line-length=100 --ignore=F401,W504 --statistics
+      - name: Lint with bandit
+        run: |
+          # stop the build if there are any security issues reported by bandit
+          bandit -r src
+      # testing with pytest
+      - name: Run tests
+        run: |
+          source $VENV
+          pytest tests --cov=src --cov-report=term
+      # upload a distribution package
+      - name: Build a distribution package (wheel)
+        run: |
+          poetry build
+      - name: Store distribution package
+        uses: actions/upload-artifact@v2
+        with:
+          name: personio-py_${{ matrix.python-version }}_${{ matrix.os }}
+          path: dist/
