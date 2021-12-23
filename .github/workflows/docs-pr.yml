@@ -36,10 +36,9 @@ jobs:
           poetry install --no-interaction
       - name: Generate Sphinx Documentation
         run: |
-          set -uex
           source .venv/bin/activate
           cd docs
-          make html SPHINXOPTS="-W --keep-going -n"
+          make html SPHINXOPTS="-W --keep-going"
       - uses: actions/upload-artifact@v2
         with:
           name: sphinx-docs
