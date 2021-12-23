@@ -34,9 +34,10 @@ jobs:
       - name: Install personio-py and all dependencies
         run: |
           poetry install --no-interaction
-          source .venv/bin/activate
       - name: Generate Sphinx Documentation
         run: |
+          set -uex
+          source .venv/bin/activate
           cd docs
           make html SPHINXOPTS="-W --keep-going -n"
       - uses: actions/upload-artifact@v2
