@@ -32,7 +32,9 @@ jobs:
           path: .venv
           key: venv-${{ runner.os }}-${{ hashFiles('**/poetry.lock') }}
       - name: Install personio-py and all dependencies
-        run: poetry install --no-interaction
+        run: |
+          poetry install --no-interaction
+          source .venv/bin/activate
       - name: Generate Sphinx Documentation
         run: |
           cd docs
