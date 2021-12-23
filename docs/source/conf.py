@@ -13,7 +13,9 @@ from m2r import MdInclude
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 import os
 import sys
-sys.path.insert(0, os.path.abspath(os.path.join(__file__, '../../../src')))
+module_path = os.path.abspath(os.path.join(__file__, '../../../src'))
+sys.path.insert(0, module_path)
+print(f"adding {module_path} which contains {os.listdir(module_path)}")
 
 
 # -- Project information -----------------------------------------------------
