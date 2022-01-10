@@ -4,15 +4,16 @@ Implementation of the Personio API functions
 import logging
 import os
 from datetime import datetime
+from functools import lru_cache
 from typing import Any, Dict, List, Optional, Tuple, Type, TypeVar, Union
 from urllib.parse import urljoin
 
 import requests
 from requests import Response
 
-from personio_py import Absence, AbsenceType, Attendance, DynamicMapping, Employee
+from personio_py import Absence, Attendance, DynamicMapping, Employee
 from personio_py.errors import MissingCredentialsError, PersonioApiError, PersonioError
-from personio_py.models import PersonioResource
+from personio_py.models import AbsenceType, BaseEmployee, PersonioResource
 from personio_py.search import SearchIndex
 
 logger = logging.getLogger('personio_py')
@@ -215,7 +216,7 @@ class Personio:
         :return: list of ``Employee`` instances
         """
         response = self.request_json('company/employees')
-        employees = [Employee.from_dict(d, self) for d in response['data']]
+        employees = [BaseEmployee(client=self, **d) for d in response['data']]
         return employees
 
     def get_employee(self, employee_id: int) -> Employee:
@@ -226,7 +227,7 @@ class Personio:
         :return: an ``Employee`` instance or a PersonioApiError, if the employee does not exist
         """
         response = self.request_json(f'company/employees/{employee_id}')
-        employee = Employee.from_dict(response['data'], self)
+        employee = BaseEmployee(client=self, **response['data'])
         return employee
 
     def get_employee_picture(self, employee: Union[int, Employee], width: int = None) \
@@ -241,11 +242,18 @@ class Personio:
                Defaults to the original width of the profile picture.
         :return: the profile picture as png or jpg file (bytes)
         """
-        employee_id = employee.id_ if isinstance(employee, Employee) else int(employee)
+        employee_id = employee.id if isinstance(employee, BaseEmployee) else int(employee)
         path = f'company/employees/{employee_id}/profile-picture'
         if width:
             path += f'/{width}'
         return self.request_image(path, auth_rotation=False)
+
+    @lru_cache
+    def get_custom_attributes(self):
+        # TODO is this of any use? we don't get useful names for dynamic attributes
+        #  and the static ones are... static. we already have them anyways.
+        response = self.request_json('company/employees/custom-attributes', auth_rotation=False)
+        return response
 
     def create_employee(self, employee: Employee, refresh=True) -> Employee:
         """
@@ -324,7 +332,7 @@ class Personio:
         of this function is to provide you with a list of all possible options that can show up.
         """
         response = self.request_json('company/time-off-types')
-        absence_types = [AbsenceType.from_dict(d, self) for d in response['data']]
+        absence_types = [AbsenceType.from_json_dict(d, self) for d in response['data']]
         return absence_types
 
     def get_absences(self, employees: Union[int, List[int], Employee, List[Employee]],
@@ -481,7 +489,7 @@ class Personio:
             end_date = datetime(datetime.now().year + 10, 1, 1)
         if not isinstance(employees, list):
             employees = [employees]
-        employee_ids = [(e.id_ if isinstance(e, Employee) else e) for e in employees]
+        employee_ids = [(e.id if isinstance(e, BaseEmployee) else e) for e in employees]
         return employee_ids, start_date, end_date
 
     def __add_remote_absence_id(self, absence: Absence) -> Absence:

@@ -1,7 +1,7 @@
-from .apitest_shared import *
-from datetime import timedelta, date
+from datetime import timedelta
 
-from personio_py import Employee, ShortEmployee, Personio, PersonioError, Absence, AbsenceType
+from personio_py import Absence, AbsenceType, Employee
+from .apitest_shared import *
 
 
 @skip_if_no_auth
@@ -59,6 +59,15 @@ def test_get_absences_from_absence_object_without_id():
     remote_absence.id_ = None
     absence = personio.get_absence(remote_absence)
     assert absence.id_ == absence_id
+
+
+@skip_if_no_auth
+def test_get_absences_types():
+    absence_types = personio.get_absence_types()
+    assert len(absence_types) > 10
+    for at in absence_types:
+        assert at.id
+        assert at.name
 
 
 @skip_if_no_auth

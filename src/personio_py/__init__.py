@@ -7,13 +7,9 @@ a lightweight Personio API client
 __title__ = "personio-py"
 __copyright__ = "© 2020 Alexander Thamm GmbH"
 
-from .version import __version__
-from .errors import (
-    PersonioError,
-    MissingCredentialsError,
-    PersonioApiError,
-    UnsupportedMethodError,
-)
+from personio_py.client import Personio
+from .errors import (MissingCredentialsError, PersonioApiError, PersonioError,
+                     UnsupportedMethodError)
 from .mapping import (
     DynamicMapping
 )
@@ -24,7 +20,6 @@ from .models import (
     Attendance,
     CostCenter,
     Department,
-    DynamicAttr,
     Employee,
     HolidayCalendar,
     Office,
@@ -32,4 +27,4 @@ from .models import (
     Team,
     WorkSchedule,
 )
-from personio_py.client import Personio
+from .version import __version__

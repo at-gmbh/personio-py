@@ -1,6 +1,7 @@
-from personio_py import Employee, Department
-from tests.apitest_shared import *
 from datetime import datetime
+
+from personio_py import Department, Employee
+from tests.apitest_shared import *
 
 
 @skip_if_no_auth
@@ -25,6 +26,12 @@ def test_get_employee_picture():
     employee = Employee(client=personio, id_=2007207)
     picture = employee.picture()
     assert picture
+
+
+@skip_if_no_auth
+def test_get_custom_attributes():
+    attrs = personio.get_custom_attributes()
+    assert attrs
 
 
 @skip_if_no_auth
