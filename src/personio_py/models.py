@@ -2,17 +2,18 @@
 Definition of ORMs for objects that are available in the Personio API
 """
 import logging
+import unicodedata
 from datetime import date, datetime, timedelta
-from typing import Any, ClassVar, Dict, List, Optional, TYPE_CHECKING, TypeVar
+from typing import Any, ClassVar, Dict, List, Optional, TYPE_CHECKING, Type, TypeVar
 
-from pydantic import BaseModel, Extra
+from pydantic import BaseModel, Extra, create_model, validator
 
 from personio_py import PersonioError
 from personio_py.util import ReadOnlyDict, log_once
 
 if TYPE_CHECKING:
-    # only type checkers may import Personio, otherwise we get an evil circular import error
-    from personio_py import Personio
+    # the Personio client should only be visible for type checkers to avoid circular imports
+    from personio_py.client import Personio
 
 logger = logging.getLogger('personio_py')
 
@@ -27,14 +28,15 @@ class PersonioResource(BaseModel):
     """the name of this resource type in the Personio API"""
     _flat_dict: ClassVar[bool] = True
     """Indicates if this class has a flat dictionary representation in the Personio API"""
-    _client: Optional['Personio'] = None
+    _client: ClassVar['Personio'] = None
     """reference to the API client that created this object (optional)"""
 
     def __init__(self, client: 'Personio' = None, **kwargs):
+        PersonioResource._client = client
         if self._is_api_dict(kwargs):
             # smells like a parsed Personio API dict -> extract data
             kwargs = self._get_kwargs_from_api_dict(kwargs)
-        super().__init__(_client=client, **kwargs)
+        super().__init__(**kwargs)
 
     @classmethod
     def _is_api_dict(cls, d: Dict) -> bool:
@@ -67,6 +69,11 @@ class PersonioResource(BaseModel):
                 logging.WARNING,
                 f"Unexpected API type '{api_type_name}' for class {cls.__name__}, "
                 f"expected '{cls._api_type_name}' instead")
+
+    @validator('*', pre=True)
+    def empty_str_to_none(cls, v):
+        """custom validator for Personio API objects that converts empty strings to None"""
+        return None if v == '' else v
 
     class Config:
         extra = Extra.allow
@@ -174,7 +181,7 @@ class WorkSchedule(PersonioResource):
         # fix the time format so that it can be parsed as timedelta
         for key, field in self.__fields__.items():
             value = kwargs.get(key)
-            if value and field.type_ == timedelta and value.count(':') < 2:
+            if field.type_ == timedelta and isinstance(value, str) and value.count(':') < 2:
                 kwargs[field.name] = value + ':00'
         super().__init__(**kwargs)
 
@@ -189,20 +196,57 @@ class Attendance(PersonioResource):
     pass
 
 
-class CustomFieldAlias(BaseModel):
-    api_name: str
-    """name of the field in the personio API (usually starts with 'dynamic_')"""
-    alias: str
-    """the alias to use as attribute name for the Employee object"""
+class PersonioTags(list):
+
+    @classmethod
+    def __get_validators__(cls):
+        yield cls.validate
+
+    @classmethod
+    def validate(cls, v):
+        if isinstance(v, str):
+            return [tag.strip() for tag in v.split(',')]
+        elif isinstance(v, list):
+            return v
+        elif not v:
+            return None
+        else:
+            raise TypeError(f"unexpected input type {type(v)}")
+
+
+class CustomAttribute(BaseModel):
+    _type_mapping: ClassVar[Dict[str, Type]] = {
+        'standard': str,
+        'date': datetime,
+        'integer': int,
+        'decimal': float,
+        'list': str,
+        'link': str,
+        'tags': PersonioTags,
+        'multiline': str,
+    }
+
+    key: Optional[str] = None,
+    label: Optional[str] = None,
+    type: Optional[str] = None,
+    universal_id: Optional[str] = None,
+
+    @property
+    def py_type(self) -> Type:
+        type_str = str(self.type).lower()
+        if type_str in self._type_mapping:
+            return self._type_mapping[type_str]
+        else:
+            raise PersonioError(f"unexpected custom attribute type {self.type}")
 
 
 class BaseEmployee(PersonioResource):
     _api_type_name = "Employee"
     _flat_dict = False
-    custom_field_keys: ClassVar[List[str]] = None
-    """the names of all known custom fields (usually starting with 'dynamic_')"""
-    custom_field_aliases: ClassVar[Dict[str, str]] = None
-    """mapping from all custom field names (starting with 'dynamic_') to their aliases"""
+    _custom_attribute_keys: ClassVar[List[str]] = []
+    """the names of all known custom attributes (usually starting with 'dynamic_')"""
+    _custom_attribute_aliases: ClassVar[Dict[str, str]] = None
+    """mapping from all custom attribute names (starting with 'dynamic_') to their aliases"""
 
     id: int
     """unique identifier by which Personio refers to this employee"""
@@ -231,9 +275,9 @@ class BaseEmployee(PersonioResource):
     termination_date: Optional[datetime] = None,
     """date when this employee's contract has been terminated"""
     termination_type: Optional[str] = None,
-    # TODO docstring
+    """choice from a list of reasons for termination (retirement, temporary contract, etc.)"""
     termination_reason: Optional[str] = None,
-    # TODO docstring
+    """free-text field where details about the termination can be stored"""
     probation_period_end: Optional[datetime] = None,
     """date at which this employee's probation period ends"""
     created_at: Optional[datetime] = None,
@@ -279,18 +323,80 @@ class BaseEmployee(PersonioResource):
     # dynamically add field info with Model.__fields__['field'].field_info.extra['item'] = 42
     # or better yet as title: Model.__fields__['field'].field_info.title = "yolo"
 
-    def foo(self):
-        from pydantic import Field
-        Field(title="42")
-
     @property
-    def custom_fields(self) -> Dict[str, Any]:
+    def _custom_fields(self) -> Dict[str, Any]:
         # return dynamic fields (keys and values) as ReadOnlyDict
         # to assign new values, use employee.dynamic_X directly
-        return ReadOnlyDict((k, getattr(self, k)) for k in self.custom_field_keys)
+        return ReadOnlyDict((k, getattr(self, k)) for k in self._custom_attribute_keys)
+
+    @classmethod
+    def _get_subclass_for_client(
+            cls, client: 'Personio', aliases: Dict[str, str] = None) -> Type['BaseEmployee']:
+        # override Employee at runtime with an extension of BaseEmployee that includes all
+        # dynamic fields: https://pydantic-docs.helpmanual.io/usage/models/#dynamic-model-creation
+
+        # get custom attributes, generate subclass
+        attributes = client.get_custom_attributes()
+        dynamic_attributes = [a for a in attributes if a.key.startswith('dynamic_')]
+        pydantic_fields = {a.key: (Optional[a.py_type], None) for a in dynamic_attributes}
+        Employee = create_model(
+            'Employee',
+            __base__=BaseEmployee,
+            **pydantic_fields
+        )
+        # set class variables
+        aliases = aliases or {}
+        cls._custom_attribute_keys = [a.key for a in dynamic_attributes]
+        cls._custom_attribute_aliases = {
+            a.key: aliases.get(a.key) or cls._get_attribute_name_for(a.label)
+            for a in dynamic_attributes}
+
+        # add metadata to pydantic fields
+        attributes_dict = {a.key: a for a in attributes}
+        for key, field in Employee.__fields__.items():
+            if key in attributes_dict:
+                field.field_info.title = attributes_dict[key].label
+
+        # add aliases as properties
+        for attribute in dynamic_attributes:
+            key = attribute.key
+            alias = cls._custom_attribute_aliases[key]
+            if hasattr(Employee, alias):
+                logger.warning(f"cannot add alias '{alias}' for '{key}' to the Employee "
+                               f"class, because that attribute already exists.")
+            else:
+                # TODO this does not seem to work as expected
+                prop = property(
+                    fget=lambda self: getattr(self, key),
+                    fset=lambda self, value: setattr(self, key, value),
+                    doc=f"alias for {key} ({attribute.label})"
+                )
+                setattr(Employee, alias, prop)
+
+        # TODO statically assign to "Employee", so it can be imported from anywhere...
+        return Employee
+
+    @classmethod
+    def _get_attribute_name_for(cls, name: str) -> Optional[str]:
+        if not name or not name.strip():
+            return None
+        # we want a lowercase attribute name
+        result = name.lower()
+        # special handling of German non-ascii letters, because Personio is a German company ;)
+        table = str.maketrans({'ä': 'ae', 'ö': 'oe', 'ü': 'ue', 'ß': 'ss'})
+        result = result.translate(table)
+        # convert unicode chars to their closest ascii equivalents, ignoring the rest
+        result = unicodedata.normalize('NFKD', result).encode('ascii', 'ignore').decode()
+        # keep only letters, digits and whitespace
+        result = ''.join(c for c in result if c.isalnum() or c.isspace())
+        # remove consecutive whitespace and join tokens with underscores
+        result = '_'.join(result.split())
+        # remove leading digits, since they are not allowed in python attribute names
+        result = result.lstrip('0123456789_')
+        return result
 
 
-# TODO override this at runtime with an extension of BaseEmployee that includes all dynamic fields
-#   better yet: replace the existing implementation? subclass of same name?
-#   https://pydantic-docs.helpmanual.io/usage/models/#dynamic-model-creation
-Employee = TypeVar('Employee', bound=BaseEmployee)
+# Here, Employee is just an alias for BaseEmployee
+# As soon as we have access to the Personio API, we generate a subclass (at runtime) which contains
+# all the custom fields and their types.
+Employee = BaseEmployee

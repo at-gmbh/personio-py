@@ -11,7 +11,7 @@ from urllib.parse import urljoin
 import requests
 from requests import Response
 
-from personio_py import Absence, Attendance, DynamicMapping, Employee
+from personio_py import Absence, Attendance, CustomAttribute, Employee
 from personio_py.errors import MissingCredentialsError, PersonioApiError, PersonioError
 from personio_py.models import AbsenceType, BaseEmployee, PersonioResource
 from personio_py.search import SearchIndex
@@ -38,7 +38,7 @@ class Personio:
     """base URL of the Personio HTTP API"""
 
     def __init__(self, base_url: str = None, client_id: str = None, client_secret: str = None,
-                 dynamic_fields: List[DynamicMapping] = None):
+                 dynamic_fields: List = None):
         self.base_url = base_url or self.BASE_URL
         self.client_id = client_id or os.getenv('CLIENT_ID')
         self.client_secret = client_secret or os.getenv('CLIENT_SECRET')
@@ -249,11 +249,10 @@ class Personio:
         return self.request_image(path, auth_rotation=False)
 
     @lru_cache
-    def get_custom_attributes(self):
-        # TODO is this of any use? we don't get useful names for dynamic attributes
-        #  and the static ones are... static. we already have them anyways.
+    def get_custom_attributes(self) -> List[CustomAttribute]:
         response = self.request_json('company/employees/custom-attributes', auth_rotation=False)
-        return response
+        attributes = [CustomAttribute(**d) for d in response['data']]
+        return attributes
 
     def create_employee(self, employee: Employee, refresh=True) -> Employee:
         """
