@@ -5,20 +5,18 @@ import logging
 import os
 from datetime import datetime
 from functools import lru_cache
-from typing import Any, Dict, List, Optional, Tuple, Type, TypeVar, Union
+from typing import Any, Dict, List, Optional, Tuple, Type, Union
 from urllib.parse import urljoin
 
 import requests
 from requests import Response
 
-from personio_py import Absence, Attendance, CustomAttribute, Employee
+from personio_py import Absence, AbsenceType, Attendance, BaseEmployee, CustomAttribute, Employee, \
+    PersonioResourceType, update_model
 from personio_py.errors import MissingCredentialsError, PersonioApiError, PersonioError
-from personio_py.models import AbsenceType, BaseEmployee, PersonioResource
 from personio_py.search import SearchIndex
 
 logger = logging.getLogger('personio_py')
-
-PersonioResourceType = TypeVar('PersonioResourceType', bound=PersonioResource, covariant=True)
 
 
 class Personio:
@@ -30,21 +28,20 @@ class Personio:
            (if not provided, defaults to the ``CLIENT_ID`` environment variable)
     :param client_secret: the client secret for API authentication
            (if not provided, defaults to the ``CLIENT_SECRET`` environment variable)
-    :param dynamic_fields: definition of expected dynamic fields.
-           List of :py:class:`DynamicMapping` tuples.
+    :param employee_aliases: aliases for custom attributes of the Employee class
     """
 
     BASE_URL = "https://api.personio.de/v1/"
     """base URL of the Personio HTTP API"""
 
     def __init__(self, base_url: str = None, client_id: str = None, client_secret: str = None,
-                 dynamic_fields: List = None):
+                 employee_aliases: Dict[str, str] = None):
         self.base_url = base_url or self.BASE_URL
         self.client_id = client_id or os.getenv('CLIENT_ID')
         self.client_secret = client_secret or os.getenv('CLIENT_SECRET')
         self.headers = {'accept': 'application/json'}
         self.authenticated = False
-        self.dynamic_fields = dynamic_fields
+        self.employee_aliases = employee_aliases
         self.search_index = SearchIndex(self)
 
     def authenticate(self):
@@ -209,14 +206,21 @@ class Personio:
             # oh noes, something went terribly wrong!
             raise PersonioApiError.from_response(response)
 
+    def update_model(self):
+        """Updates the model based on the state of this Personio client instance."""
+        update_model(self)
+        from personio_py import Employee
+        globals()['Employee'] = Employee
+
     def get_employees(self) -> List[Employee]:
         """
         Get a list of all employee records in your account.
 
         :return: list of ``Employee`` instances
         """
+        self.update_model()
         response = self.request_json('company/employees')
-        employees = [BaseEmployee(client=self, **d) for d in response['data']]
+        employees = [Employee(client=self, **d) for d in response['data']]
         return employees
 
     def get_employee(self, employee_id: int) -> Employee:
@@ -226,8 +230,9 @@ class Personio:
         :param employee_id: the Personio ID of the employee to fetch
         :return: an ``Employee`` instance or a PersonioApiError, if the employee does not exist
         """
+        self.update_model()
         response = self.request_json(f'company/employees/{employee_id}')
-        employee = BaseEmployee(client=self, **response['data'])
+        employee = Employee(client=self, **response['data'])
         return employee
 
     def get_employee_picture(self, employee: Union[int, Employee], width: int = None) \
@@ -505,9 +510,10 @@ class Personio:
             raise ValueError("For a remote query a start date is required")
         if absence.end_date is None:
             raise ValueError("For a remote query an end date is required")
-        matching_remote_absences = self.get_absences(employees=[absence.employee.id_],
-                                                     start_date=absence.start_date,
-                                                     end_date=absence.end_date)
+        matching_remote_absences = self.get_absences(
+            employees=[absence.employee.id_],
+            start_date=absence.start_date,
+            end_date=absence.end_date)
         if len(matching_remote_absences) == 0:
             raise PersonioError("The absence to patch was not found")
         elif len(matching_remote_absences) > 1:

@@ -3,9 +3,10 @@ Definition of ORMs for objects that are available in the Personio API
 """
 import inspect
 import logging
+import sys
 import unicodedata
 from datetime import date, datetime, timedelta
-from typing import Any, ClassVar, Dict, List, Optional, TYPE_CHECKING, Type, TypeVar, no_type_check
+from typing import Any, ClassVar, Dict, List, Optional, TYPE_CHECKING, Type, TypeVar
 
 from pydantic import BaseModel, Extra, create_model, validator
 
@@ -17,8 +18,7 @@ if TYPE_CHECKING:
     from personio_py.client import Personio
 
 logger = logging.getLogger('personio_py')
-
-PersonioResourceType = TypeVar('PersonioResourceType', bound='PersonioResource')
+PersonioResourceType = TypeVar('PersonioResourceType', bound='PersonioResource', covariant=True)
 
 
 class PersonioResource(BaseModel):
@@ -317,7 +317,6 @@ class BaseEmployee(PersonioResource):
 
     def __init__(self, client: 'Personio' = None, **kwargs):
         super().__init__(client=client, **kwargs)
-        # TODO handle the 'dynamic_' fields
 
     # allow pretty names for dynamic fields, as extra attributes
     # use the `property` built-in function to link pretty names to the api name at runtime
@@ -374,16 +373,35 @@ class BaseEmployee(PersonioResource):
     @classmethod
     def _get_subclass_for_client(
             cls, client: 'Personio', aliases: Dict[str, str] = None) -> Type['BaseEmployee']:
-        # override Employee at runtime with an extension of BaseEmployee that includes all
-        # dynamic fields: https://pydantic-docs.helpmanual.io/usage/models/#dynamic-model-creation
+        """Generate a new subclass of BaseEmployee that contains all custom attributes.
 
+        The subclass will contain:
+
+        * all custom attributes, as defined in the Personio "custom-attributes" endpoint,
+          as well as their types for automatic type conversion with pydantic
+        * aliases for all custom attributes as property functions. Aliases are preferred from
+          the specified aliases dict, but if not provided, names are automatically generated
+          from the labels of the custom attributes. Label names are reduced to latin characters
+          and digits and whitespace replaced with underscores, e.g. a label like "Phone (office)"
+          would become "phone_office".
+        * label names for all attributes (pydantic Field metadata)
+        * class variables that describe the custom attributes and their aliases
+
+        Learn more about dynamic model creation:
+        https://pydantic-docs.helpmanual.io/usage/models/#dynamic-model-creation
+
+        :param client: the Personio client instance to generate a dynamic model for
+        :param aliases: custom aliases provided by the user (optional)
+        :return: the class definition of the new Employee subclass
+        """
         # get custom attributes, generate subclass
         attributes = client.get_custom_attributes()
         dynamic_attributes = [a for a in attributes if a.key.startswith('dynamic_')]
         pydantic_fields = {a.key: (Optional[a.py_type], None) for a in dynamic_attributes}
-        Employee = create_model(
+        employee_cls = create_model(
             'Employee',
             __base__=BaseEmployee,
+            __module__='personio_py.models',
             **pydantic_fields
         )
         # set class variables
@@ -392,25 +410,21 @@ class BaseEmployee(PersonioResource):
         cls._custom_attribute_aliases = {
             a.key: aliases.get(a.key) or cls._get_attribute_name_for(a.label)
             for a in dynamic_attributes}
-
         # add metadata to pydantic fields
         attributes_dict = {a.key: a for a in attributes}
-        for key, field in Employee.__fields__.items():
+        for key, field in employee_cls.__fields__.items():
             if key in attributes_dict:
                 field.field_info.title = attributes_dict[key].label
-
         # add aliases as properties
         for attribute in dynamic_attributes:
             key = attribute.key
             alias = cls._custom_attribute_aliases[key]
-            if hasattr(Employee, alias):
+            if hasattr(employee_cls, alias):
                 logger.warning(f"cannot add alias '{alias}' for '{key}' to the Employee "
                                f"class, because that attribute already exists.")
             else:
-                cls.__set_alias_property(Employee, key, alias, attribute.label)
-
-        # TODO statically assign to "Employee", so it can be imported from anywhere...
-        return Employee
+                cls.__set_alias_property(employee_cls, key, alias, attribute.label)
+        return employee_cls
 
     @staticmethod
     def __set_alias_property(cls: Type, attr: str, alias: str, label: str):
@@ -450,5 +464,28 @@ class BaseEmployee(PersonioResource):
 
 # Here, Employee is just an alias for BaseEmployee
 # As soon as we have access to the Personio API, we generate a subclass (at runtime) which contains
-# all the custom fields and their types.
+# all the custom fields and their types, and update this variable.
+employee_classes: Dict[str, Type[BaseEmployee]] = {}
 Employee = BaseEmployee
+
+
+def update_model(client: 'Personio'):
+    """Updates the model based on the state of the specified client instance.
+
+    Note that this will create static references that will be overwritten when the next Personio
+    client instance is created.
+
+    :param client: the Personio client instance to use for the model update
+    """
+    # create a subclass of BaseEmployee that contains all custom attributes
+    if client.client_id not in employee_classes:
+        cls = BaseEmployee._get_subclass_for_client(client, client.employee_aliases)
+        employee_classes[client.client_id] = cls
+    # set the Employee subclass for this Personio instance as the new default
+    global Employee
+    Employee = employee_classes[client.client_id]
+    # additionally, we replace the class definition in sys.modules,
+    # so that from personio_py import Employee works as expected
+    sys.modules['personio_py'].Employee = employee_classes[client.client_id]
+    # set this client instance as static attribute of the employee class
+    PersonioResource._client = client
