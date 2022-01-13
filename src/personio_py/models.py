@@ -1,10 +1,11 @@
 """
 Definition of ORMs for objects that are available in the Personio API
 """
+import inspect
 import logging
 import unicodedata
 from datetime import date, datetime, timedelta
-from typing import Any, ClassVar, Dict, List, Optional, TYPE_CHECKING, Type, TypeVar
+from typing import Any, ClassVar, Dict, List, Optional, TYPE_CHECKING, Type, TypeVar, no_type_check
 
 from pydantic import BaseModel, Extra, create_model, validator
 
@@ -76,7 +77,7 @@ class PersonioResource(BaseModel):
         return None if v == '' else v
 
     class Config:
-        extra = Extra.allow
+        extra = Extra.ignore
         anystr_strip_whitespace = True
 
 
@@ -245,8 +246,9 @@ class BaseEmployee(PersonioResource):
     _flat_dict = False
     _custom_attribute_keys: ClassVar[List[str]] = []
     """the names of all known custom attributes (usually starting with 'dynamic_')"""
-    _custom_attribute_aliases: ClassVar[Dict[str, str]] = None
+    _custom_attribute_aliases: ClassVar[Dict[str, str]] = {}
     """mapping from all custom attribute names (starting with 'dynamic_') to their aliases"""
+    _property_setters: ClassVar[Dict[str, property]] = {}
 
     id: int
     """unique identifier by which Personio refers to this employee"""
@@ -323,6 +325,46 @@ class BaseEmployee(PersonioResource):
     # dynamically add field info with Model.__fields__['field'].field_info.extra['item'] = 42
     # or better yet as title: Model.__fields__['field'].field_info.title = "yolo"
 
+    def __setattr__(self, name, value):
+        """
+        Workaround for an open issue in pydantic that prevents the use of property setters.
+
+        We override pydantic's `BaseModel.__setattr__` and catch a ValueError, which occurs if we
+        try to use a property setter, which is not one of pydantic's known fields.
+        Then we check if the field name is actually a property that has a setter function and
+        make use of it. Otherwise we re-raise the ValueError that was caught.
+        The property setters are retrieved with python's `inspect` module and are cached in this
+        class. If a ValueError is raised for an attribute and we don't have that attribute name
+        in the property setter cache, we run the inspection again.
+
+        Related issues:
+
+        https://github.com/samuelcolvin/pydantic/issues/1577
+        https://github.com/samuelcolvin/pydantic/issues/3395
+
+        :param name: name of the attribute
+        :param value: the value to set
+        """
+        try:
+            super().__setattr__(name, value)
+        except ValueError as e:
+            if name not in self._property_setters:
+                self.__cache_property_setters()
+            if name in self._property_setters:
+                object.__setattr__(self, name, value)
+            else:
+                raise e
+
+    @classmethod
+    def __cache_property_setters(cls):
+        """
+        Gets all properties of this class that have a setter function and stores them
+        as dictionary (property name -> instance) in `cls._property_setters`
+        """
+        setters = inspect.getmembers(
+            cls, predicate=lambda x: isinstance(x, property) and x.fset is not None)
+        cls._property_setters = {name: prop for name, prop in setters}
+
     @property
     def _custom_fields(self) -> Dict[str, Any]:
         # return dynamic fields (keys and values) as ReadOnlyDict
@@ -365,16 +407,26 @@ class BaseEmployee(PersonioResource):
                 logger.warning(f"cannot add alias '{alias}' for '{key}' to the Employee "
                                f"class, because that attribute already exists.")
             else:
-                # TODO this does not seem to work as expected
-                prop = property(
-                    fget=lambda self: getattr(self, key),
-                    fset=lambda self, value: setattr(self, key, value),
-                    doc=f"alias for {key} ({attribute.label})"
-                )
-                setattr(Employee, alias, prop)
+                cls.__set_alias_property(Employee, key, alias, attribute.label)
 
         # TODO statically assign to "Employee", so it can be imported from anywhere...
         return Employee
+
+    @staticmethod
+    def __set_alias_property(cls: Type, attr: str, alias: str, label: str):
+        """Add a new property to a class which serves as an alias to an existing attribute.
+
+        :param cls: add the new property to this class
+        :param attr: the original attribute to reference
+        :param alias: the alias for the original attribute
+        :param label: a properly formatted name/label/title for the alias (used in the docstring)
+        """
+        prop = property(
+            fget=lambda self: getattr(self, attr),
+            fset=lambda self, value: setattr(self, attr, value),
+            doc=f"{alias} ({label}) is an alias for {attr}"
+        )
+        setattr(cls, alias, prop)
 
     @classmethod
     def _get_attribute_name_for(cls, name: str) -> Optional[str]:
