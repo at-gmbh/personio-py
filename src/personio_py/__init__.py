@@ -7,7 +7,7 @@ a lightweight Personio API client
 __title__ = "personio-py"
 __copyright__ = "© 2020-2022 Alexander Thamm GmbH"
 
-from personio_py.client import Personio
+from .version import __version__
 from .errors import (
     MissingCredentialsError,
     PersonioApiError,
@@ -29,4 +29,4 @@ from .models import (
     Team,
     WorkSchedule,
 )
-from .version import __version__
+from personio_py.client import Personio
