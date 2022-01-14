@@ -275,9 +275,9 @@ class Personio:
             'employee[weekly_hours]': employee.weekly_working_hours,
         }
         response = self.request_json('company/employees', method='POST', data=data)
-        employee.id_ = response['data']['id']
+        employee.id = response['data']['id']
         if refresh:
-            return self.get_employee(employee.id_)
+            return self.get_employee(employee.id)
         else:
             return employee
 
@@ -336,7 +336,7 @@ class Personio:
         of this function is to provide you with a list of all possible options that can show up.
         """
         response = self.request_json('company/time-off-types')
-        absence_types = [AbsenceType.from_json_dict(d, self) for d in response['data']]
+        absence_types = [AbsenceType(**d) for d in response['data']]
         return absence_types
 
     def get_absences(self, employees: Union[int, List[int], Employee, List[Employee]],
@@ -366,13 +366,13 @@ class Personio:
         """
         if isinstance(absence, int):
             response = self.request_json(f'company/time-offs/{absence}')
-            return Absence.from_dict(response['data'], self)
+            return Absence(**response['data'])
         else:
-            if absence.id_:
-                return self.get_absence(absence.id_)
+            if absence.id:
+                return self.get_absence(absence.id)
             else:
                 self.__add_remote_absence_id(absence)
-                return self.get_absence(absence.id_)
+                return self.get_absence(absence.id)
 
     def create_absence(self, absence: Absence) -> Absence:
         """
@@ -381,10 +381,11 @@ class Personio:
         :param absence: The absence object to be created
         :raises PersonioError: If the absence could not be created on the Personio servers
         """
+        # TODO adjust
         data = absence.to_body_params()
         response = self.request_json('company/time-offs', method='POST', data=data)
         if response['success']:
-            absence.id_ = response['data']['attributes']['id']
+            absence.id = response['data']['attributes']['id']
             return absence
         raise PersonioError("Could not create absence")
 
@@ -400,8 +401,8 @@ class Personio:
             response = self.request_json(path=f'company/time-offs/{absence}', method='DELETE')
             return response['success']
         elif isinstance(absence, Absence):
-            if absence.id_ is not None:
-                return self.delete_absence(absence.id_)
+            if absence.id is not None:
+                return self.delete_absence(absence.id)
             else:
                 raise ValueError("Only an absence with an absence id can be deleted.")
         else:
@@ -464,7 +465,7 @@ class Personio:
             response = self.request_paginated(path, params=params)
             data_acc.extend(response['data'])
         # create objects from accumulated API responses
-        parsed_data = [resource_cls.from_dict(d, self) for d in data_acc]
+        parsed_data = [resource_cls(client=self, **d) for d in data_acc]
         return parsed_data
 
     @classmethod
@@ -511,12 +512,12 @@ class Personio:
         if absence.end_date is None:
             raise ValueError("For a remote query an end date is required")
         matching_remote_absences = self.get_absences(
-            employees=[absence.employee.id_],
+            employees=[absence.employee.id],
             start_date=absence.start_date,
             end_date=absence.end_date)
         if len(matching_remote_absences) == 0:
             raise PersonioError("The absence to patch was not found")
         elif len(matching_remote_absences) > 1:
             raise PersonioError("More than one absence found.")
-        absence.id_ = matching_remote_absences[0].id_
+        absence.id = matching_remote_absences[0].id
         return absence

@@ -37,7 +37,7 @@ class SearchIndex:
     If we know exactly who we want and we're fairly certain that there is only one employee with
     that name, we can use `search_first` to get that employee directly
 
-        zack = index.search("zacharias smith")
+        zack = index.search_first("zacharias smith")
 
     If you made some changes or know that something must have changed on the server side, you can
     invalidate the index and make sure that the next search will happen on a fresh index:
@@ -48,7 +48,8 @@ class SearchIndex:
     the search index will be rebuilt.
 
     :param client: the Personio API client (to request employee data)
-    :param index_timeout: when the
+    :param index_timeout: the search index will be updated automatically if the index is older than
+      this many seconds when the next query is sent.
     """
 
     DEFAULT_INDEX_TIMEOUT = 6 * 60 * 60
