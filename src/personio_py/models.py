@@ -5,10 +5,10 @@ import inspect
 import logging
 import sys
 import unicodedata
-from datetime import date, datetime, timedelta
+from datetime import date, datetime, time, timedelta
 from typing import Any, ClassVar, Dict, List, Optional, TYPE_CHECKING, Type, TypeVar
 
-from pydantic import BaseModel, Extra, create_model, validator
+from pydantic import BaseModel, Extra, Field, PrivateAttr, create_model, validator
 
 from personio_py import PersonioError
 from personio_py.util import ReadOnlyDict, log_once
@@ -49,7 +49,12 @@ class PersonioResource(BaseModel):
         :param d: the dict to inspect
         :return: True, iff the dict has just the keys "type" and "attributes"
         """
-        return len(d) == 2 and 'type' in d and 'attributes' in d
+        if 'type' in d and 'attributes' in d:
+            if len(d) == 2:
+                return True
+            elif len(d) == 3 and 'id' in d:
+                return True
+        return False
 
     @classmethod
     def _get_kwargs_from_api_dict(cls, d: Dict) -> Dict:
@@ -70,6 +75,13 @@ class PersonioResource(BaseModel):
                 logging.WARNING,
                 f"Unexpected API type '{api_type_name}' for class {cls.__name__}, "
                 f"expected '{cls._api_type_name}' instead")
+
+    @classmethod
+    def _get_client(cls, client: 'Personio' = None) -> 'Personio':
+        if client or cls._client:
+            return client or cls._client
+        raise PersonioError(f"no Personio client reference is available, please provide it to "
+                            f"your {type(cls).__name__} or as function parameter")
 
     @validator('*', pre=True)
     def empty_str_to_none(cls, v):
@@ -101,6 +113,10 @@ class AbsenceType(PersonioResource):
     certification_submission_timeframe: Optional[int] = None
     substitute_option: Optional[str] = None
     approval_required: Optional[bool] = None
+
+
+class Certificate(PersonioResource):
+    status: Optional[str] = None
 
 
 class CostCenter(PersonioResource):
@@ -188,13 +204,52 @@ class WorkSchedule(PersonioResource):
 
 
 class Absence(PersonioResource):
-    # TODO implement
-    pass
+    _api_type_name = 'TimeOffPeriod'
+
+    id: int = None
+    status: Optional[str] = None
+    comment: Optional[str] = None
+    start_date: Optional[datetime] = None
+    end_date: Optional[datetime] = None
+    days_count: Optional[float] = None
+    half_day_start: Optional[bool] = None
+    half_day_end: Optional[bool] = None
+    time_off_type: Optional[AbsenceType] = None
+    employee: Optional[ShortEmployee] = None
+    certificate: Optional[Certificate] = None
+    created_by: Optional[str] = None
+    created_at: Optional[datetime] = None
+    updated_at: Optional[datetime] = None
+
+    def create(self, client: 'Personio' = None):
+        return self._get_client(client).create_absence(self)
+
+    def delete(self, client: 'Personio' = None):
+        return self._get_client(client).delete_absence(self)
 
 
 class Attendance(PersonioResource):
-    # TODO implement
-    pass
+    _api_type_name = 'AttendancePeriod'
+
+    employee: Optional[int] = None
+    day: Optional[date] = Field(None, alias='date')
+    start_time: Optional[time] = None
+    end_time: Optional[time] = None
+    break_minutes: Optional[int] = Field(None, alias='break')
+    comment: Optional[str] = None
+    updated_at: Optional[datetime] = None
+    status: Optional[str] = None
+    is_holiday: Optional[bool] = None
+    is_on_time_off: Optional[bool] = None
+
+    def create(self, client: 'Personio' = None):
+        return self._get_client(client).create_attendances(self)
+
+    def update(self, client: 'Personio' = None):
+        return self._get_client(client).update_attendance(self)
+
+    def delete(self, client: 'Personio' = None):
+        return self._get_client(client).delete_attendance(self)
 
 
 class PersonioTags(list):
@@ -249,8 +304,9 @@ class BaseEmployee(PersonioResource):
     _custom_attribute_aliases: ClassVar[Dict[str, str]] = {}
     """mapping from all custom attribute names (starting with 'dynamic_') to their aliases"""
     _property_setters: ClassVar[Dict[str, property]] = {}
+    _picture: Optional[bytes] = PrivateAttr(None)
 
-    id: int
+    id: int = None
     """unique identifier by which Personio refers to this employee"""
     first_name: Optional[str] = None
     """first name / given name of the employee"""
@@ -318,11 +374,16 @@ class BaseEmployee(PersonioResource):
     def __init__(self, client: 'Personio' = None, **kwargs):
         super().__init__(client=client, **kwargs)
 
-    # allow pretty names for dynamic fields, as extra attributes
-    # use the `property` built-in function to link pretty names to the api name at runtime
-    # also: add "label" as extra arg (see custom fields)
-    # dynamically add field info with Model.__fields__['field'].field_info.extra['item'] = 42
-    # or better yet as title: Model.__fields__['field'].field_info.title = "yolo"
+    def create(self, client: 'Personio' = None, refresh=True) -> 'Employee':
+        return self._get_client(client).create_employee(self, refresh=refresh)
+
+    def update(self, client: 'Personio' = None):
+        return self._get_client(client).update_employee(self)
+
+    def picture(self, client: 'Personio' = None, width: int = None) -> Optional[bytes]:
+        if self._picture is None:
+            self._picture = self._get_client(client).get_employee_picture(self, width=width)
+        return self._picture
 
     def __setattr__(self, name, value):
         """
