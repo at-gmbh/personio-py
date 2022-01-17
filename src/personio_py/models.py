@@ -193,14 +193,14 @@ class WorkSchedule(PersonioResource):
 
     id: int = None
     name: Optional[str] = None
-    valid_from: Optional[date] = None,
-    monday: Optional[timedelta] = None,
-    tuesday: Optional[timedelta] = None,
-    wednesday: Optional[timedelta] = None,
-    thursday: Optional[timedelta] = None,
-    friday: Optional[timedelta] = None,
-    saturday: Optional[timedelta] = None,
-    sunday: Optional[timedelta] = None,
+    valid_from: Optional[date] = None
+    monday: Optional[timedelta] = None
+    tuesday: Optional[timedelta] = None
+    wednesday: Optional[timedelta] = None
+    thursday: Optional[timedelta] = None
+    friday: Optional[timedelta] = None
+    saturday: Optional[timedelta] = None
+    sunday: Optional[timedelta] = None
 
     def __init__(self, **kwargs):
         if self._is_api_dict(kwargs):
@@ -292,10 +292,10 @@ class CustomAttribute(BaseModel):
         'multiline': str,
     }
 
-    key: Optional[str] = None,
-    label: Optional[str] = None,
-    type: Optional[str] = None,
-    universal_id: Optional[str] = None,
+    key: Optional[str] = None
+    label: Optional[str] = None
+    type: Optional[str] = None
+    universal_id: Optional[str] = None
 
     @property
     def py_type(self) -> Type:
@@ -322,63 +322,63 @@ class BaseEmployee(PersonioResource):
     """first name / given name of the employee"""
     last_name: Optional[str] = None
     """last name / surname / family name of the employee"""
-    email: Optional[str] = None,
+    email: Optional[str] = None
     """the employee's email address"""
-    gender: Optional[str] = None,
+    gender: Optional[str] = None
     """the employee's gender"""
-    status: Optional[str] = None,
+    status: Optional[str] = None
     """the employee's employment status (active, inactive, ...)"""
-    position: Optional[str] = None,
+    position: Optional[str] = None
     """the employee's position / job title"""
-    supervisor: Optional[ShortEmployee] = None,
+    supervisor: Optional[ShortEmployee] = None
     """the employee's current supervisor"""
-    employment_type: Optional[str] = None,
+    employment_type: Optional[str] = None
     """the employee's employment type (internal, external)"""
-    weekly_working_hours: Optional[str] = None,
+    weekly_working_hours: Optional[str] = None
     """the employee's weekly working hours, as contracted"""
-    hire_date: Optional[datetime] = None,
+    hire_date: Optional[datetime] = None
     """the date when this employee was hired"""
-    contract_end_date: Optional[datetime] = None,
+    contract_end_date: Optional[datetime] = None
     """when specified, this employee's contract will end at this date"""
-    termination_date: Optional[datetime] = None,
+    termination_date: Optional[datetime] = None
     """date when this employee's contract has been terminated"""
-    termination_type: Optional[str] = None,
+    termination_type: Optional[str] = None
     """choice from a list of reasons for termination (retirement, temporary contract, etc.)"""
-    termination_reason: Optional[str] = None,
+    termination_reason: Optional[str] = None
     """free-text field where details about the termination can be stored"""
-    probation_period_end: Optional[datetime] = None,
+    probation_period_end: Optional[datetime] = None
     """date at which this employee's probation period ends"""
-    created_at: Optional[datetime] = None,
+    created_at: Optional[datetime] = None
     """date at which this employee profile was created in Personio"""
-    last_modified_at: Optional[datetime] = None,
+    last_modified_at: Optional[datetime] = None
     """date at which this employee profile was last updated in Personio"""
-    subcompany: Optional[str] = None,
+    subcompany: Optional[str] = None
     """name of the subcompany this employee is working for"""
-    office: Optional[Office] = None,
+    office: Optional[Office] = None
     """the office this employee is typically working from"""
-    department: Optional[Department] = None,
+    department: Optional[Department] = None
     """the department this employee belongs to"""
-    cost_centers: List[CostCenter] = None,
+    cost_centers: List[CostCenter] = None
     """list of cost centers this employee is assigned to"""
-    holiday_calendar: Optional[HolidayCalendar] = None,
+    holiday_calendar: Optional[HolidayCalendar] = None
     """the holiday calender which is valid for this employee"""
-    absence_entitlement: List[AbsenceEntitlement] = None,
+    absence_entitlement: List[AbsenceEntitlement] = None
     """the list of absences this employee is entitled to (vacations, parental leave, etc.)"""
-    work_schedule: Optional[WorkSchedule] = None,
+    work_schedule: Optional[WorkSchedule] = None
     """the employee's work schedule (expected working hours per week day)"""
-    fix_salary: Optional[float] = None,
+    fix_salary: Optional[float] = None
     """the employee's fixed salary (without bonus payments)"""
-    fix_salary_interval: Optional[str] = None,
+    fix_salary_interval: Optional[str] = None
     """the interval at which the fixed salary is paid (monthly, weekly, etc.)"""
-    hourly_salary: Optional[float] = None,
+    hourly_salary: Optional[float] = None
     """the employee's hourly salary (as alternative to the fixed salary)"""
-    vacation_day_balance: Optional[float] = None,
+    vacation_day_balance: Optional[float] = None
     """the employee's current vacation day balance (can be negative)"""
-    last_working_day: Optional[datetime] = None,
+    last_working_day: Optional[datetime] = None
     """the employee's last working day, in case the contract was terminated"""
-    profile_picture: Optional[str] = None,
+    profile_picture: Optional[str] = None
     """URL to this employee's profile picture"""
-    team: Optional[Team] = None,
+    team: Optional[Team] = None
     """the team this employee is assigned to"""
 
     def __init__(self, client: 'Personio' = None, **kwargs):
