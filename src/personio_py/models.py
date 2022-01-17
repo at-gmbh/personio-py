@@ -477,6 +477,7 @@ class BaseEmployee(PersonioResource):
         )
         # set class variables
         aliases = aliases or {}
+        employee_cls._client = client
         cls._custom_attribute_keys = [a.key for a in dynamic_attributes]
         cls._custom_attribute_aliases = {
             a.key: aliases.get(a.key) or cls._get_attribute_name_for(a.label)
