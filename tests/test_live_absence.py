@@ -3,7 +3,8 @@ from functools import lru_cache
 
 import pytest
 
-from personio_py import Absence, AbsenceType, Employee, Personio, PersonioError
+from personio_py import Personio, PersonioError
+from personio_py.models import Absence, AbsenceType, Employee
 from tests import connection
 from tests.connection import get_skipif, personio
 from tests.test_live_employee import get_tim
@@ -58,9 +59,9 @@ def test_create_absences(half_day_start: bool, half_day_end: bool):
 @skip_if_no_auth
 def test_get_absences_from_id():
     user = prepare_test_get_absences()
-    absence_id = create_absence_for_user(user, create=True).id_
+    absence_id = create_absence_for_user(user, create=True).id
     absence = personio.get_absence(absence_id)
-    assert absence.id_ == absence_id
+    assert absence.id == absence_id
 
 
 @skip_if_no_auth
@@ -68,17 +69,17 @@ def test_get_absences_from_absence_object():
     user = prepare_test_get_absences()
     remote_absence = create_absence_for_user(user, create=True)
     absence = personio.get_absence(remote_absence)
-    assert absence.id_ == remote_absence.id_
+    assert absence.id == remote_absence.id
 
 
 @skip_if_no_auth
 def test_get_absences_from_absence_object_without_id():
     user = prepare_test_get_absences()
     remote_absence = create_absence_for_user(user, create=True)
-    absence_id = remote_absence.id_
-    remote_absence.id_ = None
+    absence_id = remote_absence.id
+    remote_absence.id = None
     absence = personio.get_absence(remote_absence)
-    assert absence.id_ == absence_id
+    assert absence.id == absence_id
 
 
 @skip_if_no_auth
@@ -86,25 +87,7 @@ def test_delete_absences_from_model_no_client():
     test_user = get_test_employee()
     delete_all_absences_of_employee(test_user)
     absence = create_absence_for_user(test_user, create=True)
-    with pytest.raises(PersonioError):
-        absence.delete()
-
-
-@skip_if_no_auth
-def test_delete_absences_from_model_passed_client():
-    test_user = get_test_employee()
-    delete_all_absences_of_employee(test_user)
-    absence = create_absence_for_user(test_user, create=True)
-    assert absence.delete(client=personio) is True
-
-
-@skip_if_no_auth
-def test_delete_absences_from_model_with_client():
-    test_user = get_test_employee()
-    delete_all_absences_of_employee(test_user)
-    absence = create_absence_for_user(test_user, create=True)
-    absence._client = personio
-    assert absence.delete() is True
+    absence.delete()
 
 
 @skip_if_no_auth
@@ -112,7 +95,7 @@ def test_delete_absence_from_absence_id():
     test_user = get_test_employee()
     delete_all_absences_of_employee(test_user)
     absence = create_absence_for_user(test_user, create=True)
-    assert personio.delete_absence(absence.id_) is True
+    personio.delete_absence(absence.id)
 
 
 @skip_if_no_auth
@@ -120,7 +103,7 @@ def test_delete_absences_from_client_object_with_id():
     test_user = get_test_employee()
     delete_all_absences_of_employee(test_user)
     absence = create_absence_for_user(test_user, create=True)
-    assert personio.delete_absence(absence) is True
+    personio.delete_absence(absence)
 
 
 @skip_if_no_auth
@@ -128,8 +111,8 @@ def test_delete_absences_from_client_object_with_no_id():
     test_user = get_test_employee()
     delete_all_absences_of_employee(test_user)
     absence = create_absence_for_user(test_user, create=True)
-    absence.id_ = None
-    with pytest.raises(ValueError):
+    absence.id = None
+    with pytest.raises(PersonioError):
         personio.delete_absence(absence)
 
 
@@ -179,6 +162,7 @@ def prepare_test_get_absences() -> Employee:
     return test_user
 
 
+@lru_cache(maxsize=1)
 def get_test_employee():
     return get_tim()
 

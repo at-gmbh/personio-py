@@ -73,8 +73,7 @@ def test_create_employee():
     # note: sice Personio does not provide any API endpoints to delete employees,
     # you have to manually delete this employee via the web UI if you want to run
     # this test more than once...
-    personio.update_model()
-    from personio_py import Employee
+    personio.update_model(globals())
     # create an employee object
     tim = Employee(
         first_name='Tim',

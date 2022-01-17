@@ -440,9 +440,9 @@ class Personio:
             if absence.id is not None:
                 return self.delete_absence(absence.id)
             else:
-                raise ValueError("Only an absence with an absence id can be deleted.")
+                raise PersonioError("Cannot delete Absence object with missing ID")
         else:
-            raise ValueError("absence must be an Absence object or an integer")
+            raise PersonioError("absence parameter must be an Absence object or an integer ID")
 
     def search(self, query: str, active_only=True) -> List[Employee]:
         """
