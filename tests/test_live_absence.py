@@ -1,7 +1,30 @@
-from datetime import timedelta
+from datetime import date
+from functools import lru_cache
 
-from personio_py import Absence, AbsenceType, Employee
-from .apitest_shared import *
+import pytest
+
+from personio_py import Absence, AbsenceType, Employee, Personio, PersonioError
+from tests import connection
+from tests.connection import get_skipif, personio
+from tests.test_live_employee import get_tim
+
+skip_if_no_auth = get_skipif()
+
+
+@skip_if_no_auth
+def test_get_absence_types():
+    absence_types = personio.get_absence_types()
+    assert absence_types
+    for at in absence_types:
+        assert at.id
+        assert at.name
+
+
+@skip_if_no_auth
+def test_get_absences():
+    employee = connection.get_test_employee()
+    absences = personio.get_absences(employee.id)
+    assert absences
 
 
 @skip_if_no_auth
@@ -20,19 +43,16 @@ def test_create_absences(half_day_start: bool, half_day_end: bool):
     delete_all_absences_of_employee(test_user)
 
     # Start test
-    absence_to_create = create_absence_for_user(test_user,
-                                                start_date=start_date,
-                                                end_date=end_date,
-                                                half_day_start=half_day_start,
-                                                half_day_end=half_day_end)
-    assert absence_to_create.id_ is None
-    absence_to_create.create(personio)
-    assert absence_to_create.id_
-    remote_absence = personio.get_absence(absence=absence_to_create)
+    absence = create_absence_for_user(
+        test_user, start_date=start_date, end_date=end_date,
+        half_day_start=half_day_start, half_day_end=half_day_end)
+    assert absence.id is None
+    absence = absence.create(personio)
+    assert absence.id
+    remote_absence = personio.get_absence(absence=absence)
     assert remote_absence.half_day_start is half_day_start
     assert remote_absence.half_day_end is half_day_end
-    assert remote_absence.start_date - start_date < timedelta(seconds=1)
-    assert remote_absence.end_date - end_date < timedelta(seconds=1)
+    assert remote_absence == absence
 
 
 @skip_if_no_auth
@@ -59,15 +79,6 @@ def test_get_absences_from_absence_object_without_id():
     remote_absence.id_ = None
     absence = personio.get_absence(remote_absence)
     assert absence.id_ == absence_id
-
-
-@skip_if_no_auth
-def test_get_absences_types():
-    absence_types = personio.get_absence_types()
-    assert len(absence_types) > 10
-    for at in absence_types:
-        assert at.id
-        assert at.name
 
 
 @skip_if_no_auth
@@ -133,27 +144,21 @@ def create_absences(client: Personio, absences: [Absence]):
 
 
 def delete_all_absences_of_employee(employee: Employee):
-    absences = personio.get_absences(employee, start_date=NOT_BEFORE, end_date=NOT_AFTER)
+    absences = personio.get_absences(employee)
     delete_absences(personio, absences)
 
 
-def create_absence_for_user(employee: Employee,
-                            time_off_type: AbsenceType = None,
-                            start_date: date = None,
-                            end_date: date = None,
-                            half_day_start: bool = False,
-                            half_day_end: bool = False,
-                            comment: str = None,
-                            create: bool = False) -> Absence:
+def create_absence_for_user(
+        employee: Employee, time_off_type: AbsenceType = None, start_date: date = None,
+        end_date: date = None, half_day_start: bool = False, half_day_end: bool = False,
+        comment: str = None, create: bool = False) -> Absence:
     if not time_off_type:
-        absence_types = personio.get_absence_types()
-        time_off_type = [absence_type for absence_type in absence_types if absence_type.name == "Unpaid vacation"][0]
+        time_off_type = get_default_absence_type()
     if not start_date:
         start_date = date(year=2022, month=1, day=1)
     if not end_date:
         end_date = date(year=2022, month=1, day=10)
-
-    absence_to_create = Absence(
+    absence = Absence(
         start_date=start_date,
         end_date=end_date,
         time_off_type=time_off_type,
@@ -163,13 +168,21 @@ def create_absence_for_user(employee: Employee,
         comment=comment
     )
     if create:
-        absence_to_create.create(personio)
-    return absence_to_create
+        absence.create(personio)
+    return absence
 
 
 def prepare_test_get_absences() -> Employee:
     test_user = get_test_employee()
-
-    # Be sure there are no leftover absences
+    # make sure there are no leftover absences
     delete_all_absences_of_employee(test_user)
     return test_user
+
+
+def get_test_employee():
+    return get_tim()
+
+
+@lru_cache(maxsize=1)
+def get_default_absence_type():
+    return personio.get_absence_types()[0]

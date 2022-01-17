@@ -33,11 +33,6 @@ class Personio:
 
     BASE_URL = "https://api.personio.de/v1/"
     """base URL of the Personio HTTP API"""
-    _create_employee_required = [
-        'email', 'first_name', 'last_name']
-    _create_employee_optional = [
-        'gender', 'position', 'subcompany', ('department.name', 'department'),
-        ('office.name', 'office'), 'hire_date', ('weekly_working_hours', 'weekly_hours')]
 
     def __init__(self, base_url: str = None, client_id: str = None, client_secret: str = None,
                  employee_aliases: Dict[str, str] = None):
@@ -279,7 +274,7 @@ class Personio:
                        f"Please note that not all attributes are supported by the create employee "
                        f"API of Personio!")
         self.update_model()
-        data = self._build_employee_dict(employee)
+        data = employee.to_api_dict()
         response = self.request_json('company/employees', method='POST', data=data)
         employee.id = response['data']['id']
         if refresh:
@@ -305,44 +300,13 @@ class Personio:
                        f"({employee.id}) in Personio. Please note that not all attributes are "
                        f"supported by the update employee API of Personio!")
         self.update_model()
-        data = self._build_employee_dict(employee)
+        data = employee.to_api_dict()
         del data['employee']['email']
         self.request_json(f'company/employees/{employee.id}', method='PATCH', data=data)
         if refresh:
             return self.get_employee(employee.id)
         else:
             return employee
-
-    def _build_employee_dict(self, employee: Employee) -> Dict:
-        data = {}
-        custom_attributes = {}
-        for field in self._create_employee_required:
-            self._add_employee_dict_field(employee, data, field, required=True)
-        for field in self._create_employee_optional:
-            self._add_employee_dict_field(employee, data, field, required=False)
-        for field in Employee._custom_attribute_keys:
-            self._add_employee_dict_field(employee, custom_attributes, field, required=False)
-        if custom_attributes:
-            data['custom_attributes'] = custom_attributes
-        return {'employee': data}
-
-    @classmethod
-    def _add_employee_dict_field(
-            cls, employee: Employee, d: Dict, field: Union[str, Tuple[str, str]], required=False):
-        if isinstance(field, tuple):
-            key_get, key_set = field
-        else:
-            key_get = key_set = field
-        try:
-            value = operator.attrgetter(key_get)(employee)
-        except AttributeError:
-            value = None
-        if value:
-            if isinstance(value, datetime) or isinstance(value, date):
-                value = value.isoformat()[:10]
-            d[key_set] = value
-        elif required:
-            raise PersonioError(f"required field {field} has no value")
 
     def get_absence_balance(self, employee: Union[Employee, int]) -> List[AbsenceBalance]:
         """
@@ -454,12 +418,12 @@ class Personio:
         :param absence: The absence object to be created
         :raises PersonioError: If the absence could not be created on the Personio servers
         """
-        # TODO adjust
-        data = absence.to_body_params()
+        data = absence.to_api_dict()
         response = self.request_json('company/time-offs', method='POST', data=data)
         if response['success']:
-            absence.id = response['data']['attributes']['id']
-            return absence
+            absence_updated = Absence(**response['data'])
+            absence.id = absence_updated.id
+            return absence_updated
         raise PersonioError("Could not create absence")
 
     def delete_absence(self, absence: Union[Absence, int]):

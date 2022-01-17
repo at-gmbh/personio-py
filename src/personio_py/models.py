@@ -3,10 +3,11 @@ Definition of ORMs for objects that are available in the Personio API
 """
 import inspect
 import logging
+import operator
 import sys
 import unicodedata
 from datetime import date, datetime, time, timedelta
-from typing import Any, ClassVar, Dict, List, Optional, TYPE_CHECKING, Type, TypeVar
+from typing import Any, ClassVar, Dict, List, Optional, TYPE_CHECKING, Tuple, Type, TypeVar, Union
 
 from pydantic import BaseModel, Extra, Field, PrivateAttr, create_model, validator
 
@@ -77,6 +78,25 @@ class PersonioResource(BaseModel):
                 f"expected '{cls._api_type_name}' instead")
 
     @classmethod
+    def _add_api_dict_field(
+            cls, resource: PersonioResourceType, d: Dict, field: Union[str, Tuple[str, str]],
+            required=False):
+        if isinstance(field, tuple):
+            key_get, key_set = field
+        else:
+            key_get = key_set = field
+        try:
+            value = operator.attrgetter(key_get)(resource)
+        except AttributeError:
+            value = None
+        if value is not None:
+            if isinstance(value, datetime) or isinstance(value, date):
+                value = value.isoformat()[:10]
+            d[key_set] = value
+        elif required:
+            raise PersonioError(f"required field {field} has no value")
+
+    @classmethod
     def _get_client(cls, client: 'Personio' = None) -> 'Personio':
         if client or cls._client:
             return client or cls._client
@@ -84,7 +104,7 @@ class PersonioResource(BaseModel):
                             f"your {type(cls).__name__} or as function parameter")
 
     @validator('*', pre=True)
-    def empty_str_to_none(cls, v):
+    def _empty_str_to_none(cls, v):
         """custom validator for Personio API objects that converts empty strings to None"""
         return None if v == '' else v
 
@@ -215,12 +235,16 @@ class WorkSchedule(PersonioResource):
 
 class Absence(PersonioResource):
     _api_type_name = 'TimeOffPeriod'
+    _api_fields_required: ClassVar[List] = [
+        ('employee.id', 'employee_id'), ('time_off_type.id', 'time_off_type_id'),
+        'start_date', 'end_date', 'half_day_start', 'half_day_end']
+    _api_fields_optional: ClassVar[List] = ['comment']
 
     id: int = None
     status: Optional[str] = None
     comment: Optional[str] = None
-    start_date: Optional[datetime] = None
-    end_date: Optional[datetime] = None
+    start_date: Optional[date] = None
+    end_date: Optional[date] = None
     days_count: Optional[float] = None
     half_day_start: Optional[bool] = None
     half_day_end: Optional[bool] = None
@@ -231,11 +255,25 @@ class Absence(PersonioResource):
     created_at: Optional[datetime] = None
     updated_at: Optional[datetime] = None
 
-    def create(self, client: 'Personio' = None):
+    @validator('start_date', 'end_date', pre=True)
+    def _datetime_to_date(cls, v):
+        if v and isinstance(v, str):
+            return v[:10]
+        return v
+
+    def create(self, client: 'Personio' = None) -> 'Absence':
         return self._get_client(client).create_absence(self)
 
     def delete(self, client: 'Personio' = None):
         return self._get_client(client).delete_absence(self)
+
+    def to_api_dict(self) -> Dict:
+        data = {}
+        for field in self._api_fields_required:
+            self._add_api_dict_field(self, data, field, required=True)
+        for field in self._api_fields_optional:
+            self._add_api_dict_field(self, data, field, required=False)
+        return data
 
 
 class Attendance(PersonioResource):
@@ -321,6 +359,11 @@ class BaseEmployee(PersonioResource):
     """mapping from all custom attribute names (starting with 'dynamic_') to their aliases"""
     _property_setters: ClassVar[Dict[str, property]] = {}
     _picture: Optional[bytes] = PrivateAttr(None)
+    _api_fields_required: ClassVar[List] = [
+        'email', 'first_name', 'last_name']
+    _api_fields_optional: ClassVar[List] = [
+        'gender', 'position', 'subcompany', ('department.name', 'department'),
+        ('office.name', 'office'), 'hire_date', ('weekly_working_hours', 'weekly_hours')]
 
     id: int = None
     """unique identifier by which Personio refers to this employee"""
@@ -342,17 +385,17 @@ class BaseEmployee(PersonioResource):
     """the employee's employment type (internal, external)"""
     weekly_working_hours: Optional[str] = None
     """the employee's weekly working hours, as contracted"""
-    hire_date: Optional[datetime] = None
+    hire_date: Optional[date] = None
     """the date when this employee was hired"""
-    contract_end_date: Optional[datetime] = None
+    contract_end_date: Optional[date] = None
     """when specified, this employee's contract will end at this date"""
-    termination_date: Optional[datetime] = None
+    termination_date: Optional[date] = None
     """date when this employee's contract has been terminated"""
     termination_type: Optional[str] = None
     """choice from a list of reasons for termination (retirement, temporary contract, etc.)"""
     termination_reason: Optional[str] = None
     """free-text field where details about the termination can be stored"""
-    probation_period_end: Optional[datetime] = None
+    probation_period_end: Optional[date] = None
     """date at which this employee's probation period ends"""
     created_at: Optional[datetime] = None
     """date at which this employee profile was created in Personio"""
@@ -380,7 +423,7 @@ class BaseEmployee(PersonioResource):
     """the employee's hourly salary (as alternative to the fixed salary)"""
     vacation_day_balance: Optional[float] = None
     """the employee's current vacation day balance (can be negative)"""
-    last_working_day: Optional[datetime] = None
+    last_working_day: Optional[date] = None
     """the employee's last working day, in case the contract was terminated"""
     profile_picture: Optional[str] = None
     """URL to this employee's profile picture"""
@@ -389,6 +432,13 @@ class BaseEmployee(PersonioResource):
 
     def __init__(self, client: 'Personio' = None, **kwargs):
         super().__init__(client=client, **kwargs)
+
+    @validator('hire_date', 'contract_end_date', 'termination_date', 'probation_period_end',
+               'last_working_day', pre=True)
+    def _datetime_to_date(cls, v):
+        if v and isinstance(v, str):
+            return v[:10]
+        return v
 
     def create(self, client: 'Personio' = None, refresh=True) -> 'Employee':
         return self._get_client(client).create_employee(self, refresh=refresh)
@@ -403,6 +453,19 @@ class BaseEmployee(PersonioResource):
         if self._picture is None:
             self._picture = self._get_client(client).get_employee_picture(self, width=width)
         return self._picture
+
+    def to_api_dict(self) -> Dict:
+        data = {}
+        custom_attributes = {}
+        for field in self._api_fields_required:
+            self._add_api_dict_field(self, data, field, required=True)
+        for field in self._api_fields_optional:
+            self._add_api_dict_field(self, data, field, required=False)
+        for field in self._custom_attribute_keys:
+            self._add_api_dict_field(self, custom_attributes, field, required=False)
+        if custom_attributes:
+            data['custom_attributes'] = custom_attributes
+        return {'employee': data}
 
     def __setattr__(self, name, value):
         """
