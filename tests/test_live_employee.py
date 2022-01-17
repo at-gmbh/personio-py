@@ -7,6 +7,7 @@ from personio_py import Department, Employee, PersonioApiError
 from tests.connection import get_skipif, get_test_employee, personio
 
 skip_if_no_auth = get_skipif()
+created_employee_id = None
 
 
 @skip_if_no_auth
@@ -82,19 +83,21 @@ def test_create_employee():
         position='inventor of the World Wide Web',
         department=Department(name='Operations'),
         hire_date=datetime(1989, 3, 12),
-        weekly_working_hours="35",
+        weekly_working_hours='35',
     )
-    custom_0 = tim._custom_attribute_keys[0]
-    setattr(tim, custom_0, 'foo')
+    custom_attr = tim._custom_attribute_keys[0]
+    setattr(tim, custom_attr, 'foo')
     try:
         # send it to the API
         tim_created = personio.create_employee(tim)
+        global created_employee_id
+        created_employee_id = tim_created.id
         # check that it works
         assert tim.first_name == tim_created.first_name
         assert tim.email == tim_created.email
         assert tim_created.id
         assert tim_created.last_modified_at.date() == datetime.now().date()
-        assert getattr(tim, custom_0) == 'foo'
+        assert getattr(tim, custom_attr) == 'foo'
         assert tim_created.status == 'active'
     except PersonioApiError as e:
         if "already in use" in e.message:
@@ -106,8 +109,21 @@ def test_create_employee():
 
 @skip_if_no_auth
 def test_update_employee():
-    # TODO implement
-    pass
+    tim = get_tim()
+    tim.gender = 'male'
+    tim.weekly_working_hours = '30'
+
+    # due to a bug in the personio API, custom attributes are not updated
+    #custom_attr = tim._custom_attribute_keys[-1]
+    #setattr(tim, custom_attr, 'bar')
+    # please uncomment the two lines above when it is fixed...
+
+    d_before = dict(tim)
+    tim_updated = tim.update()
+    d_after = dict(tim_updated)
+    del d_before['last_modified_at']
+    del d_after['last_modified_at']
+    assert d_after == d_before
 
 
 def serialization_test(employee: Employee):
@@ -123,3 +139,10 @@ def serialization_test(employee: Employee):
     assert json_str
     parsed_json = Employee.parse_raw(json_str)
     assert parsed_json == employee
+
+
+def get_tim():
+    if created_employee_id:
+        return personio.get_employee(created_employee_id)
+    else:
+        return personio.search_first("Tim Berners-Lee")

@@ -280,25 +280,49 @@ class Personio:
                        f"Please note that not all attributes are supported by the create employee "
                        f"API of Personio!")
         self.update_model()
-        # build the dict
-        d = {'employee': {}}
-        d_employee = d['employee']
-        custom_attributes = {}
-        for field in self._create_employee_required:
-            self._add_employee_dict_field(employee, d_employee, field, required=True)
-        for field in self._create_employee_optional:
-            self._add_employee_dict_field(employee, d_employee, field, required=False)
-        for field in Employee._custom_attribute_keys:
-            self._add_employee_dict_field(employee, custom_attributes, field, required=False)
-        if custom_attributes:
-            d_employee['custom_attributes'] = custom_attributes
-        # send the request
-        response = self.request_json('company/employees', method='POST', data=d)
+        data = self._build_employee_dict(employee)
+        response = self.request_json('company/employees', method='POST', data=data)
         employee.id = response['data']['id']
         if refresh:
             return self.get_employee(employee.id)
         else:
             return employee
+
+    def update_employee(self, employee: Employee, refresh=True):
+        """
+        Update the specified employee in your Personio instance.
+        Please note that not all attributes are supported by the update employee API of Personio.
+        See https://developer.personio.de/reference#patch_company-employees-employee-id for details.
+
+        :param employee: the employee to update
+        :param refresh: when True (the default), a GET request is executed after the employee
+          was updated to request the current state from the server.
+        :return: the updated employee
+        """
+        logger.warning(f"updating employee {employee.first_name} {employee.last_name} "
+                       f"({employee.id}) in Personio. Please note that not all attributes are "
+                       f"supported by the update employee API of Personio!")
+        self.update_model()
+        data = self._build_employee_dict(employee)
+        del data['employee']['email']
+        self.request_json(f'company/employees/{employee.id}', method='PATCH', data=data)
+        if refresh:
+            return self.get_employee(employee.id)
+        else:
+            return employee
+
+    def _build_employee_dict(self, employee: Employee) -> Dict:
+        data = {}
+        custom_attributes = {}
+        for field in self._create_employee_required:
+            self._add_employee_dict_field(employee, data, field, required=True)
+        for field in self._create_employee_optional:
+            self._add_employee_dict_field(employee, data, field, required=False)
+        for field in Employee._custom_attribute_keys:
+            self._add_employee_dict_field(employee, custom_attributes, field, required=False)
+        if custom_attributes:
+            data['custom_attributes'] = custom_attributes
+        return {'employee': data}
 
     @classmethod
     def _add_employee_dict_field(
@@ -317,12 +341,6 @@ class Personio:
             d[key_set] = value
         elif required:
             raise PersonioError(f"required field {field} has no value")
-
-    def update_employee(self, employee: Employee):
-        """
-        placeholder; not ready to be used
-        """
-        raise NotImplementedError()
 
     def get_attendances(self, employees: Union[int, List[int], Employee, List[Employee]],
                         start_date: datetime = None, end_date: datetime = None) -> List[Attendance]:

@@ -387,8 +387,8 @@ class BaseEmployee(PersonioResource):
     def create(self, client: 'Personio' = None, refresh=True) -> 'Employee':
         return self._get_client(client).create_employee(self, refresh=refresh)
 
-    def update(self, client: 'Personio' = None):
-        return self._get_client(client).update_employee(self)
+    def update(self, client: 'Personio' = None, refresh=True):
+        return self._get_client(client).update_employee(self, refresh=refresh)
 
     def picture(self, client: 'Personio' = None, width: int = None) -> Optional[bytes]:
         if self._picture is None:
