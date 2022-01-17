@@ -12,10 +12,9 @@ from urllib.parse import urljoin
 import requests
 from requests import Response
 
-from personio_py import Absence, AbsenceType, Attendance, BaseEmployee, CustomAttribute, Employee, \
-    PersonioResourceType, update_model
-from personio_py.errors import MissingCredentialsError, PersonioApiError, PersonioError
-from personio_py.search import SearchIndex
+from personio_py import Absence, AbsenceBalance, AbsenceType, Attendance, BaseEmployee, \
+    CustomAttribute, Employee, MissingCredentialsError, PersonioApiError, PersonioError, \
+    PersonioResourceType, SearchIndex, update_model
 
 logger = logging.getLogger('personio_py')
 
@@ -294,6 +293,9 @@ class Personio:
         Please note that not all attributes are supported by the update employee API of Personio.
         See https://developer.personio.de/reference#patch_company-employees-employee-id for details.
 
+        Due to an apparent bug in the Personio API, it does not seem to be possible to update
+        custom attributes.
+
         :param employee: the employee to update
         :param refresh: when True (the default), a GET request is executed after the employee
           was updated to request the current state from the server.
@@ -341,6 +343,22 @@ class Personio:
             d[key_set] = value
         elif required:
             raise PersonioError(f"required field {field} has no value")
+
+    def get_absence_balance(self, employee: Union[Employee, int]) -> List[AbsenceBalance]:
+        """
+        Get the absence balance for the specified employee.
+
+        Absence balance is tracked separately per absence type (see `get_absence_types()`),
+        therefore we return a list of `AbsenceBalance` objects.
+
+        :param employee: get the absence balance for this employee object or employee ID
+        :return: the current absence balance for each absence type for this employee
+        """
+        employee_id = employee.id if isinstance(employee, BaseEmployee) else employee
+        response = self.request_json(
+            f'company/employees/{employee_id}/absences/balance', auth_rotation=False)
+        balance = [AbsenceBalance(**d) for d in response['data']]
+        return balance
 
     def get_attendances(self, employees: Union[int, List[int], Employee, List[Employee]],
                         start_date: datetime = None, end_date: datetime = None) -> List[Attendance]:

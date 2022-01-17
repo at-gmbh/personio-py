@@ -262,6 +262,12 @@ class Attendance(PersonioResource):
         return self._get_client(client).delete_attendance(self)
 
 
+class AbsenceBalance(PersonioResource):
+    id: int = None
+    name: Optional[str] = None
+    balance: Optional[float] = None
+
+
 class PersonioTags(list):
 
     @classmethod
@@ -387,8 +393,11 @@ class BaseEmployee(PersonioResource):
     def create(self, client: 'Personio' = None, refresh=True) -> 'Employee':
         return self._get_client(client).create_employee(self, refresh=refresh)
 
-    def update(self, client: 'Personio' = None, refresh=True):
+    def update(self, client: 'Personio' = None, refresh=True) -> 'Employee':
         return self._get_client(client).update_employee(self, refresh=refresh)
+
+    def absence_balance(self, client: 'Personio' = None) -> List[AbsenceBalance]:
+        return self._get_client(client).get_absence_balance(self)
 
     def picture(self, client: 'Personio' = None, width: int = None) -> Optional[bytes]:
         if self._picture is None:

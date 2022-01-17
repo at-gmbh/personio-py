@@ -17,6 +17,7 @@ from .errors import (
 from .models import (
     update_model,
     Absence,
+    AbsenceBalance,
     AbsenceEntitlement,
     AbsenceType,
     Attendance,
@@ -33,4 +34,5 @@ from .models import (
     Team,
     WorkSchedule,
 )
-from personio_py.client import Personio
+from .search import SearchIndex
+from .client import Personio

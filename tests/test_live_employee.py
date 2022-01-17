@@ -126,6 +126,13 @@ def test_update_employee():
     assert d_after == d_before
 
 
+@skip_if_no_auth
+def test_absence_balance():
+    employee = get_test_employee()
+    balance = employee.absence_balance()
+    assert balance
+
+
 def serialization_test(employee: Employee):
     # reload the Employee class
     from personio_py import Employee
