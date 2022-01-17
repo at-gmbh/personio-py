@@ -5,7 +5,7 @@ from typing import Any, Dict
 import pytest
 import responses
 
-from personio_py import DynamicMapping, Employee, Personio, PersonioApiError, PersonioError
+from personio_py import Employee, Personio, PersonioApiError, PersonioError
 from tests.mock_data import *
 
 iso_date_match = re.compile(r'\d\d\d\d-\d\d-\d\d')
@@ -55,7 +55,8 @@ def test_get_employees():
     alan = employee_dict['Alan']
     rms = employee_dict['Richard']
     assert ada.last_name == 'Lovelace'
-    assert ada.dynamic['birthday'] == date(1815, 12, 10)
+    assert ada.dynamic_1146666 == date(1815, 12, 10)
+    # TODO test alias
     assert alan.position == 'Chief Cryptanalyst'
     assert alan.vacation_day_balance == 25
     assert rms.hire_date.year == 1983

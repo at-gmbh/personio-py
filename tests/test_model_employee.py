@@ -1,8 +1,7 @@
 from copy import deepcopy
 from datetime import datetime, timezone
 
-from personio_py import DynamicAttr, Employee
-from personio_py.mapping import DynamicMapping
+from personio_py import Employee
 
 employee_dict = {
     'type': 'Employee',
@@ -23,10 +22,10 @@ employee_dict = {
     }
 }
 
-dyn_mapping = [
-    DynamicMapping(field_id=43, alias='birthday', data_type=datetime),
-    DynamicMapping(field_id=44, alias='hobbies', data_type=list),
-]
+#dyn_mapping = [
+#    DynamicMapping(field_id=43, alias='birthday', data_type=datetime),
+#    DynamicMapping(field_id=44, alias='hobbies', data_type=list),
+#]
 
 
 def test_dynamic_attr():

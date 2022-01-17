@@ -3,7 +3,7 @@ from datetime import datetime
 
 import pytest
 
-from personio_py import Department, Employee, PersonioApiError
+from personio_py import Department, Employee, PersonioApiError, SearchIndex
 from tests.connection import get_skipif, get_test_employee, personio
 
 skip_if_no_auth = get_skipif()
@@ -130,6 +130,17 @@ def test_absence_balance():
     employee = get_test_employee()
     balance = employee.absence_balance()
     assert balance
+
+
+@skip_if_no_auth
+def test_search_index():
+    index = SearchIndex(personio)
+    # search for the most frequent names in Germany
+    result = index.search("Turing Stallman Ada")
+    assert result
+    assert index.valid
+    assert index.index
+    assert index.last_update > 0
 
 
 def serialization_test(employee: Employee):

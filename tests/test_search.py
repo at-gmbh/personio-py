@@ -1,19 +1,6 @@
 import responses
 
-from personio_py.search import SearchIndex
-from tests.apitest_shared import personio, skip_if_no_auth
-from tests.test_mock_api import mock_employees, mock_personio
-
-
-@skip_if_no_auth
-def test_search_index():
-    index = SearchIndex(personio)
-    # search for the most frequent names in Germany
-    result = index.search("Müller Schmidt Schneider")
-    assert len(result) > 0
-    assert index.valid
-    assert index.index
-    assert index.last_update > 0
+from tests.test_mock_employee import mock_employees, mock_personio
 
 
 @responses.activate

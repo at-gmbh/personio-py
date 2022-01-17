@@ -1,13 +1,14 @@
+import re
 from datetime import date
 
 import pytest
 import responses
-import re
 
-from personio_py import PersonioError, Absence, Employee
-from tests.test_mock_api import mock_personio, compare_labeled_attributes, mock_employees
-from tests.mock_data import json_dict_absence_alan, json_dict_absence_types, json_dict_empty_response,\
-    json_dict_delete_absence, json_dict_absence_alan_first, json_dict_absence_create_no_halfdays, json_dict_get_absence
+from personio_py import Absence, Employee, PersonioError
+from tests.mock_data import json_dict_absence_alan, json_dict_absence_alan_first, \
+    json_dict_absence_create_no_halfdays, json_dict_absence_types, json_dict_delete_absence, \
+    json_dict_empty_response, json_dict_get_absence
+from tests.test_mock_employee import compare_labeled_attributes, mock_employees, mock_personio
 
 
 @responses.activate
