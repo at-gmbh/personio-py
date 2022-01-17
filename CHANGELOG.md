@@ -6,7 +6,19 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## [Unreleased](https://github.com/at-gmbh/personio-py/compare/v0.2.1...HEAD)
 
-* ...
+* The data model was completely rebuilt based on [pydantic](https://pydantic-docs.helpmanual.io/), which makes it easier to work with different data types and allows for a better integration of custom attributes.
+  - aliases are generated for all custom attributes based on their name in Personio
+  - you can assign new values to the custom attribute field or its alias, they are always kept in sync
+* New API endpoints
+  - update employee: update the attributes of an employee
+  - absence balance: retrieve the current absence balance of an employee
+* Updated API Endpoints
+  - create employee: now supports more attributes, including custom attributes
+* Use poetry as build tool and improve the build process (including GitHub Actions)
+* Upgrade Sphinx Documentation Generator and make it more robust
+* Breaking changes:
+  - required Python version: 3.8 or later
+  - custom attributes (previous name: dynamic fields) are now direct attributes of the Employee object. The `dynamic` dict is not available anymore
 
 ## [0.2.1](https://github.com/at-gmbh/personio-py/tree/v0.2.1) - 2021-04-09
 

@@ -89,22 +89,25 @@ This project is released on [PyPI](https://pypi.org/project/personio-py/). Most 
 Completed
 
 * [`POST /auth`](https://developer.personio.de/reference#auth): fully transparent authentication handling
-* [`GET /company/employees`](https://developer.personio.de/reference#get_company-employees): list all employees
-* [`GET /company/employees/{id}`](https://developer.personio.de/reference#get_company-employees-employee-id): get the employee with the specified ID
-* [`GET /company/employees/{id}/profile-picture/{width}`](https://developer.personio.de/reference#get_company-employees-employee-id-profile-picture-width): get the profile picture of the specified employee
-* [`GET /company/attendances`](https://developer.personio.de/reference#get_company-attendances): fetch attendance data for the company employees
-* [`GET /company/time-off-types`](https://developer.personio.de/reference#get_company-time-off-types): get a list of available absences types
-* [`GET /company/time-offs`](https://developer.personio.de/reference#get_company-time-offs): fetch absence data for the company employees
-* [`POST /company/time-offs`](https://developer.personio.de/reference#post_company-time-offs): add absence data for the company employees
-* [`GET /company/time-offs/{id}`](https://developer.personio.de/reference#get_company-time-offs-id): get the absence entry with the specified ID
-* [`DELETE /company/time-offs/{id}`](https://developer.personio.de/reference#delete_company-time-offs-id): delete the absence entry with the specified ID
+* Employees
+  - [`GET /company/employees`](https://developer.personio.de/reference#get_company-employees): list all employees
+  - [`POST /company/employees`](https://developer.personio.de/reference#post_company-employees): create a new employee
+  - [`PATCH /company/employees/{id}`](https://developer.personio.de/reference#patch_company-employees-employee-id): update an existing employee entry
+  - [`GET /company/employees/{id}`](https://developer.personio.de/reference#get_company-employees-employee-id): get the employee with the specified ID
+  - [`GET /company/employees/custom-attributes`](https://developer.personio.de/reference#get_company-employees-custom-attributes): lists all the allowed attributes per API credentials including custom (dynamic) attributes.
+  - [`GET /company/employees/{id}/profile-picture/{width}`](https://developer.personio.de/reference#get_company-employees-employee-id-profile-picture-width): get the profile picture of the specified employee
+* Attendances
+  - [`GET /company/attendances`](https://developer.personio.de/reference#get_company-attendances): fetch attendance data for the company employees
+* Absences
+  - [`GET /company/time-off-types`](https://developer.personio.de/reference#get_company-time-off-types): get a list of available absences types
+  - [`GET /company/time-offs`](https://developer.personio.de/reference#get_company-time-offs): fetch absence data for the company employees
+  - [`POST /company/time-offs`](https://developer.personio.de/reference#post_company-time-offs): add absence data for the company employees
+  - [`DELETE /company/time-offs/{id}`](https://developer.personio.de/reference#delete_company-time-offs-id): delete the absence entry with the specified ID
+  - [`GET /company/time-offs/{id}`](https://developer.personio.de/reference#get_company-time-offs-id): get the absence entry with the specified ID
 
 Work in Progress
 
-* [`POST /company/employees`](https://developer.personio.de/reference#post_company-employees): create a new employee
-* [`PATCH /company/employees/{id}`](https://developer.personio.de/reference#patch_company-employees-employee-id): update an existing employee entry
 * [`GET /company/employees/{employee_id}/absences/balance`](https://developer.personio.de/reference#get_company-employees-employee-id-absences-balance): get the absence balance for a specific employee
-* [`GET /company/employees/custom-attributes`](https://developer.personio.de/reference#get_company-employees-custom-attributes): lists all the allowed attributes per API credentials including custom (dynamic) attributes.
 * [`POST /company/attendances`](https://developer.personio.de/reference#post_company-attendances): add attendance data for the company employees
 * [`DELETE /company/attendances/{id}`](https://developer.personio.de/reference#delete_company-attendances-id): delete the attendance entry with the specified ID
 * [`PATCH /company/attendances/{id}`](https://developer.personio.de/reference#patch_company-attendances-id): update the attendance entry with the specified ID
