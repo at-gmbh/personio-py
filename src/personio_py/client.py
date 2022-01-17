@@ -207,11 +207,9 @@ class Personio:
             # oh noes, something went terribly wrong!
             raise PersonioApiError.from_response(response)
 
-    def update_model(self):
+    def update_model(self, *globals_dicts: Dict):
         """Updates the model based on the state of this Personio client instance."""
-        update_model(self)
-        from personio_py import Employee
-        globals()['Employee'] = Employee
+        update_model(self, globals(), *globals_dicts)
 
     def get_employees(self) -> List[Employee]:
         """

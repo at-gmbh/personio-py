@@ -16,7 +16,7 @@ from personio_py.util import ReadOnlyDict, log_once
 
 if TYPE_CHECKING:
     # the Personio client should only be visible for type checkers to avoid circular imports
-    from personio_py.client import Personio
+    from personio_py import Personio
 
 logger = logging.getLogger('personio_py')
 PersonioResourceType = TypeVar('PersonioResourceType', bound='PersonioResource', covariant=True)
@@ -605,13 +605,15 @@ employee_classes: Dict[str, Type[BaseEmployee]] = {}
 Employee = BaseEmployee
 
 
-def update_model(client: 'Personio'):
+def update_model(client: 'Personio', *globals_dicts: Dict):
     """Updates the model based on the state of the specified client instance.
 
     Note that this will create static references that will be overwritten when the next Personio
     client instance is created.
 
     :param client: the Personio client instance to use for the model update
+    :param globals_dicts: override Employee in the specified globals dicts
+      (useful to update other modules)
     """
     # update the client reference
     g.client = client
@@ -619,9 +621,14 @@ def update_model(client: 'Personio'):
     if client.client_id not in employee_classes:
         cls = BaseEmployee._get_subclass_for_client(client, client.employee_aliases)
         employee_classes[client.client_id] = cls
+    cls = employee_classes[client.client_id]
     # set the Employee subclass for this Personio instance as the new default
     global Employee
-    Employee = employee_classes[client.client_id]
+    Employee = cls
+    # replace the Employee class in the specified globals dict (if available)
+    if globals_dicts:
+        for gd in globals_dicts:
+            gd['Employee'] = cls
     # additionally, we replace the class definition in sys.modules,
     # so that from personio_py import Employee works as expected
-    sys.modules['personio_py'].Employee = employee_classes[client.client_id]
+    sys.modules['personio_py'].Employee = cls
