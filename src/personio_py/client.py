@@ -2,7 +2,6 @@
 Implementation of the Personio API functions
 """
 import logging
-import operator
 import os
 from datetime import date, datetime
 from functools import lru_cache
@@ -14,7 +13,7 @@ from requests import Response
 
 from personio_py import Absence, AbsenceBalance, AbsenceType, Attendance, BaseEmployee, \
     CustomAttribute, Employee, MissingCredentialsError, PersonioApiError, PersonioError, \
-    PersonioResourceType, SearchIndex, update_model
+    PersonioResourceType, SearchIndex, g, update_model
 
 logger = logging.getLogger('personio_py')
 
@@ -43,6 +42,7 @@ class Personio:
         self.authenticated = False
         self.employee_aliases = employee_aliases
         self.search_index = SearchIndex(self)
+        g.client = self
 
     def authenticate(self):
         """
@@ -68,6 +68,7 @@ class Personio:
             token = response.json()['data']['token']
             self.headers['Authorization'] = f"Bearer {token}"
             self.authenticated = True
+            g.client = self
         else:
             raise PersonioApiError.from_response(response)
 
@@ -220,7 +221,7 @@ class Personio:
         """
         self.update_model()
         response = self.request_json('company/employees')
-        employees = [Employee(client=self, **d) for d in response['data']]
+        employees = [Employee(**d) for d in response['data']]
         return employees
 
     def get_employee(self, employee_id: int) -> Employee:
@@ -232,7 +233,7 @@ class Personio:
         """
         self.update_model()
         response = self.request_json(f'company/employees/{employee_id}')
-        employee = Employee(client=self, **response['data'])
+        employee = Employee(**response['data'])
         return employee
 
     def get_employee_picture(self, employee: Union[int, Employee], width: int = None) \
@@ -325,7 +326,7 @@ class Personio:
         return balance
 
     def get_attendances(self, employees: Union[int, List[int], Employee, List[Employee]],
-                        start_date: datetime = None, end_date: datetime = None) -> List[Attendance]:
+                        start_date: date = None, end_date: date = None) -> List[Attendance]:
         """
         Get a list of all attendance records for the employees with the specified IDs
 
@@ -377,7 +378,7 @@ class Personio:
         return absence_types
 
     def get_absences(self, employees: Union[int, List[int], Employee, List[Employee]],
-                     start_date: datetime = None, end_date: datetime = None) -> List[Absence]:
+                     start_date: date = None, end_date: date = None) -> List[Absence]:
         """
         Get a list of all absence records for the employees with the specified IDs.
 
@@ -486,8 +487,8 @@ class Personio:
 
     def _get_employee_metadata(
             self, path: str, resource_cls: Type[PersonioResourceType],
-            employees: Union[int, List[int], Employee, List[Employee]], start_date: datetime = None,
-            end_date: datetime = None) -> List[PersonioResourceType]:
+            employees: Union[int, List[int], Employee, List[Employee]], start_date: date = None,
+            end_date: date = None) -> List[PersonioResourceType]:
         # resolve params to match API requirements
         employees, start_date, end_date = self._normalize_timeframe_params(
             employees, start_date, end_date)
@@ -502,14 +503,13 @@ class Personio:
             response = self.request_paginated(path, params=params)
             data_acc.extend(response['data'])
         # create objects from accumulated API responses
-        parsed_data = [resource_cls(client=self, **d) for d in data_acc]
+        parsed_data = [resource_cls(**d) for d in data_acc]
         return parsed_data
 
     @classmethod
     def _normalize_timeframe_params(
             cls, employees: Union[int, List[int], Employee, List[Employee]],
-            start_date: datetime = None, end_date: datetime = None) \
-            -> Tuple[List[int], datetime, datetime]:
+            start_date: date = None, end_date: date = None) -> Tuple[List[int], date, date]:
         """
         Whenever we need a list of employee IDs, a start date and an end date, this function comes
         in handy:
@@ -526,9 +526,9 @@ class Personio:
         if not employees:
             raise ValueError("need at least one employee ID, got nothing")
         if start_date is None:
-            start_date = datetime(1900, 1, 1)
+            start_date = date(1900, 1, 1)
         if end_date is None:
-            end_date = datetime(datetime.now().year + 10, 1, 1)
+            end_date = date(datetime.now().year + 10, 1, 1)
         if not isinstance(employees, list):
             employees = [employees]
         employee_ids = [(e.id if isinstance(e, BaseEmployee) else e) for e in employees]

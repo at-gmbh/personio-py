@@ -11,7 +11,7 @@ from typing import Any, ClassVar, Dict, List, Optional, TYPE_CHECKING, Tuple, Ty
 
 from pydantic import BaseModel, Extra, Field, PrivateAttr, create_model, validator
 
-from personio_py import PersonioError
+from personio_py import PersonioError, g
 from personio_py.util import ReadOnlyDict, log_once
 
 if TYPE_CHECKING:
@@ -30,11 +30,8 @@ class PersonioResource(BaseModel):
     """the name of this resource type in the Personio API"""
     _flat_dict: ClassVar[bool] = True
     """Indicates if this class has a flat dictionary representation in the Personio API"""
-    _client: ClassVar['Personio'] = None
-    """reference to the API client that created this object (optional)"""
 
-    def __init__(self, client: 'Personio' = None, **kwargs):
-        PersonioResource._client = client
+    def __init__(self, **kwargs):
         if self._is_api_dict(kwargs):
             # smells like a parsed Personio API dict -> extract data
             kwargs = self._get_kwargs_from_api_dict(kwargs)
@@ -98,8 +95,8 @@ class PersonioResource(BaseModel):
 
     @classmethod
     def _get_client(cls, client: 'Personio' = None) -> 'Personio':
-        if client or cls._client:
-            return client or cls._client
+        if client or g.client:
+            return client or g.client
         raise PersonioError(f"no Personio client reference is available, please provide it to "
                             f"your {type(cls).__name__} or as function parameter")
 
@@ -190,8 +187,7 @@ class ShortEmployee(PersonioResource):
     email: Optional[str] = None
 
     def resolve(self, client: 'Personio' = None) -> 'Employee':
-        # TODO adjust
-        client = client or self._client
+        client = client or g.client
         if client:
             return client.get_employee(self.id)
         else:
@@ -430,9 +426,6 @@ class BaseEmployee(PersonioResource):
     team: Optional[Team] = None
     """the team this employee is assigned to"""
 
-    def __init__(self, client: 'Personio' = None, **kwargs):
-        super().__init__(client=client, **kwargs)
-
     @validator('hire_date', 'contract_end_date', 'termination_date', 'probation_period_end',
                'last_working_day', pre=True)
     def _datetime_to_date(cls, v):
@@ -549,7 +542,6 @@ class BaseEmployee(PersonioResource):
         )
         # set class variables
         aliases = aliases or {}
-        employee_cls._client = client
         cls._custom_attribute_keys = [a.key for a in dynamic_attributes]
         cls._custom_attribute_aliases = {
             a.key: aliases.get(a.key) or cls._get_attribute_name_for(a.label)
@@ -621,6 +613,8 @@ def update_model(client: 'Personio'):
 
     :param client: the Personio client instance to use for the model update
     """
+    # update the client reference
+    g.client = client
     # create a subclass of BaseEmployee that contains all custom attributes
     if client.client_id not in employee_classes:
         cls = BaseEmployee._get_subclass_for_client(client, client.employee_aliases)
@@ -631,5 +625,3 @@ def update_model(client: 'Personio'):
     # additionally, we replace the class definition in sys.modules,
     # so that from personio_py import Employee works as expected
     sys.modules['personio_py'].Employee = employee_classes[client.client_id]
-    # set this client instance as static attribute of the employee class
-    PersonioResource._client = client
