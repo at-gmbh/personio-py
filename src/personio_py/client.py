@@ -2,8 +2,9 @@
 Implementation of the Personio API functions
 """
 import logging
+import operator
 import os
-from datetime import datetime
+from datetime import date, datetime
 from functools import lru_cache
 from typing import Any, Dict, List, Optional, Tuple, Type, Union
 from urllib.parse import urljoin
@@ -33,6 +34,11 @@ class Personio:
 
     BASE_URL = "https://api.personio.de/v1/"
     """base URL of the Personio HTTP API"""
+    _create_employee_required = [
+        'email', 'first_name', 'last_name']
+    _create_employee_optional = [
+        'gender', 'position', 'subcompany', ('department.name', 'department'),
+        ('office.name', 'office'), 'hire_date', ('weekly_working_hours', 'weekly_hours')]
 
     def __init__(self, base_url: str = None, client_id: str = None, client_secret: str = None,
                  employee_aliases: Dict[str, str] = None):
@@ -261,25 +267,56 @@ class Personio:
 
     def create_employee(self, employee: Employee, refresh=True) -> Employee:
         """
-        placeholder; not ready to be used
+        Create the specified employee in your Personio instance.
+        Please note that not all attributes are supported by the create employee API of Personio.
+        See https://developer.personio.de/reference#post_company-employees for details.
+
+        :param employee: the employee to create
+        :param refresh: when True (the default), a GET request is executed after the employee
+          was created to request the current state from the server.
+        :return: the created employee
         """
-        # TODO warn about limited selection of fields
-        data = {
-            'employee[email]': employee.email,
-            'employee[first_name]': employee.first_name,
-            'employee[last_name]': employee.last_name,
-            'employee[gender]': employee.gender,
-            'employee[position]': employee.position,
-            'employee[department]': employee.department.name,
-            'employee[hire_date]': employee.hire_date.isoformat()[:10],
-            'employee[weekly_hours]': employee.weekly_working_hours,
-        }
-        response = self.request_json('company/employees', method='POST', data=data)
+        logger.warning(f"creating employee {employee.first_name} {employee.last_name} in Personio. "
+                       f"Please note that not all attributes are supported by the create employee "
+                       f"API of Personio!")
+        self.update_model()
+        # build the dict
+        d = {'employee': {}}
+        d_employee = d['employee']
+        custom_attributes = {}
+        for field in self._create_employee_required:
+            self._add_employee_dict_field(employee, d_employee, field, required=True)
+        for field in self._create_employee_optional:
+            self._add_employee_dict_field(employee, d_employee, field, required=False)
+        for field in Employee._custom_attribute_keys:
+            self._add_employee_dict_field(employee, custom_attributes, field, required=False)
+        if custom_attributes:
+            d_employee['custom_attributes'] = custom_attributes
+        # send the request
+        response = self.request_json('company/employees', method='POST', data=d)
         employee.id = response['data']['id']
         if refresh:
             return self.get_employee(employee.id)
         else:
             return employee
+
+    @classmethod
+    def _add_employee_dict_field(
+            cls, employee: Employee, d: Dict, field: Union[str, Tuple[str, str]], required=False):
+        if isinstance(field, tuple):
+            key_get, key_set = field
+        else:
+            key_get = key_set = field
+        try:
+            value = operator.attrgetter(key_get)(employee)
+        except AttributeError:
+            value = None
+        if value:
+            if isinstance(value, datetime) or isinstance(value, date):
+                value = value.isoformat()[:10]
+            d[key_set] = value
+        elif required:
+            raise PersonioError(f"required field {field} has no value")
 
     def update_employee(self, employee: Employee):
         """

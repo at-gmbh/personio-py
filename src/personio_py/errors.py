@@ -48,7 +48,7 @@ class PersonioApiError(PersonioError):
             error = data.get('error', {})
             code = error.get('code')
             message = error.get('message')
-            error_dict: Dict = error.get('errors')
+            error_dict: Dict = error.get('error_data')
             return PersonioApiError(
                 status_code=response.status_code,
                 message=message,
