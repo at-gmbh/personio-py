@@ -23,7 +23,7 @@ jobs:
         pip install -r requirements.txt
         python setup.py sdist bdist_wheel
         cd dist
-        echo "::set-env name=WHEEL::$(ls *.whl)"
+        echo "WHEEL=`ls *.whl`" >> $GITHUB_ENV
       # create a new draft release (so we only trigger the deployment pipeline after the draft has been published)
     - name: Create Release
       id: create_release

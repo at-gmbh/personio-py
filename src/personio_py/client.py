@@ -13,6 +13,7 @@ from requests import Response
 from personio_py import Absence, AbsenceType, Attendance, DynamicMapping, Employee
 from personio_py.errors import MissingCredentialsError, PersonioApiError, PersonioError
 from personio_py.models import PersonioResource
+from personio_py.search import SearchIndex
 
 logger = logging.getLogger('personio_py')
 
@@ -43,6 +44,7 @@ class Personio:
         self.headers = {'accept': 'application/json'}
         self.authenticated = False
         self.dynamic_fields = dynamic_fields
+        self.search_index = SearchIndex(self)
 
     def authenticate(self):
         """
@@ -161,7 +163,7 @@ class Personio:
         if params is None:
             params = {}
         params['limit'] = limit
-        params['offset'] = 0
+        params['offset'] = 1
         # continue making requests until no more data is returned
         data_acc = []
         while True:
@@ -172,7 +174,7 @@ class Personio:
                 if response['metadata']['current_page'] == response['metadata']['total_pages']:
                     break
                 else:
-                    params['offset'] += len(resp_data)
+                    params['offset'] += 1
             else:
                 break
         # return the accumulated data
@@ -447,6 +449,45 @@ class Personio:
                 raise ValueError("Only an absence with an absence id can be deleted.")
         else:
             raise ValueError("absence must be an Absence object or an integer")
+
+    def search(self, query: str, active_only=True) -> List[Employee]:
+        """
+        Execute a search on the search index.
+
+        If the index does not exist, or has been invalidated or is expired, the full list
+        of employees will be requested from the API.
+
+        During the search we perform a case insensitive match on the keywords in the search index.
+        All tokens of the query will be matched individually. Tokens are separated by whitespace.
+        A full match (i.e. all tokens match the keywords in order) is preferred over
+        a partial match (only one or more tokens match).
+
+        For more details, please refer to :class:`SearchIndex`.
+
+        :param query: the query string
+        :param active_only: exclude inactive employees from the results (default: yes)
+        :return: the list of employees that matches the search query
+        """
+        return self.search_index.search(query, active_only=active_only)
+
+    def search_first(self, query: str, active_only=True) -> Optional[Employee]:
+        """
+        Execute a search on the search index and return the first result (if there is one) or None.
+
+        This is basically the "I'm Feeling Lucky" button.
+        For details about the search function, please refer to :class:`SearchIndex`.
+
+        :param query: the query string
+        :param active_only: exclude inactive employees from the results (default: yes)
+        :return: the first search result or None, if there were no results
+        """
+        return self.search_index.search_first(query, active_only=active_only)
+
+    def invalidate_index(self):
+        """
+        Invalidates the search index. New data will be requested on the next search.
+        """
+        self.search_index.invalidate()
 
     def _get_employee_metadata(
             self, path: str, resource_cls: Type[PersonioResourceType],
