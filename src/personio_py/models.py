@@ -88,6 +88,16 @@ class PersonioResource(BaseModel):
         """custom validator for Personio API objects that converts empty strings to None"""
         return None if v == '' else v
 
+    def __hash__(self):
+        list_fields = [(k, tuple(v)) for k, v in self.__dict__.items() if isinstance(v, list)]
+        if list_fields:
+            list_field_keys, list_field_values = zip(*list_fields)
+            other_values = [v for k, v in self.__dict__.items() if k not in list_field_keys]
+            field_tuple = tuple(list_field_values) + tuple(other_values)
+        else:
+            field_tuple = tuple(self.__dict__.values())
+        return hash((type(self),) + field_tuple)
+
     class Config:
         extra = Extra.ignore
         anystr_strip_whitespace = True
