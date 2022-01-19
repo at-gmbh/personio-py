@@ -1138,6 +1138,10 @@ json_dict_get_absence = json.loads(json_string_get_absence)
 json_string_attendance_rms = """
 {
   "success": true,
+  "metadata":{
+      "current_page":1,
+      "total_pages":1
+  },
   "data": [{
       "id": 33479712,
       "type": "AttendancePeriod",

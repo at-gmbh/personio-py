@@ -11,7 +11,7 @@ from tests.test_mock_api import compare_labeled_attributes, mock_personio
 def test_get_attendance():
     # mock the get absences endpoint (with different array offsets)
     responses.add(
-        responses.GET, re.compile('https://api.personio.de/v1/company/attendances?.*offset=0.*'),
+        responses.GET, re.compile('https://api.personio.de/v1/company/attendances?.*'),
         status=200, json=json_dict_attendance_rms, adding_headers={'Authorization': 'Bearer foo'})
     responses.add(
         responses.GET, re.compile('https://api.personio.de/v1/company/attendances?.*offset=3.*'),
