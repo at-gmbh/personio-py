@@ -690,9 +690,9 @@ class Attendance(WritablePersonioResource):
             if self.date is not None:
                 body_dict['date'] = self.date.strftime("%Y-%m-%d")
             if self.start_time is not None:
-                body_dict['start_time'] = self.start_time
+                body_dict['start_time'] = str(self.start_time)[:-3]
             if self.end_time is not None:
-                body_dict['end_time'] = self.end_time
+                body_dict['end_time'] = str(self.end_time)[:-3]
             if self.break_duration is not None:
                 body_dict['break'] = self.break_duration
             if self.comment is not None:
