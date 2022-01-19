@@ -1186,3 +1186,24 @@ json_string_attendance_rms = """
 }
 """
 json_dict_attendance_rms = json.loads(json_string_attendance_rms)
+
+json_string_attendance_create_no_break = """
+{
+   "success":true,
+   "data":{
+      "id": [83648700],
+      "message": "success"
+   }
+}
+"""
+json_dict_attendance_create_no_break = json.loads(json_string_attendance_create_no_break)
+
+json_string_attendance_patch = """
+{
+   "success":true,
+   "data":{
+      "message": "success"
+   }
+}
+"""
+json_dict_attendance_patch = json.loads(json_string_attendance_patch)

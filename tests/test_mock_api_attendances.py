@@ -3,19 +3,35 @@ import re
 
 from datetime import timedelta, date
 
-from tests.mock_data import json_dict_empty_response, json_dict_attendance_rms
+from personio_py import Attendance, Employee
+
+from tests.mock_data import json_dict_attendance_create_no_break, \
+    json_dict_attendance_rms, json_dict_attendance_patch
 from tests.test_mock_api import compare_labeled_attributes, mock_personio
 
+@responses.activate
+def test_create_attendance():
+    mock_create_attendance()
+    personio = mock_personio()
+    employee = Employee(
+        first_name="Alan",
+        last_name='Turing',
+        email='alan.turing@cetitec.com'
+    )
+    attendance = Attendance(
+        client=personio,
+        employee=employee,
+        date=date(2020, 1, 10),
+        start_time="09:00",
+        end_time="17:00",
+        break_duration=0
+        )
+    attendance.create()
+    assert attendance.id_
 
 @responses.activate
 def test_get_attendance():
-    # mock the get absences endpoint (with different array offsets)
-    responses.add(
-        responses.GET, re.compile('https://api.personio.de/v1/company/attendances?.*'),
-        status=200, json=json_dict_attendance_rms, adding_headers={'Authorization': 'Bearer foo'})
-    responses.add(
-        responses.GET, re.compile('https://api.personio.de/v1/company/attendances?.*offset=3.*'),
-        status=200, json=json_dict_empty_response, adding_headers={'Authorization': 'Bearer bar'})
+    mock_attendances()
     # configure personio & get absences for alan
     personio = mock_personio()
     attendances = personio.get_attendances(2116366)
@@ -34,3 +50,31 @@ def test_get_attendance():
     source_dict = json_dict_attendance_rms['data'][0]
     target_dict = release.to_dict()
     compare_labeled_attributes(source_dict, target_dict)
+    
+@responses.activate
+def test_patch_attendances():
+    mock_attendances()
+    mock_patch_attendance()
+    personio = mock_personio()
+    attendances = personio.get_attendances(2116366)
+    attendance_to_patch = attendances[0]
+    attendance_to_patch.break_duration = 1
+    personio.update_attendance(attendance_to_patch)
+
+    
+
+def mock_attendances():
+    # mock the get absences endpoint (with different array offsets)
+    responses.add(
+        responses.GET, re.compile('https://api.personio.de/v1/company/attendances?.*'),
+        status=200, json=json_dict_attendance_rms, adding_headers={'Authorization': 'Bearer foo'})
+    
+def mock_create_attendance():
+    responses.add(
+        responses.POST,  'https://api.personio.de/v1/company/attendances',
+        status=200, json=json_dict_attendance_create_no_break, adding_headers={'Authorization': 'Bearer bar'})
+    
+def mock_patch_attendance():
+    responses.add(
+        responses.PATCH,  'https://api.personio.de/v1/company/attendances/33479712',
+        status=200, json=json_dict_attendance_patch, adding_headers={'Authorization': 'Bearer bar'})
