@@ -300,10 +300,10 @@ class Personio:
         """
         Create all given attendance records.
 
-        Note: Attendances are created sequentially. This function stops on first error.
-        All attendance records before the error will be created, all records after the error will be skipped.
+        Note: If one or more attendances can not be created, other attendances will be created but
+        their corresponding objects passed as attendances will not be updated.
 
-        :param attendances: A list attendance records to be created.
+        :param attendances: A list of attendance records to be created.
         """
         data_to_send = [attendance.to_body_params(patch_existing_attendance=False) for attendance in attendances]
         response = self.request_json(path='company/attendances', method='POST', data={"attendances": data_to_send})
