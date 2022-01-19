@@ -3,9 +3,8 @@ import re
 
 from datetime import timedelta, date
 
-from tests.mock_data import json_dict_empty_response
+from tests.mock_data import json_dict_empty_response, json_dict_attendance_rms
 from tests.test_mock_api import compare_labeled_attributes, mock_personio
-from tests.test_mock_api_attendances_data import *
 
 
 @responses.activate
