@@ -6,7 +6,7 @@ from datetime import timedelta, date
 from personio_py import Attendance, Employee
 
 from tests.mock_data import json_dict_attendance_create_no_break, \
-    json_dict_attendance_rms, json_dict_attendance_patch
+    json_dict_attendance_rms, json_dict_attendance_patch, json_dict_attendance_delete
 from tests.test_mock_api import compare_labeled_attributes, mock_personio
 
 @responses.activate
@@ -60,6 +60,16 @@ def test_patch_attendances():
     attendance_to_patch = attendances[0]
     attendance_to_patch.break_duration = 1
     personio.update_attendance(attendance_to_patch)
+    
+    
+@responses.activate
+def test_delete_attendances():
+    mock_attendances()
+    mock_delete_attendance()
+    personio = mock_personio()
+    attendances = personio.get_attendances(2116366)
+    attendance_to_delete = attendances[0]
+    personio.delete_attendance(attendance_to_delete)    
 
     
 
@@ -78,3 +88,8 @@ def mock_patch_attendance():
     responses.add(
         responses.PATCH,  'https://api.personio.de/v1/company/attendances/33479712',
         status=200, json=json_dict_attendance_patch, adding_headers={'Authorization': 'Bearer bar'})
+    
+def mock_delete_attendance():
+    responses.add(
+        responses.DELETE,  'https://api.personio.de/v1/company/attendances/33479712',
+        status=200, json=json_dict_attendance_delete, adding_headers={'Authorization': 'Bearer bar'})

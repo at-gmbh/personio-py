@@ -1207,3 +1207,13 @@ json_string_attendance_patch = """
 }
 """
 json_dict_attendance_patch = json.loads(json_string_attendance_patch)
+
+json_string_attendance_delete = """
+{
+   "success":true,
+   "data":{
+      "message": "success"
+   }
+}
+"""
+json_dict_attendance_delete = json.loads(json_string_attendance_delete)
