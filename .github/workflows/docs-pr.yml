@@ -21,7 +21,7 @@ jobs:
     - uses: ammaraskar/sphinx-action@master
       name: Generate Sphinx Documentation
       with:
-        pre-build-command: "pip install sphinx_rtd_theme~=0.4.3 recommonmark~=0.6.0 m2r~=0.2.1"
+        pre-build-command: "pip install -r requirements-dev.txt"
         build-command: "make html"
         docs-folder: "docs/"
     - uses: actions/upload-artifact@v2
