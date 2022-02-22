@@ -354,12 +354,18 @@ class BaseEmployee(PersonioResource):
     _custom_attribute_aliases: ClassVar[Dict[str, str]] = {}
     """mapping from all custom attribute names (starting with 'dynamic_') to their aliases"""
     _property_setters: ClassVar[Dict[str, property]] = {}
+    """a cache of setter functions for all custom attributes"""
     _picture: Optional[bytes] = PrivateAttr(None)
+    """the Employee's picture is cached in this attribute on first request"""
     _api_fields_required: ClassVar[List] = [
         'email', 'first_name', 'last_name']
+    """these are the standard fields that are required by the Employee create/update API"""
     _api_fields_optional: ClassVar[List] = [
         'gender', 'position', 'subcompany', ('department.name', 'department'),
         ('office.name', 'office'), 'hire_date', ('weekly_working_hours', 'weekly_hours')]
+    """these are the standard fields that are supported by the Employee create/update API,
+    but optional. Any other standard fields besides those defined in `_api_fields_required` are
+    not supported and will by ignored by the Personio API"""
 
     id: int = None
     """unique identifier by which Personio refers to this employee"""
@@ -448,6 +454,17 @@ class BaseEmployee(PersonioResource):
         return self._picture
 
     def to_api_dict(self) -> Dict:
+        """
+        Convert this Employee instance to a dictionary in the format expected by the Personio API
+        endpoints to create a new employee or update an existing employee.
+
+        Please note that only a subset of all Employee fields is supported by the create/update API
+        of Personio. These are the fields defined in `Employee._api_fields_required`,
+        `Employee._api_fields_optional` as well as all custom attributes.
+
+        :return: the Employee object as dict, in the format expected by the Personio
+                 create/update API
+        """
         data = {}
         custom_attributes = {}
         for field in self._api_fields_required:
