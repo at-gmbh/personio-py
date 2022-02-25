@@ -1,13 +1,15 @@
+import json
 import re
 from datetime import date, datetime
-from typing import Any
+from functools import lru_cache
+from typing import Any, Dict
 
 import pytest
 import responses
 from pydantic.datetime_parse import parse_duration
 
 from personio_py import Personio, PersonioApiError
-from tests.mock_data import *
+from tests import resource_dir
 
 iso_date_match = re.compile(r'\d\d\d\d-\d\d-\d\d')
 timedelta_match = re.compile(r'\d\d:\d\d')
@@ -44,6 +46,18 @@ def test_authenticate_fail():
         personio.authenticate()
     assert "Wrong credentials" in str(e.value)
     assert personio.authenticated is False
+
+
+@lru_cache(maxsize=None)
+def load_mock_data(file: str) -> Dict:
+    """
+    Load JSON data from the `tests/res` folder
+
+    :param file: name of the file to load
+    :return: the json content of the file as Python dict
+    """
+    with (resource_dir / file).open('r') as fp:
+        return json.load(fp)
 
 
 def mock_personio() -> Personio:

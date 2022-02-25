@@ -5,8 +5,7 @@ import pytest
 import responses
 
 from personio_py import Employee, PersonioError
-from tests.mock_data import load_mock_data
-from tests.test_mock import compare_dates, compare_labeled_attributes, mock_personio
+from tests.test_mock import compare_dates, compare_labeled_attributes, load_mock_data, mock_personio
 
 
 @responses.activate
