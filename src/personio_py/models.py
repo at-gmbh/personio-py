@@ -690,9 +690,9 @@ class Attendance(WritablePersonioResource):
             if self.date is not None:
                 body_dict['date'] = self.date.strftime("%Y-%m-%d")
             if self.start_time is not None:
-                body_dict['start_time'] = str(self.start_time)[:-3]
+                body_dict['start_time'] = DurationFieldMapping.serialize(self.start_time)
             if self.end_time is not None:
-                body_dict['end_time'] = str(self.end_time)[:-3]
+                body_dict['end_time'] = DurationFieldMapping.serialize(self.end_time)
             if self.break_duration is not None:
                 body_dict['break'] = self.break_duration
             if self.comment is not None:
@@ -703,8 +703,8 @@ class Attendance(WritablePersonioResource):
                 {
                     "employee": self.employee_id,
                     "date": self.date.strftime("%Y-%m-%d"),
-                    "start_time": self.start_time,
-                    "end_time": self.end_time,
+                    "start_time": DurationFieldMapping.serialize(self.start_time),
+                    "end_time": DurationFieldMapping.serialize(self.end_time),
                     "break": self.break_duration or 0,
                     "comment": self.comment or ""
                 }

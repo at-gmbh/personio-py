@@ -291,7 +291,8 @@ class Personio:
         :param end_date: only return attendance records up to this date (inclusive, optional)
         :return: list of ``Attendance`` records for the specified employees
         """
-        attendances = self._get_employee_metadata('company/attendances', Attendance, employees, start_date, end_date)
+        attendances = self._get_employee_metadata(
+            'company/attendances', Attendance, employees, start_date, end_date)
         for attendance in attendances:
             attendance._client = self
         return attendances
@@ -305,8 +306,14 @@ class Personio:
 
         :param attendances: A list of attendance records to be created.
         """
-        data_to_send = [attendance.to_body_params(patch_existing_attendance=False) for attendance in attendances]
-        response = self.request_json(path='company/attendances', method='POST', data={"attendances": data_to_send})
+        data_to_send = [
+            attendance.to_body_params(patch_existing_attendance=False) for attendance in attendances
+        ]
+        response = self.request_json(
+            path='company/attendances',
+            method='POST',
+            data={"attendances": data_to_send}
+        )
         if response['success']:
             for i in range(len(attendances)):
                 attendances[i].id_ = response['data']['id'][i]
@@ -318,40 +325,53 @@ class Personio:
         """
         Update an existing attendance record
 
-        Either an attendance id or o remote query is required. Remote queries are only executed if required.
-        An Attendance object returned by get_attendances() include the attendance id. DO NOT SET THE ID YOURSELF.
+        Either an attendance id or o remote query is required. Remote queries are only executed
+        if required. An Attendance object returned by get_attendances() include the attendance id.
+        DO NOT SET THE ID YOURSELF.
 
         :param attendance: The Attendance object holding the new data.
-        :param remote_query_id: Allow a remote query for the id if it is not set within the given Attendance object.
+        :param remote_query_id: Allow a remote query for the id if it is not set within the given
+        Attendance object.
         :raises:
-            ValueError: If a query is required but not allowed or the query does not provide exactly one result.
+            ValueError: If a query is required but not allowed or the query does not provide
+            exactly one result.
         """
         if attendance.id_ is not None:
             # remote query not necessary
-            response = self.request_json(path='company/attendances/' + str(attendance.id_), method='PATCH',
-                                         data=attendance.to_body_params(patch_existing_attendance=True))
+            response = self.request_json(
+                path=f'company/attendances/{attendance.id_}',
+                method='PATCH',
+                data=attendance.to_body_params(patch_existing_attendance=True)
+            )
             return response
         else:
             if remote_query_id:
                 attendance = self.__add_remote_attendance_id(attendance)
                 self.update_attendance(attendance)
             else:
-                raise ValueError("You either need to provide the attendance id or allow a remote query.")
+                raise ValueError(
+                    "You either need to provide the attendance id" +
+                    "or allow a remote query."
+                )
 
     def delete_attendance(self, attendance: Attendance or int, remote_query_id=False):
         """
         Delete an existing record
 
-        Either an attendance id or o remote query is required. Remote queries are only executed if required.
-        An Attendance object returned by get_attendances() include the attendance id. DO NOT SET THE ID YOURSELF.
+        Either an attendance id or o remote query is required. Remote queries are only
+        executed if required. An Attendance object returned by get_attendances() include the
+        attendance id. DO NOT SET THE ID YOURSELF.
 
-        :param attendance: The Attendance object holding the new data or an attendance record id to delete.
-        :param remote_query_id: Allow a remote query for the id if it is not set within the given Attendance object.
+        :param attendance: The Attendance object holding the new data or an attendance record id to
+        delete.
+        :param remote_query_id: Allow a remote query for the id if it is not set within the given
+        Attendance object.
         :raises:
-            ValueError: If a query is required but not allowed or the query does not provide exactly one result.
+            ValueError: If a query is required but not allowed or the query does not provide
+            exactly one result.
         """
         if isinstance(attendance, int):
-            response = self.request_json(path='company/attendances/' + str(attendance), method='DELETE')
+            response = self.request_json(path=f'company/attendances/{attendance}', method='DELETE')
             return response
         elif isinstance(attendance, Attendance):
             if attendance.id_ is not None:
@@ -361,7 +381,10 @@ class Personio:
                     attendance = self.__add_remote_attendance_id(attendance)
                     self.delete_attendance(attendance.id_)
                 else:
-                    raise ValueError("You either need to provide the attendance id or allow a remote query.")
+                    raise ValueError(
+                        "You either need to provide the attendance" +
+                        "id or allow a remote query."
+                    )
         else:
             raise ValueError("attendance must be an Attendance object or an integer")
 
