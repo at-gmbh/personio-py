@@ -7,7 +7,7 @@ import operator
 import sys
 import unicodedata
 from datetime import date, datetime, time, timedelta
-from typing import Any, ClassVar, Dict, List, Optional, TYPE_CHECKING, Tuple, Type, TypeVar, Union
+from typing import TYPE_CHECKING, Any, ClassVar, Dict, List, Optional, Tuple, Type, TypeVar, Union
 
 from pydantic import BaseModel, Extra, Field, PrivateAttr, create_model, validator
 
@@ -47,12 +47,7 @@ class PersonioResource(BaseModel):
         :param d: the dict to inspect
         :return: True, iff the dict has just the keys "type" and "attributes"
         """
-        if 'type' in d and 'attributes' in d:
-            if len(d) == 2:
-                return True
-            elif len(d) == 3 and 'id' in d:
-                return True
-        return False
+        return 'type' in d and 'attributes' in d and (len(d) == 2 or (len(d) == 3 and 'id' in d))
 
     @classmethod
     def _get_kwargs_from_api_dict(cls, d: Dict) -> Dict:
@@ -92,13 +87,6 @@ class PersonioResource(BaseModel):
             d[key_set] = value
         elif required:
             raise PersonioError(f"required field {field} has no value")
-
-    @classmethod
-    def _get_client(cls, client: 'Personio' = None) -> 'Personio':
-        if client or g.client:
-            return client or g.client
-        raise PersonioError(f"no Personio client reference is available, please provide it to "
-                            f"your {type(cls).__name__} or as function parameter")
 
     @validator('*', pre=True)
     def _empty_str_to_none(cls, v):
@@ -186,15 +174,8 @@ class ShortEmployee(PersonioResource):
     last_name: Optional[str] = None
     email: Optional[str] = None
 
-    def resolve(self, client: 'Personio' = None) -> 'Employee':
-        client = client or g.client
-        if client:
-            return client.get_employee(self.id)
-        else:
-            raise PersonioError(
-                f"no Personio client is is available in this {self.__class__.__name__} instance "
-                f"to make a request for the full employee profile of "
-                f"{self.first_name} {self.last_name} ({self.id})")
+    def resolve(self) -> 'Employee':
+        return g.get_client().get_employee(self.id)
 
 
 class Team(PersonioResource):
@@ -257,11 +238,14 @@ class Absence(PersonioResource):
             return v[:10]
         return v
 
-    def create(self, client: 'Personio' = None) -> 'Absence':
-        return self._get_client(client).create_absence(self)
+    def create(self) -> 'Absence':
+        return g.get_client().create_absence(self)
 
-    def delete(self, client: 'Personio' = None):
-        return self._get_client(client).delete_absence(self)
+    def delete(self):
+        return g.get_client().delete_absence(self)
+
+    def get_employee(self):
+        return self.employee.resolve()
 
     def to_api_dict(self) -> Dict:
         data = {}
@@ -286,14 +270,17 @@ class Attendance(PersonioResource):
     is_holiday: Optional[bool] = None
     is_on_time_off: Optional[bool] = None
 
-    def create(self, client: 'Personio' = None):
-        return self._get_client(client).create_attendances(self)
+    def create(self):
+        return g.get_client().create_attendances([self])
 
-    def update(self, client: 'Personio' = None):
-        return self._get_client(client).update_attendance(self)
+    def update(self):
+        return g.get_client().update_attendance(self)
 
-    def delete(self, client: 'Personio' = None):
-        return self._get_client(client).delete_attendance(self)
+    def delete(self):
+        return g.get_client().delete_attendance(self)
+
+    def get_employee(self):
+        return g.get_client().get_employee(self.employee)
 
 
 class AbsenceBalance(PersonioResource):
@@ -439,18 +426,19 @@ class BaseEmployee(PersonioResource):
             return v[:10]
         return v
 
-    def create(self, client: 'Personio' = None, refresh=True) -> 'Employee':
-        return self._get_client(client).create_employee(self, refresh=refresh)
+    def create(self, refresh=True) -> 'Employee':
+        return g.get_client().create_employee(self, refresh=refresh)
 
-    def update(self, client: 'Personio' = None, refresh=True) -> 'Employee':
-        return self._get_client(client).update_employee(self, refresh=refresh)
+    def update(self, refresh=True) -> 'Employee':
+        return g.get_client().update_employee(self, refresh=refresh)
 
-    def absence_balance(self, client: 'Personio' = None) -> List[AbsenceBalance]:
-        return self._get_client(client).get_absence_balance(self)
+    def absence_balance(self) -> List[AbsenceBalance]:
+        return g.get_client().get_absence_balance(self)
 
-    def picture(self, client: 'Personio' = None, width: int = None) -> Optional[bytes]:
+    def picture(self, width: int = None) -> Optional[bytes]:
+        # TODO what about different widths?
         if self._picture is None:
-            self._picture = self._get_client(client).get_employee_picture(self, width=width)
+            self._picture = g.get_client().get_employee_picture(self, width=width)
         return self._picture
 
     def to_api_dict(self) -> Dict:

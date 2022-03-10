@@ -350,13 +350,13 @@ class Personio:
         # in a single request, which can be significantly faster
         raise NotImplementedError()
 
-    def update_attendance(self, attendance_id: int):
+    def update_attendance(self, attendance: Union[Attendance, int]):
         """
         placeholder; not ready to be used
         """
         raise NotImplementedError()
 
-    def delete_attendance(self, attendance_id: int):
+    def delete_attendance(self, attendance: Union[Attendance, int]):
         """
         placeholder; not ready to be used
         """
