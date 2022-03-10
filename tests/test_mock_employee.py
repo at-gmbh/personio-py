@@ -68,6 +68,51 @@ def test_auth_rotation_fail():
 # TODO test employee create/update
 
 
+def test_resource_equality():
+    employee_1 = get_test_employee()
+    employee_2 = get_test_employee()
+    assert id(employee_1) != id(employee_2)
+    assert employee_1 == employee_2
+    assert hash(employee_1) == hash(employee_2)
+
+
+def test_resource_inequality():
+    employee_1 = get_test_employee()
+    employee_2 = employee_1.copy(deep=True)
+    employee_2.id = 42
+    employee_2.first_name = 'Beta'
+    assert employee_1.first_name == 'Ada'
+    assert employee_2.first_name == 'Beta'
+    assert id(employee_1) != id(employee_2)
+    assert employee_1 != employee_2
+    assert hash(employee_1) != hash(employee_2)
+
+
+def test_custom_fields():
+    employee = get_test_employee()
+    # read custom fields
+    assert employee.geburtsland == 'England'
+    assert employee.dynamic_1146702 == 'England'
+    assert employee._custom_fields['dynamic_1146702'] == 'England'
+    assert len([v for v in employee._custom_fields.values() if v]) == 2
+    # write to custom fields and validate
+    employee.geburtsland = 'UK'
+    assert employee.dynamic_1146702 == 'UK'
+    employee.dynamic_1146702 = 'British Empire'
+    assert employee._custom_fields['dynamic_1146702'] == 'British Empire'
+    with pytest.raises(RuntimeError):
+        # writing to _custom_fields would not preserve the value, so it's forbidden
+        employee._custom_fields['dynamic_1146702'] = 'yolo!'
+
+
+@responses.activate
+def get_test_employee() -> Employee:
+    mock_employees()
+    personio = mock_personio()
+    employees = personio.get_employees()
+    return employees[-1]
+
+
 def mock_employees():
     """mock the get employees endpoint"""
     responses.add(
