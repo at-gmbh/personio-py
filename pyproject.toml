@@ -35,7 +35,7 @@ pydantic = "^1.9.0"
 
 [tool.poetry.dev-dependencies]
 # testing
-pytest = "^6.2.5"
+pytest = "^7.0.0"
 pytest-cov = "^3.0.0"
 responses = "^0.16.0"
 # linting

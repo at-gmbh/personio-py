@@ -1,6 +1,6 @@
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.0.1
+    rev: 'v4.1.0'
     hooks:
       - id: check-added-large-files
       - id: check-ast
@@ -12,7 +12,7 @@ repos:
       - id: mixed-line-ending
       - id: trailing-whitespace
   - repo: https://github.com/asottile/pyupgrade
-    rev: v2.29.1
+    rev: 'v2.29.1'
     hooks:
       - id: pyupgrade
         args: [ --py38-plus ]
@@ -20,4 +20,10 @@ repos:
     rev: '4.0.1'
     hooks:
       - id: flake8
-        args: [ '--max-complexity=10', '--max-line-length=100', '--ignore=F401,W504', '--exclude=tests/*' ]
+        args: ['--max-line-length=100', '--ignore=F401,W503']
+        exclude: ^setup.py
+  - repo: https://github.com/pycqa/isort
+    rev: '5.10.1'
+    hooks:
+      - id: isort
+        args: ['--py', '38', '--line-length', '100', '--multi-line', '2']
