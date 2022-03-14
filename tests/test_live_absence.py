@@ -23,9 +23,14 @@ def test_get_absence_types():
 
 @skip_if_no_auth
 def test_get_absences():
+    # get all absences
     employee = connection.get_test_employee()
     absences = personio.get_absences(employee.id)
     assert absences
+    # get a single absence by ID
+    absence_id = absences[0].id
+    absence = personio.get_absence(absence_id)
+    assert absence == absences[0]
 
 
 @skip_if_no_auth
