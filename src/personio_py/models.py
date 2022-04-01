@@ -342,8 +342,9 @@ class BaseEmployee(PersonioResource):
     """mapping from all custom attribute names (starting with 'dynamic_') to their aliases"""
     _property_setters: ClassVar[Dict[str, property]] = {}
     """a cache of setter functions for all custom attributes"""
-    _picture: Optional[bytes] = PrivateAttr(None)
-    """the Employee's picture is cached in this attribute on first request"""
+    _picture: Dict[Union[int, None], bytes] = PrivateAttr(default_factory=dict)
+    """the Employee's picture is cached in this attribute on first request
+    (mapping from image width to image bytes)"""
     _api_fields_required: ClassVar[List] = [
         'email', 'first_name', 'last_name']
     """these are the standard fields that are required by the Employee create/update API"""
@@ -436,10 +437,18 @@ class BaseEmployee(PersonioResource):
         return g.get_client().get_absence_balance(self)
 
     def picture(self, width: int = None) -> Optional[bytes]:
-        # TODO what about different widths?
-        if self._picture is None:
-            self._picture = g.get_client().get_employee_picture(self, width=width)
-        return self._picture
+        """
+        Get the profile picture of this employee as image file (usually png or jpg).
+        The data will be cached locally, so subsequent requests of a profile picture
+        of the same size will be fast.
+
+        :param width: optionally scale the profile picture to this width.
+               Defaults to the original width of the profile picture.
+        :return: the profile picture as png or jpg file (bytes)
+        """
+        if width not in self._picture:
+            self._picture[width] = g.get_client().get_employee_picture(self, width=width)
+        return self._picture[width]
 
     def to_api_dict(self) -> Dict:
         """
