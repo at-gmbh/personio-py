@@ -19,7 +19,7 @@
 >>> absences = p.get_absences(ada)
 >>> len(absences)
 12
->>> absences[0].to_dict()
+>>> dict(absences[0])
 {'id': 42, 'status': 'approved', 'start_date': '2020-08-01', 'end_date': '2020-08-16', ...}
 ```
 
@@ -34,9 +34,9 @@ If something appears to be broken, please have a look at the [open issues](https
 * Aims to cover all functions of the Personio API (work in progress)
 * Python function wrappers for all endpoints of the Personnel Data API as part of the Personio class
 * Object mappings for all API resources, e.g. an Employee is an object with properties for all the information that is provided by the REST API.
-* Completely transparent handling of authentication and key rotation
+* Transparent handling of authentication and key rotation
 * Support for Type Hints
-* Only one dependency: [requests](https://pypi.org/project/requests/)
+* Built with [requests](https://pypi.org/project/requests/) and [pydantic](https://pydantic-docs.helpmanual.io/)
 
 ## Getting Started
 
@@ -94,6 +94,7 @@ Completed
   - [`POST /company/employees`](https://developer.personio.de/reference#post_company-employees): create a new employee
   - [`PATCH /company/employees/{id}`](https://developer.personio.de/reference#patch_company-employees-employee-id): update an existing employee entry
   - [`GET /company/employees/{id}`](https://developer.personio.de/reference#get_company-employees-employee-id): get the employee with the specified ID
+  - [`GET /company/employees/{employee_id}/absences/balance`](https://developer.personio.de/reference#get_company-employees-employee-id-absences-balance): get the absence balance for a specific employee
   - [`GET /company/employees/custom-attributes`](https://developer.personio.de/reference#get_company-employees-custom-attributes): lists all the allowed attributes per API credentials including custom (dynamic) attributes.
   - [`GET /company/employees/{id}/profile-picture/{width}`](https://developer.personio.de/reference#get_company-employees-employee-id-profile-picture-width): get the profile picture of the specified employee
 * Attendances
@@ -107,7 +108,6 @@ Completed
 
 Work in Progress
 
-* [`GET /company/employees/{employee_id}/absences/balance`](https://developer.personio.de/reference#get_company-employees-employee-id-absences-balance): get the absence balance for a specific employee
 * [`POST /company/attendances`](https://developer.personio.de/reference#post_company-attendances): add attendance data for the company employees
 * [`DELETE /company/attendances/{id}`](https://developer.personio.de/reference#delete_company-attendances-id): delete the attendance entry with the specified ID
 * [`PATCH /company/attendances/{id}`](https://developer.personio.de/reference#patch_company-attendances-id): update the attendance entry with the specified ID
@@ -120,7 +120,7 @@ Developed with ❤ at [Alexander Thamm GmbH](https://www.alexanderthamm.com/)
 
 ## License
 
-    Copyright 2020 Alexander Thamm GmbH
+    Copyright 2020-2022 Alexander Thamm GmbH
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
