@@ -3,7 +3,7 @@ from datetime import datetime
 
 import pytest
 
-from personio_py import Department, Employee, PersonioApiError, SearchIndex
+from personio_py import CustomAttribute, Department, Employee, PersonioApiError, SearchIndex
 from tests.connection import get_skipif, get_test_employee, personio
 
 skip_if_no_auth = get_skipif()
@@ -14,6 +14,10 @@ created_employee_id = None
 def test_get_employees():
     employees = personio.get_employees()
     assert employees
+    for employee in employees:
+        assert employee.id
+        assert employee.to_api_dict()
+        serialization_test(employee)
 
 
 @skip_if_no_auth
@@ -42,6 +46,10 @@ def test_get_employee_picture():
 def test_get_custom_attributes():
     attrs = personio.get_custom_attributes()
     assert attrs
+    for attr in attrs:
+        assert isinstance(attr, CustomAttribute)
+        assert attr.key
+        assert isinstance(attr.py_type, type)
 
 
 @skip_if_no_auth
@@ -113,8 +121,8 @@ def test_update_employee():
     tim.weekly_working_hours = '30'
 
     # due to a bug in the personio API, custom attributes are not updated
-    #custom_attr = tim._custom_attribute_keys[-1]
-    #setattr(tim, custom_attr, 'bar')
+    # custom_attr = tim._custom_attribute_keys[-1]
+    # setattr(tim, custom_attr, 'bar')
     # please uncomment the two lines above when it is fixed...
 
     d_before = dict(tim)
@@ -146,6 +154,7 @@ def test_search_index():
 def serialization_test(employee: Employee):
     # reload the Employee class
     from personio_py import Employee
+
     # from/to dict
     d = dict(employee)
     assert d

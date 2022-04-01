@@ -53,7 +53,7 @@ def test_create_absences(half_day_start: bool, half_day_end: bool):
         test_user, start_date=start_date, end_date=end_date,
         half_day_start=half_day_start, half_day_end=half_day_end)
     assert absence.id is None
-    absence = absence.create(personio)
+    absence = absence.create()
     assert absence.id
     remote_absence = personio.get_absence(absence=absence)
     assert remote_absence.half_day_start is half_day_start
@@ -88,7 +88,7 @@ def test_get_absences_from_absence_object_without_id():
 
 
 @skip_if_no_auth
-def test_delete_absences_from_model_no_client():
+def test_delete_absences_from_model():
     test_user = get_test_employee()
     delete_all_absences_of_employee(test_user)
     absence = create_absence_for_user(test_user, create=True)
@@ -112,7 +112,7 @@ def test_delete_absences_from_client_object_with_id():
 
 
 @skip_if_no_auth
-def test_delete_absences_from_client_object_with_no_id():
+def test_delete_absences_from_client_object_without_id():
     test_user = get_test_employee()
     delete_all_absences_of_employee(test_user)
     absence = create_absence_for_user(test_user, create=True)
@@ -156,7 +156,7 @@ def create_absence_for_user(
         comment=comment
     )
     if create:
-        absence.create(personio)
+        absence.create()
     return absence
 
 
