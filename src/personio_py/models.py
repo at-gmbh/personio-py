@@ -366,12 +366,14 @@ class AbsenceType(PersonioResource):
     _field_mapping_list = [
         NumericFieldMapping('id', 'id_', int),
         FieldMapping('name', 'name', str),
+        FieldMapping('category', 'category', str)
     ]
 
-    def __init__(self, id_: int = None, name: str = None, **kwargs):
+    def __init__(self, id_: int = None, name: str = None, category: str = None, **kwargs):
         super().__init__(**kwargs)
         self.id_ = id_
         self.name = name
+        self.category = category
 
     def to_dict(self, nested=False) -> Dict[str, Any]:
         if nested:
@@ -561,6 +563,7 @@ class Absence(WritablePersonioResource):
         FieldMapping('created_by', 'created_by', str),
         ObjectFieldMapping('certificate', 'certificate', Certificate),
         DateTimeFieldMapping('created_at', 'created_at'),
+        DateTimeFieldMapping('updated_at', 'updated_at'),
     ]
 
     def __init__(self,
@@ -580,6 +583,7 @@ class Absence(WritablePersonioResource):
                  created_by: str = None,
                  certificate: Certificate = None,
                  created_at: datetime = None,
+                 updated_at: datetime = None,
                  **kwargs):
         super().__init__(client=client, dynamic=dynamic, dynamic_raw=dynamic_raw, **kwargs)
         self.id_ = id_
@@ -595,6 +599,7 @@ class Absence(WritablePersonioResource):
         self.created_by = created_by
         self.certificate = certificate
         self.created_at = created_at
+        self.updated_at = updated_at
 
     def _create(self, client: 'Personio' = None):
         return get_client(self, client).create_absence(self)
