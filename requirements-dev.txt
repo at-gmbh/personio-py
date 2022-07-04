@@ -10,9 +10,11 @@ flake8>=3.0
 bandit>=1.6.0
 
 # documentation
-sphinx~=3.1.2
-sphinx_rtd_theme~=0.5.0
-recommonmark~=0.6.0
+Sphinx~=4.3.2
+sphinx-rtd-theme~=1.0.0
+recommonmark~=0.7.1
+docutils==0.16
+mistune==0.8.4
 m2r~=0.2.1
 
 # publishing
