@@ -3,28 +3,32 @@ name: docs-verify
 on:
   pull_request:
     branches:
-    - master
+      - master
     paths:
-    # on documentation change (changelog & contribution guidlines are a part of that)
-    - 'docs/**'
-    - 'CHANGELOG.md'
-    - 'CONTRIBUTING.md'
-    # also when docstrings in the source code change
-    - 'src/**'
+      # on documentation change (changelog & contribution guidlines are a part of that)
+      - 'docs/**'
+      - 'CHANGELOG.md'
+      - 'CONTRIBUTING.md'
+      # also when docstrings in the source code change
+      - 'src/**'
 
 jobs:
   docs:
     name: Generate Sphinx Docs
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
-    - uses: ammaraskar/sphinx-action@master
-      name: Generate Sphinx Documentation
-      with:
-        pre-build-command: "pip install -r requirements-dev.txt"
-        build-command: make html SPHINXOPTS="-W --keep-going"
-        docs-folder: "docs/"
-    - uses: actions/upload-artifact@v2
-      with:
-        name: sphinx-docs
-        path: docs/build/html/
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
+        with:
+          python-version: '3.10'
+      - name: Install dependencies
+        run: |
+          pip install -r requirements-dev.txt
+      - name: Generate Sphinx Documentation
+        run: |
+          cd docs
+          make html SPHINXOPTS="-W --keep-going"
+      - uses: actions/upload-artifact@v2
+        with:
+          name: sphinx-docs
+          path: docs/build/html/
