@@ -6,11 +6,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## [Unreleased](https://github.com/at-gmbh/personio-py/compare/v0.2.2...HEAD)
 
-* Upgrade Sphinx and fix CI job ([#27](https://github.com/at-gmbh/personio-py/pull/27))
 
 ## [0.2.2](https://github.com/at-gmbh/personio-py/tree/v0.2.2) - 2022-07-04
 
 * add new fields: 'updated_at' and 'category' to the Absence and AbsenceType classes
+* Upgrade Sphinx and fix CI job ([#27](https://github.com/at-gmbh/personio-py/pull/27))
 
 ## [0.2.1](https://github.com/at-gmbh/personio-py/tree/v0.2.1) - 2021-04-09
 
