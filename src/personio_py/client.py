@@ -383,9 +383,8 @@ class Personio:
         An absence id is required.
 
         :param absence: The Absence object holding
-        the new data or an absence record id to delete.
-        :raises:
-            ValueError: If a query is required but not allowed
+            the new data or an absence record id to delete.
+        :raises ValueError: If a query is required but not allowed
             or the query does not provide exactly one result.
         """
         if isinstance(absence, int):
