@@ -97,9 +97,9 @@ Available
 * [`GET /company/time-offs/{id}`](https://developer.personio.de/reference#get_company-time-offs-id): get the absence entry with the specified ID
 * [`DELETE /company/time-offs/{id}`](https://developer.personio.de/reference#delete_company-time-offs-id): delete the absence entry with the specified ID
 * [`GET /company/attendances/projects`](https://developer.personio.de/reference/get_company-attendances-projects): fetch projects for attendances
-* [`POST /company/attendances/projects`](https://developer.personio.de/reference/post_company-attendances-projects): create a project for attendence
-* [`DELETE /company/attendances/projects`](https://developer.personio.de/reference/delete_company-attendances-projects-id): delete a project for attendence
-* [`PATCH /company/attendances/projects/{id}`](https://developer.personio.de/reference/patch_company-attendances-projects-id): update a project for attendence
+* [`POST /company/attendances/projects`](https://developer.personio.de/reference/post_company-attendances-projects): create a project for attendance
+* [`DELETE /company/attendances/projects`](https://developer.personio.de/reference/delete_company-attendances-projects-id): delete a project for attendance
+* [`PATCH /company/attendances/projects/{id}`](https://developer.personio.de/reference/patch_company-attendances-projects-id): update a project for attendance
 
 
 Work in Progress
