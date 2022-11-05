@@ -31,5 +31,6 @@ from .models import (
     ShortEmployee,
     Team,
     WorkSchedule,
+    Project
 )
 from personio_py.client import Personio
