@@ -21,7 +21,7 @@ def test_create_attendance():
     attendance = Attendance(
         client=personio,
         employee=employee,
-        date=date(2020, 1, 10),
+        #date=date(2020, 1, 10),
         start_time="09:00",
         end_time="17:00",
         break_duration=0
@@ -50,7 +50,7 @@ def test_get_attendance():
     source_dict = json_dict_attendance_rms['data'][0]
     target_dict = release.to_dict()
     compare_labeled_attributes(source_dict, target_dict)
-    
+
 @responses.activate
 def test_patch_attendances():
     mock_attendances()
@@ -60,8 +60,8 @@ def test_patch_attendances():
     attendance_to_patch = attendances[0]
     attendance_to_patch.break_duration = 1
     personio.update_attendance(attendance_to_patch)
-    
-    
+
+
 @responses.activate
 def test_delete_attendances():
     mock_attendances()
@@ -69,26 +69,26 @@ def test_delete_attendances():
     personio = mock_personio()
     attendances = personio.get_attendances(2116366)
     attendance_to_delete = attendances[0]
-    personio.delete_attendance(attendance_to_delete)    
+    personio.delete_attendance(attendance_to_delete)
 
-    
+
 
 def mock_attendances():
     # mock the get absences endpoint (with different array offsets)
     responses.add(
         responses.GET, re.compile('https://api.personio.de/v1/company/attendances?.*'),
         status=200, json=json_dict_attendance_rms, adding_headers={'Authorization': 'Bearer foo'})
-    
+
 def mock_create_attendance():
     responses.add(
         responses.POST,  'https://api.personio.de/v1/company/attendances',
         status=200, json=json_dict_attendance_create_no_break, adding_headers={'Authorization': 'Bearer bar'})
-    
+
 def mock_patch_attendance():
     responses.add(
         responses.PATCH,  'https://api.personio.de/v1/company/attendances/33479712',
         status=200, json=json_dict_attendance_patch, adding_headers={'Authorization': 'Bearer bar'})
-    
+
 def mock_delete_attendance():
     responses.add(
         responses.DELETE,  'https://api.personio.de/v1/company/attendances/33479712',
