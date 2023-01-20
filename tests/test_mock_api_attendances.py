@@ -22,8 +22,6 @@ def test_create_attendance():
         client=personio,
         employee=employee,
         date=date(2020, 1, 10),
-        #start_time = "09:00",
-        #end_time = "17:00"
         start_time = timedelta(hours=datetime.strptime("09:00", "%H:%M").hour, minutes=datetime.strptime("09:00", "%H:%M").minute),
         end_time = timedelta(hours=datetime.strptime("17:00", "%H:%M").hour, minutes=datetime.strptime("17:00", "%H:%M").minute),
         break_duration=0
