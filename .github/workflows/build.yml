@@ -4,7 +4,7 @@ on:
   push:
     branches:
     - master
-    - -branch_test
+    - branch_test
     paths-ignore:
     - 'docs/**'
     - '*.md'
