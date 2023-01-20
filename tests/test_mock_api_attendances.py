@@ -1,7 +1,7 @@
 import responses
 import re
 
-from datetime import timedelta, date
+from datetime import timedelta, date, datetime
 
 from personio_py import Attendance, Employee
 
@@ -21,9 +21,11 @@ def test_create_attendance():
     attendance = Attendance(
         client=personio,
         employee=employee,
-        #date=date(2020, 1, 10),
-        start_time="09:00",
-        end_time="17:00",
+        date=date(2020, 1, 10),
+        #start_time = "09:00",
+        #end_time = "17:00",
+        start_time=timedelta(hours=datetime.strptime("09:00", "%H:%M").hour, minutes=datetime.strptime("09:00", "%H:%M").minute),
+        end_time=timedelta(hours=datetime.strptime("17:00", "%H:%M").hour, minutes=datetime.strptime("17:00", "%H:%M").minute),
         break_duration=0
         )
     attendance.create()

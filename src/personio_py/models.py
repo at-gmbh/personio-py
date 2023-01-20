@@ -703,8 +703,8 @@ class Attendance(WritablePersonioResource):
                 {
                     "employee": self.employee_id,
                     "date": self.date.strftime("%Y-%m-%d"),
-                    "start_time": DurationFieldMapping.serialize(self.start_time),
-                    "end_time": DurationFieldMapping.serialize(self.end_time),
+                    "start_time": DurationFieldMapping.serialize(self, self.start_time),
+                    "end_time": DurationFieldMapping.serialize(self, self.end_time),
                     "break": self.break_duration or 0,
                     "comment": self.comment or ""
                 }
