@@ -721,7 +721,7 @@ json_string_attendance_rms = """
 {
   "success": true,
   "metadata":{
-        "current_page":1,
+        "current_page":0,
         "total_pages":1
     },
   "data": [{
@@ -1147,3 +1147,34 @@ json_string_get_absence = """
    }
 }"""
 json_dict_get_absence = json.loads(json_string_get_absence)
+
+json_string_attendance_create_no_break = """
+{
+   "success":true,
+   "data":{
+      "id": [83648700],
+      "message": "success"
+   }
+}
+"""
+json_dict_attendance_create_no_break = json.loads(json_string_attendance_create_no_break)
+
+json_string_attendance_patch = """
+{
+   "success":true,
+   "data":{
+      "message": "success"
+   }
+}
+"""
+json_dict_attendance_patch = json.loads(json_string_attendance_patch)
+
+json_string_attendance_delete = """
+{
+   "success":true,
+   "data":{
+      "message": "success"
+   }
+}
+"""
+json_dict_attendance_delete = json.loads(json_string_attendance_delete)

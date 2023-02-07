@@ -27,3 +27,7 @@ skip_if_no_auth = pytest.mark.skipif(not can_authenticate, reason="Personio auth
 @lru_cache(maxsize=1)
 def get_test_employee():
     return personio.get_employees()[0]
+
+@lru_cache(maxsize=1)
+def get_test_employee_for_attendances():
+    return personio.get_employee(13603465)
