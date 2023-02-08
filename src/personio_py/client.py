@@ -160,17 +160,16 @@ class Personio:
                A higher limit means fewer requests will be made (though there is an upper bound
                that is enforced on the server side)
         :param offset: Pagination attribute to identify which page number you are requesting
-        starts from 1 for absences. 
+        starts from 1 for absences.
         :return: the parsed json response, when the request was successful, or a PersonioApiError
         """
         if self.ATTENDANCE_URL == path:
             return self.request_paginated_attendance(path, method, params,
-            data, auth_rotation, limit, offset=0)
+                                                     data, auth_rotation, limit, offset=0)
         elif self.ABSENCE_URL == path:
             return self.request_paginated_absence(path, method, params,
-            data, auth_rotation, limit, offset=1)
-         
-    
+                                                  data, auth_rotation, limit, offset=1)
+
     def request_paginated_absence(
             self, path: str, method='GET', params: Dict[str, Any] = None,
             data: Dict[str, Any] = None, auth_rotation=True, limit=200, offset=1) -> Dict[str, Any]:
@@ -191,14 +190,14 @@ class Personio:
                A higher limit means fewer requests will be made (though there is an upper bound
                that is enforced on the server side)
         :param offset: Pagination attribute to identify which page number you are requesting
-        starts from 1 for absences. 
+        starts from 1 for absences.
         :return: the parsed json response, when the request was successful, or a PersonioApiError
         """
         # prepare the params dict (need limit and offset as parameters)
         if params is None:
             params = {}
         params['limit'] = limit
-        params['offset'] = offset 
+        params['offset'] = offset
         # continue making requests until no more data is returned
         data_acc = []
         while True:
@@ -215,7 +214,7 @@ class Personio:
         # return the accumulated data
         response['data'] = data_acc
         return response
-    
+
     def request_paginated_attendance(
             self, path: str, method='GET', params: Dict[str, Any] = None,
             data: Dict[str, Any] = None, auth_rotation=True, limit=200, offset=0) -> Dict[str, Any]:
@@ -249,7 +248,7 @@ class Personio:
         while True:
             response = self.request_json(path, method, params, data, auth_rotation=auth_rotation)
             resp_data = response['data']
-            if resp_data:              
+            if resp_data:
                 # if response['metadata']['current_page'] == response['metadata']['total_pages']:
                 if params['offset'] >= response['metadata']['total_elements']:
                     break
@@ -396,9 +395,9 @@ class Personio:
             data={"attendances": data_to_send}
         )
         if response['success']:
-            for i in range(len(attendances)):
-                attendances[i].id_ = response['data']['id'][i]
-                attendances[i].client = self
+            for attendance, response_id in zip(attendances, response['data']['id']):
+                attendance.id_ = response_id
+                attendance.client = self
             return True
         return False
 
@@ -434,9 +433,7 @@ class Personio:
             #         "You either need to provide the attendance id" +
             #         "or allow a remote query."
             #     )
-            raise ValueError(
-                        "You need to provide the attendance id"
-                    )
+            raise ValueError("You need to provide the attendance id")
 
     def delete_attendance(self, attendance: Attendance or int, remote_query_id=False):
         """
@@ -455,7 +452,8 @@ class Personio:
             exactly one result.
         """
         if isinstance(attendance, int):
-            response = self.request_json(path=f'{self.ATTENDANCE_URL}/{attendance}', method='DELETE')
+            response = self.request_json(path=f'{self.ATTENDANCE_URL}/{attendance}',
+                                         method='DELETE')
             return response
         elif isinstance(attendance, Attendance):
             if attendance.id_ is not None:
@@ -469,9 +467,7 @@ class Personio:
                 #         "You either need to provide the attendance" +
                 #         "id or allow a remote query."
                 #     )
-                raise ValueError(
-                        "You need to provide the attendance id"
-                    )
+                raise ValueError("You need to provide the attendance id")
         else:
             raise ValueError("attendance must be an Attendance object or an integer")
 

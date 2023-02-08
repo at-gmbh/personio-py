@@ -714,6 +714,7 @@ class Attendance(WritablePersonioResource):
                     "comment": self.comment or ""
                 }
 
+
 class Employee(WritablePersonioResource, LabeledAttributesMixin):
 
     _api_type_name = "Employee"
