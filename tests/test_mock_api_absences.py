@@ -159,21 +159,21 @@ def mock_absence_types():
 def mock_absences():
     # mock the get absences endpoint (with different array offsets)
     responses.add(
-        responses.GET, re.compile('https://api.personio.de/v1/company/time-offs?.*offset=0.*'),
+        responses.GET, re.compile('https://api.personio.de/v1/company/time-offs?.*offset=1.*'),
         status=200, json=json_dict_absence_alan, adding_headers={'Authorization': 'Bearer foo'})
 
 
 def mock_single_absences():
     # mock the get absences endpoint (with different array offsets)
     responses.add(
-        responses.GET, re.compile('https://api.personio.de/v1/company/time-offs?.*offset=0.*'),
+        responses.GET, re.compile('https://api.personio.de/v1/company/time-offs?.*offset=1.*'),
         status=200, json=json_dict_absence_alan_first, adding_headers={'Authorization': 'Bearer foo'})
 
 
 def mock_no_absences():
     # mock the get absences endpoint
     responses.add(
-        responses.GET, re.compile('https://api.personio.de/v1/company/time-offs?.*offset=0.*'),
+        responses.GET, re.compile('https://api.personio.de/v1/company/time-offs?.*offset=1.*'),
         status=200, json=json_dict_empty_response, adding_headers={'Authorization': 'Bearer bar'})
 
 
