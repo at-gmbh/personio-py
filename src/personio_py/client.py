@@ -35,6 +35,8 @@ class Personio:
 
     BASE_URL = "https://api.personio.de/v1/"
     """base URL of the Personio HTTP API"""
+    ATTENDANCE_URL = 'company/attendances'
+    ABSENCE_URL = 'company/time-offs'
 
     def __init__(self, base_url: str = None, client_id: str = None, client_secret: str = None,
                  dynamic_fields: List[DynamicMapping] = None):
@@ -157,13 +159,46 @@ class Personio:
         :param limit: the max. number of items to return in response to a single request.
                A higher limit means fewer requests will be made (though there is an upper bound
                that is enforced on the server side)
+        :param offset: Pagination attribute to identify which page number you are requesting
+        starts from 1 for absences. 
+        :return: the parsed json response, when the request was successful, or a PersonioApiError
+        """
+        if self.ATTENDANCE_URL == path:
+            return self.request_paginated_attendance(path, method, params,
+            data, auth_rotation, limit, offset=0)
+        elif self.ABSENCE_URL == path:
+            return self.request_paginated_absence(path, method, params,
+            data, auth_rotation, limit, offset=1)
+         
+    
+    def request_paginated_absence(
+            self, path: str, method='GET', params: Dict[str, Any] = None,
+            data: Dict[str, Any] = None, auth_rotation=True, limit=200, offset=1) -> Dict[str, Any]:
+        """
+        Make a request against the Personio API, expecting a json response that may be paginated,
+        i.e. not all results might have been returned after the first request. Will continue
+        to make requests until no more results are provided by the Personio API.
+        Returns the parsed json response as dictionary. Will raise a PersonioApiError if the
+        request fails.
+
+        :param path: the URL path for this request (relative to the Personio API base URL)
+        :param method: the HTTP request method (default: GET)
+        :param params: dictionary of URL parameters (optional)
+        :param data: dictionary of data to send in the request body (optional)
+        :param auth_rotation: set to True, if authentication keys should be rotated
+               during this request (default: True for json requests)
+        :param limit: the max. number of items to return in response to a single request.
+               A higher limit means fewer requests will be made (though there is an upper bound
+               that is enforced on the server side)
+        :param offset: Pagination attribute to identify which page number you are requesting
+        starts from 1 for absences. 
         :return: the parsed json response, when the request was successful, or a PersonioApiError
         """
         # prepare the params dict (need limit and offset as parameters)
         if params is None:
             params = {}
         params['limit'] = limit
-        params['offset'] = 0
+        params['offset'] = offset 
         # continue making requests until no more data is returned
         data_acc = []
         while True:
@@ -171,10 +206,56 @@ class Personio:
             resp_data = response['data']
             if resp_data:
                 data_acc.extend(resp_data)
-                if response['metadata']['current_page'] == response['metadata']['total_pages'] - 1:
+                if response['metadata']['current_page'] == response['metadata']['total_pages']:
                     break
                 else:
                     params['offset'] += 1
+            else:
+                break
+        # return the accumulated data
+        response['data'] = data_acc
+        return response
+    
+    def request_paginated_attendance(
+            self, path: str, method='GET', params: Dict[str, Any] = None,
+            data: Dict[str, Any] = None, auth_rotation=True, limit=200, offset=0) -> Dict[str, Any]:
+        """
+        Make a request against the Personio API, expecting a json response that may be paginated,
+        i.e. not all results might have been returned after the first request. Will continue
+        to make requests until no more results are provided by the Personio API.
+        Returns the parsed json response as dictionary. Will raise a PersonioApiError if the
+        request fails.
+
+        :param path: the URL path for this request (relative to the Personio API base URL)
+        :param method: the HTTP request method (default: GET)
+        :param params: dictionary of URL parameters (optional)
+        :param data: dictionary of data to send in the request body (optional)
+        :param auth_rotation: set to True, if authentication keys should be rotated
+               during this request (default: True for json requests)
+        :param limit: the max. number of items to return in response to a single request.
+               A higher limit means fewer requests will be made (though there is an upper bound
+               that is enforced on the server side)
+        :param offset: For attendences it's an offset from the first record that
+        would be returned and starts from 0.
+        :return: the parsed json response, when the request was successful, or a PersonioApiError
+        """
+        # prepare the params dict (need limit and offset as parameters)
+        if params is None:
+            params = {}
+        params['limit'] = limit
+        params['offset'] = offset
+        # continue making requests until no more data is returned
+        data_acc = []
+        while True:
+            response = self.request_json(path, method, params, data, auth_rotation=auth_rotation)
+            resp_data = response['data']
+            if resp_data:              
+                # if response['metadata']['current_page'] == response['metadata']['total_pages']:
+                if params['offset'] >= response['metadata']['total_elements']:
+                    break
+                else:
+                    data_acc.extend(resp_data)
+                    params['offset'] += limit
             else:
                 break
         # return the accumulated data
@@ -292,7 +373,7 @@ class Personio:
         :return: list of ``Attendance`` records for the specified employees
         """
         attendances = self._get_employee_metadata(
-            'company/attendances', Attendance, employees, start_date, end_date)
+            self.ATTENDANCE_URL, Attendance, employees, start_date, end_date)
         for attendance in attendances:
             attendance._client = self
         return attendances
@@ -310,7 +391,7 @@ class Personio:
             attendance.to_body_params(patch_existing_attendance=False) for attendance in attendances
         ]
         response = self.request_json(
-            path='company/attendances',
+            path=self.ATTENDANCE_URL,
             method='POST',
             data={"attendances": data_to_send}
         )
@@ -339,7 +420,7 @@ class Personio:
         if attendance.id_ is not None:
             # remote query not necessary
             response = self.request_json(
-                path=f'company/attendances/{attendance.id_}',
+                path=f'{self.ATTENDANCE_URL}/{attendance.id_}',
                 method='PATCH',
                 data=attendance.to_body_params(patch_existing_attendance=True)
             )
@@ -374,7 +455,7 @@ class Personio:
             exactly one result.
         """
         if isinstance(attendance, int):
-            response = self.request_json(path=f'company/attendances/{attendance}', method='DELETE')
+            response = self.request_json(path=f'{self.ATTENDANCE_URL}/{attendance}', method='DELETE')
             return response
         elif isinstance(attendance, Attendance):
             if attendance.id_ is not None:
@@ -424,7 +505,7 @@ class Personio:
         :return: list of ``Absence`` records for the specified employees
         """
         return self._get_employee_metadata(
-            'company/time-offs', Absence, employees, start_date, end_date)
+            self.ABSENCE_URL, Absence, employees, start_date, end_date)
 
     def get_absence(self, absence: Union[Absence, int]) -> Absence:
         """
@@ -433,7 +514,7 @@ class Personio:
         :param absence: The absence id to fetch.
         """
         if isinstance(absence, int):
-            response = self.request_json(f'company/time-offs/{absence}')
+            response = self.request_json(f'{self.ABSENCE_URL}/{absence}')
             return Absence.from_dict(response['data'], self)
         else:
             if absence.id_:
@@ -450,7 +531,7 @@ class Personio:
         :raises PersonioError: If the absence could not be created on the Personio servers
         """
         data = absence.to_body_params()
-        response = self.request_json('company/time-offs', method='POST', data=data)
+        response = self.request_json(self.ABSENCE_URL, method='POST', data=data)
         if response['success']:
             absence.id_ = response['data']['attributes']['id']
             return absence
@@ -468,7 +549,7 @@ class Personio:
             or the query does not provide exactly one result.
         """
         if isinstance(absence, int):
-            response = self.request_json(path=f'company/time-offs/{absence}', method='DELETE')
+            response = self.request_json(path=f'{self.ABSENCE_URL}/{absence}', method='DELETE')
             return response['success']
         elif isinstance(absence, Absence):
             if absence.id_ is not None:

@@ -721,6 +721,7 @@ json_string_attendance_rms = """
 {
   "success": true,
   "metadata":{
+        "total_elements": 3,
         "current_page":0,
         "total_pages":1
     },
@@ -773,7 +774,8 @@ json_string_absence_alan = """
 {
   "success": true,
      "metadata":{
-        "current_page":1,
+       "total_elements": 3,
+        "current_page":0,
         "total_pages":1
    },
   "data": [{
@@ -927,7 +929,7 @@ json_string_absence_alan_single = """
 {
  "success": true,
     "metadata":{
-        "current_page":1,
+        "current_page":0,
         "total_pages":1
    },
   "data": [{
@@ -987,7 +989,7 @@ json_string_absence_types = """
 {
   "success": true,
      "metadata":{
-        "current_page":1,
+        "current_page":0,
         "total_pages":1
    },
   "data": [{
@@ -1021,7 +1023,7 @@ json_string_delete_absence = """
 {
     "success": true,
        "metadata":{
-        "current_page":1,
+        "current_page":0,
         "total_pages":1
    },
     "data": {
@@ -1035,7 +1037,7 @@ json_string_absence_create_no_halfdays = """
 {
    "success":true,
       "metadata":{
-        "current_page":1,
+        "current_page":0,
         "total_pages":1
    },
    "data":{
@@ -1094,7 +1096,7 @@ json_string_get_absence = """
 {
    "success":true,
    "metadata":{
-        "current_page":1,
+        "current_page":0,
         "total_pages":1
    },
    "data":{
