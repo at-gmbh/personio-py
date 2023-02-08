@@ -404,13 +404,13 @@ class Personio:
         """
         Update an existing attendance record
 
-        Either an attendance id or o remote query is required. Remote queries are only executed
+        Either an attendance id or a remote query is required. Remote queries are only executed
         if required. An Attendance object returned by get_attendances() include the attendance id.
         DO NOT SET THE ID YOURSELF.
 
         :param attendance: The Attendance object holding the new data.
         :param remote_query_id: Allow a remote query for the id if it is not set within the given
-        Attendance object.
+               Attendance object.
         :raises ValueError: If a query is required but not allowed or
                 the query does not provide exactly one result.
         """
@@ -442,9 +442,9 @@ class Personio:
         attendance id. DO NOT SET THE ID YOURSELF.
 
         :param attendance: The Attendance object holding the new data or an attendance record id to
-        delete.
+               delete.
         :param remote_query_id: Allow a remote query for the id if it is not set within the given
-        Attendance object.
+               Attendance object.
         :raises ValueError: If a query is required but not allowed
                 or the query does not provide exactly one result.
         """
