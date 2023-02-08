@@ -140,9 +140,9 @@ class Personio:
         else:
             raise PersonioApiError.from_response(response)
 
-    def request_paginated(
-            self, path: str, method='GET', params: Dict[str, Any] = None,
-            data: Dict[str, Any] = None, auth_rotation=True, limit=200) -> Dict[str, Any]:
+    def request_paginated(self, path: str, method='GET', params: Dict[str, Any] = None,
+                          data: Dict[str, Any] = None, auth_rotation=True, limit=200
+                          ) -> Dict[str, Any]:
         """
         Make a request against the Personio API, expecting a json response that may be paginated,
         i.e. not all results might have been returned after the first request. Will continue
@@ -170,9 +170,9 @@ class Personio:
             return self.request_paginated_absence(path, method, params,
                                                   data, auth_rotation, limit, offset=1)
 
-    def request_paginated_absence(
-            self, path: str, method='GET', params: Dict[str, Any] = None,
-            data: Dict[str, Any] = None, auth_rotation=True, limit=200, offset=1) -> Dict[str, Any]:
+    def request_paginated_absence(self, path: str, method='GET', params: Dict[str, Any] = None,
+                                  data: Dict[str, Any] = None, auth_rotation=True, limit=200,
+                                  offset=1) -> Dict[str, Any]:
         """
         Make a request against the Personio API, expecting a json response that may be paginated,
         i.e. not all results might have been returned after the first request. Will continue
@@ -215,9 +215,9 @@ class Personio:
         response['data'] = data_acc
         return response
 
-    def request_paginated_attendance(
-            self, path: str, method='GET', params: Dict[str, Any] = None,
-            data: Dict[str, Any] = None, auth_rotation=True, limit=200, offset=0) -> Dict[str, Any]:
+    def request_paginated_attendance(self, path: str, method='GET', params: Dict[str, Any] = None,
+                                     data: Dict[str, Any] = None, auth_rotation=True, limit=200,
+                                     offset=0) -> Dict[str, Any]:
         """
         Make a request against the Personio API, expecting a json response that may be paginated,
         i.e. not all results might have been returned after the first request. Will continue
@@ -291,7 +291,7 @@ class Personio:
         """
         Get a list of all employee records in your account.
         Does not involve pagination.
-        
+
         :return: list of ``Employee`` instances
         """
         response = self.request_json('company/employees')
@@ -302,7 +302,7 @@ class Personio:
         """
         Get a single employee with the specified ID.
         Does not involve pagination.
-        
+
         :param employee_id: the Personio ID of the employee to fetch
         :return: an ``Employee`` instance or a PersonioApiError, if the employee does not exist
         """
@@ -414,8 +414,8 @@ class Personio:
         :param remote_query_id: Allow a remote query for the id if it is not set within the given
         Attendance object.
         :raises:
-            ValueError: If a query is required but not allowed or the query does not provide
-            exactly one result.
+        ValueError: If a query is required but not allowed or the query does not provide
+        exactly one result.
         """
         if attendance.id_ is not None:
             # remote query not necessary
@@ -449,8 +449,8 @@ class Personio:
         :param remote_query_id: Allow a remote query for the id if it is not set within the given
         Attendance object.
         :raises:
-            ValueError: If a query is required but not allowed or the query does not provide
-            exactly one result.
+        ValueError: If a query is required but not allowed or the query does not provide exactly
+        one result.
         """
         if isinstance(attendance, int):
             response = self.request_json(path=f'{self.ATTENDANCE_URL}/{attendance}',
