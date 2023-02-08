@@ -249,7 +249,6 @@ class Personio:
             response = self.request_json(path, method, params, data, auth_rotation=auth_rotation)
             resp_data = response['data']
             if resp_data:
-                # if response['metadata']['current_page'] == response['metadata']['total_pages']:
                 if params['offset'] >= response['metadata']['total_elements']:
                     break
                 else:
@@ -291,7 +290,8 @@ class Personio:
     def get_employees(self) -> List[Employee]:
         """
         Get a list of all employee records in your account.
-
+        Does not involve pagination.
+        
         :return: list of ``Employee`` instances
         """
         response = self.request_json('company/employees')
@@ -301,7 +301,8 @@ class Personio:
     def get_employee(self, employee_id: int) -> Employee:
         """
         Get a single employee with the specified ID.
-
+        Does not involve pagination.
+        
         :param employee_id: the Personio ID of the employee to fetch
         :return: an ``Employee`` instance or a PersonioApiError, if the employee does not exist
         """
