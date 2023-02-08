@@ -159,8 +159,6 @@ class Personio:
         :param limit: the max. number of items to return in response to a single request.
                A higher limit means fewer requests will be made (though there is an upper bound
                that is enforced on the server side)
-        :param offset: Pagination attribute to identify which page number you are requesting
-        starts from 1 for absences.
         :return: the parsed json response, when the request was successful, or a PersonioApiError
         """
         if self.ATTENDANCE_URL == path:
@@ -190,7 +188,7 @@ class Personio:
                A higher limit means fewer requests will be made (though there is an upper bound
                that is enforced on the server side)
         :param offset: Pagination attribute to identify which page number you are requesting
-        starts from 1 for absences.
+               starts from 1 for absences.
         :return: the parsed json response, when the request was successful, or a PersonioApiError
         """
         # prepare the params dict (need limit and offset as parameters)
@@ -235,7 +233,7 @@ class Personio:
                A higher limit means fewer requests will be made (though there is an upper bound
                that is enforced on the server side)
         :param offset: For attendences it's an offset from the first record that
-        would be returned and starts from 0.
+               would be returned and starts from 0.
         :return: the parsed json response, when the request was successful, or a PersonioApiError
         """
         # prepare the params dict (need limit and offset as parameters)
@@ -413,9 +411,8 @@ class Personio:
         :param attendance: The Attendance object holding the new data.
         :param remote_query_id: Allow a remote query for the id if it is not set within the given
         Attendance object.
-        :raises:
-        ValueError: If a query is required but not allowed or the query does not provide
-        exactly one result.
+        :raises ValueError: If a query is required but not allowed or
+                the query does not provide exactly one result.
         """
         if attendance.id_ is not None:
             # remote query not necessary
@@ -448,9 +445,8 @@ class Personio:
         delete.
         :param remote_query_id: Allow a remote query for the id if it is not set within the given
         Attendance object.
-        :raises:
-        ValueError: If a query is required but not allowed or the query does not provide exactly
-        one result.
+        :raises ValueError: If a query is required but not allowed
+                or the query does not provide exactly one result.
         """
         if isinstance(attendance, int):
             response = self.request_json(path=f'{self.ATTENDANCE_URL}/{attendance}',
@@ -541,9 +537,9 @@ class Personio:
         An absence id is required.
 
         :param absence: The Absence object holding
-            the new data or an absence record id to delete.
+               the new data or an absence record id to delete.
         :raises ValueError: If a query is required but not allowed
-            or the query does not provide exactly one result.
+                or the query does not provide exactly one result.
         """
         if isinstance(absence, int):
             response = self.request_json(path=f'{self.ABSENCE_URL}/{absence}', method='DELETE')
