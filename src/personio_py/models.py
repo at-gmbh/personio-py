@@ -633,7 +633,9 @@ class Project(WritablePersonioResource):
     ]
 
     def __init__(self, client: 'Personio' = None, dynamic: Dict[str, Any] = None,
-                 dynamic_raw: List['DynamicAttr'] = None, id_: int = None, name: str = None, active: bool = None, created_at: datetime = None, updated_at: datetime = None, **kwargs):
+                 dynamic_raw: List['DynamicAttr'] = None, id_: int = None, name: str = None,
+                 active: bool = None, created_at: datetime = None, updated_at: datetime = None,
+                 **kwargs):
         super().__init__(client=client, dynamic=dynamic, dynamic_raw=dynamic_raw, **kwargs)
         self.id_ = id_
         self.name = name
