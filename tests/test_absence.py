@@ -25,7 +25,8 @@ absence_dict = {
         },
         'created_by': 'Ada Lovelace',
         'certificate': {'status': 'not-required'},
-        'created_at': '1835-12-01T13:15:00+00:00'
+        'created_at': '1835-12-01T13:15:00+00:00',
+        'updated_at': '1836-12-01T13:15:00+00:00',
     }
 }
 

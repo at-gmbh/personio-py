@@ -791,7 +791,8 @@ json_string_absence_alan = """
           "type": "TimeOffType",
           "attributes": {
             "id": 195824,
-            "name": "vacation"
+            "name": "vacation",
+            "category": "vacation"
           }
         },
         "employee": {
@@ -819,7 +820,8 @@ json_string_absence_alan = """
         "certificate": {
           "status": "not-required"
         },
-        "created_at": "2020-08-21T18:07:06+02:00"
+        "created_at": "2020-08-21T18:07:06+02:00",
+        "updated_at": "2021-01-17T10:32:18+01:00"
       }
     }, {
       "type": "TimeOffPeriod",
@@ -836,7 +838,8 @@ json_string_absence_alan = """
           "type": "TimeOffType",
           "attributes": {
             "id": 195824,
-            "name": "vacation"
+            "name": "vacation",
+            "category": "vacation"
           }
         },
         "employee": {
@@ -864,7 +867,8 @@ json_string_absence_alan = """
         "certificate": {
           "status": "not-required"
         },
-        "created_at": "2020-08-21T18:06:02+02:00"
+        "created_at": "2020-08-21T18:06:02+02:00",
+        "updated_at": "2021-01-17T11:32:18+01:00"
       }
     }, {
       "type": "TimeOffPeriod",
@@ -881,7 +885,8 @@ json_string_absence_alan = """
           "type": "TimeOffType",
           "attributes": {
             "id": 195824,
-            "name": "vacation"
+            "name": "vacation",
+            "type": "vacation"
           }
         },
         "employee": {
@@ -909,7 +914,8 @@ json_string_absence_alan = """
         "certificate": {
           "status": "not-required"
         },
-        "created_at": "2020-08-21T18:05:04+02:00"
+        "created_at": "2020-08-21T18:05:04+02:00",
+        "updated_at": "2021-01-18T10:32:18+01:00"
       }
     }
   ]
@@ -939,7 +945,8 @@ json_string_absence_alan_single = """
           "type": "TimeOffType",
           "attributes": {
             "id": 195824,
-            "name": "vacation"
+            "name": "vacation",
+            "category": "vacation"
           }
         },
         "employee": {
@@ -967,7 +974,8 @@ json_string_absence_alan_single = """
         "certificate": {
           "status": "not-required"
         },
-        "created_at": "2020-08-21T18:07:06+02:00"
+        "created_at": "2020-08-21T18:07:06+02:00",
+        "updated_at": "2021-02-17T10:32:18+01:00"
       }
     }
     ]
@@ -986,19 +994,22 @@ json_string_absence_types = """
       "type": "TimeOffType",
       "attributes": {
         "id": 195824,
-        "name": "vacation"
+        "name": "vacation",
+        "category": "vacation"
       }
     }, {
       "type": "TimeOffType",
       "attributes": {
         "id": 195825,
-        "name": "paid leave"
+        "name": "paid leave",
+        "category": "paid leave"
       }
     }, {
       "type": "TimeOffType",
       "attributes": {
         "id": 195826,
-        "name": "sick"
+        "name": "sick",
+        "category": "sick"
       }
     }
   ]
@@ -1042,8 +1053,8 @@ json_string_absence_create_no_halfdays = """
             "type":"TimeOffType",
             "attributes":{
                "id":243402,
-               "name":"Unpaid vacation",
-               "category":"unpaid_vacation"
+               "name": "Unpaid vacation",
+               "category": "unpaid_vacation"
             }
          },
          "employee":{
@@ -1071,7 +1082,8 @@ json_string_absence_create_no_halfdays = """
          "certificate":{
             "status":"not-required"
          },
-         "created_at":"2020-12-01T18:24:11+01:00"
+         "created_at": "2020-12-01T18:24:11+01:00",
+         "updated_at": "2021-04-17T10:32:18+01:00"
       }
    }
 }
@@ -1129,7 +1141,8 @@ json_string_get_absence = """
          "certificate":{
             "status":"not-required"
          },
-         "created_at":"2020-12-02T17:28:34+01:00"
+         "created_at": "2020-12-02T17:28:34+01:00",
+         "updated_at": "2022-04-17T10:32:18+01:00"
       }
    }
 }"""
