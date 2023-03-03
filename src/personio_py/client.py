@@ -169,7 +169,7 @@ class Personio:
             url_type = 'attendance'
         else:
             raise ValueError(f"Invalid path: {path}")
-
+        
         if params is None:
             params = {}
         params['limit'] = limit
@@ -196,7 +196,7 @@ class Personio:
         # return the accumulated data
         response['data'] = data_acc
         return response
-
+        
     def request_image(self, path: str, method='GET', params: Dict[str, Any] = None,
                       auth_rotation=False) -> Optional[bytes]:
         """
