@@ -161,103 +161,42 @@ class Personio:
                that is enforced on the server side)
         :return: the parsed json response, when the request was successful, or a PersonioApiError
         """
-        if self.ATTENDANCE_URL == path:
-            return self.request_paginated_attendance(path, method, params,
-                                                     data, auth_rotation, limit, offset=0)
-        elif self.ABSENCE_URL == path:
-            return self.request_paginated_absence(path, method, params,
-                                                  data, auth_rotation, limit, offset=1)
-
-    def request_paginated_absence(self, path: str, method='GET', params: Dict[str, Any] = None,
-                                  data: Dict[str, Any] = None, auth_rotation=True, limit=200,
-                                  offset=1) -> Dict[str, Any]:
-        """
-        Make a request against the Personio API, expecting a json response that may be paginated,
-        i.e. not all results might have been returned after the first request. Will continue
-        to make requests until no more results are provided by the Personio API.
-        Returns the parsed json response as dictionary. Will raise a PersonioApiError if the
-        request fails.
-
-        :param path: the URL path for this request (relative to the Personio API base URL)
-        :param method: the HTTP request method (default: GET)
-        :param params: dictionary of URL parameters (optional)
-        :param data: dictionary of data to send in the request body (optional)
-        :param auth_rotation: set to True, if authentication keys should be rotated
-               during this request (default: True for json requests)
-        :param limit: the max. number of items to return in response to a single request.
-               A higher limit means fewer requests will be made (though there is an upper bound
-               that is enforced on the server side)
-        :param offset: Pagination attribute to identify which page number you are requesting
-               starts from 1 for absences.
-        :return: the parsed json response, when the request was successful, or a PersonioApiError
-        """
-        # prepare the params dict (need limit and offset as parameters)
+        if self.ABSENCE_URL == path:
+            offset = 1
+            url_type = 'absence'
+        elif self.ATTENDANCE_URL == path:
+            offset = 0
+            url_type = 'attendance'           
+        else:
+            raise ValueError(f"Invalid path: {path}")
+        
         if params is None:
             params = {}
         params['limit'] = limit
         params['offset'] = offset
-        # continue making requests until no more data is returned
         data_acc = []
         while True:
             response = self.request_json(path, method, params, data, auth_rotation=auth_rotation)
-            resp_data = response['data']
+            resp_data = response.get('data')
             if resp_data:
-                data_acc.extend(resp_data)
-                if response['metadata']['current_page'] == response['metadata']['total_pages']:
-                    break
-                else:
-                    params['offset'] += 1
-            else:
-                break
-        # return the accumulated data
-        response['data'] = data_acc
-        return response
-
-    def request_paginated_attendance(self, path: str, method='GET', params: Dict[str, Any] = None,
-                                     data: Dict[str, Any] = None, auth_rotation=True, limit=200,
-                                     offset=0) -> Dict[str, Any]:
-        """
-        Make a request against the Personio API, expecting a json response that may be paginated,
-        i.e. not all results might have been returned after the first request. Will continue
-        to make requests until no more results are provided by the Personio API.
-        Returns the parsed json response as dictionary. Will raise a PersonioApiError if the
-        request fails.
-
-        :param path: the URL path for this request (relative to the Personio API base URL)
-        :param method: the HTTP request method (default: GET)
-        :param params: dictionary of URL parameters (optional)
-        :param data: dictionary of data to send in the request body (optional)
-        :param auth_rotation: set to True, if authentication keys should be rotated
-               during this request (default: True for json requests)
-        :param limit: the max. number of items to return in response to a single request.
-               A higher limit means fewer requests will be made (though there is an upper bound
-               that is enforced on the server side)
-        :param offset: For attendences it's an offset from the first record that
-               would be returned and starts from 0.
-        :return: the parsed json response, when the request was successful, or a PersonioApiError
-        """
-        # prepare the params dict (need limit and offset as parameters)
-        if params is None:
-            params = {}
-        params['limit'] = limit
-        params['offset'] = offset
-        # continue making requests until no more data is returned
-        data_acc = []
-        while True:
-            response = self.request_json(path, method, params, data, auth_rotation=auth_rotation)
-            resp_data = response['data']
-            if resp_data:
-                if params['offset'] >= response['metadata']['total_elements']:
-                    break
-                else:
+                if url_type == 'absence':
                     data_acc.extend(resp_data)
-                    params['offset'] += limit
+                    if response['metadata']['current_page'] == response['metadata']['total_pages']:
+                        break
+                    else:
+                        params['offset'] += 1
+                elif url_type == 'attendance':    
+                    if params['offset'] >= response['metadata']['total_elements']:
+                        break
+                    else:
+                        data_acc.extend(resp_data)
+                        params['offset'] += limit
             else:
                 break
         # return the accumulated data
         response['data'] = data_acc
         return response
-
+        
     def request_image(self, path: str, method='GET', params: Dict[str, Any] = None,
                       auth_rotation=False) -> Optional[bytes]:
         """
