@@ -340,38 +340,40 @@ class Personio:
         return False
 
     def update_attendance(self, attendance: Attendance, remote_query_id=False):
+    def update_attendance(self, attendance: Attendance, remote_query_id=False):
         """
         Update an existing attendance record
 
-        Either an attendance id or a remote query is required. Remote queries are only executed
+        Either an attendance id or o remote query is required. Remote queries are only executed
         if required. An Attendance object returned by get_attendances() include the attendance id.
         DO NOT SET THE ID YOURSELF.
 
         :param attendance: The Attendance object holding the new data.
         :param remote_query_id: Allow a remote query for the id if it is not set within the given
-               Attendance object.
-        :raises ValueError: If a query is required but not allowed or
-                the query does not provide exactly one result.
+        Attendance object.
+        :raises:
+            ValueError: If a query is required but not allowed or the query does not provide
+            exactly one result.
         """
         if attendance.id_ is not None:
             # remote query not necessary
             response = self.request_json(
-                path=f'{self.ATTENDANCE_URL}/{attendance.id_}',
+                path=f'company/attendances/{attendance.id_}',
                 method='PATCH',
                 data=attendance.to_body_params(patch_existing_attendance=True)
             )
             return response
         else:
-            # if remote_query_id:
-            #     attendance = self.__add_remote_attendance_id(attendance)
-            #     self.update_attendance(attendance)
-            # else:
-            #     raise ValueError(
-            #         "You either need to provide the attendance id" +
-            #         "or allow a remote query."
-            #     )
-            raise ValueError("You need to provide the attendance id")
+            if remote_query_id:
+                attendance = self.__add_remote_attendance_id(attendance)
+                self.update_attendance(attendance)
+            else:
+                raise ValueError(
+                    "You either need to provide the attendance id" +
+                    "or allow a remote query."
+                )
 
+    def delete_attendance(self, attendance: Attendance or int, remote_query_id=False):
     def delete_attendance(self, attendance: Attendance or int, remote_query_id=False):
         """
         Delete an existing record
@@ -381,29 +383,28 @@ class Personio:
         attendance id. DO NOT SET THE ID YOURSELF.
 
         :param attendance: The Attendance object holding the new data or an attendance record id to
-               delete.
+        delete.
         :param remote_query_id: Allow a remote query for the id if it is not set within the given
-               Attendance object.
-        :raises ValueError: If a query is required but not allowed
-                or the query does not provide exactly one result.
+        Attendance object.
+        :raises:
+            ValueError: If a query is required but not allowed or the query does not provide
+            exactly one result.
         """
         if isinstance(attendance, int):
-            response = self.request_json(path=f'{self.ATTENDANCE_URL}/{attendance}',
-                                         method='DELETE')
+            response = self.request_json(path=f'company/attendances/{attendance}', method='DELETE')
             return response
         elif isinstance(attendance, Attendance):
             if attendance.id_ is not None:
                 return self.delete_attendance(attendance.id_)
             else:
-                # if remote_query_id:
-                #     attendance = self.__add_remote_attendance_id(attendance)
-                #     self.delete_attendance(attendance.id_)
-                # else:
-                #     raise ValueError(
-                #         "You either need to provide the attendance" +
-                #         "id or allow a remote query."
-                #     )
-                raise ValueError("You need to provide the attendance id")
+                if remote_query_id:
+                    attendance = self.__add_remote_attendance_id(attendance)
+                    self.delete_attendance(attendance.id_)
+                else:
+                    raise ValueError(
+                        "You either need to provide the attendance" +
+                        "id or allow a remote query."
+                    )
         else:
             raise ValueError("attendance must be an Attendance object or an integer")
 
