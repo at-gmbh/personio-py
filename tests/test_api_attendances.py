@@ -6,15 +6,27 @@ from datetime import datetime
 
 
 @skip_if_no_auth
+def test_get_attendances():
+    employee = get_test_employee_for_attendances()
+    attendances = personio.get_attendances(employee)
+    assert len(attendances) == 11
+    assert isinstance(attendances[0], Attendance)
+    assert attendances[0].id_ == 162804610
+    assert attendances[0].employee_id == employee.id_
+    assert attendances[0]._client == personio
+
+
+@skip_if_no_auth
 def test_create_attendances():
     employee_id = get_test_employee().id_
     employee = personio.get_employee(employee_id)
     delete_all_attendances_for_employee(employee)
     attendances = personio.get_attendances([employee_id])
     assert len(attendances) == 0
-    create_attendance_for_user(employee_id, create=True)
+    created_attendance = create_attendance_for_user(employee_id, create=True)
     attendances = personio.get_attendances([employee_id])
     assert len(attendances) == 1
+    personio.delete_attendance(created_attendance.id_)
 
 
 @skip_if_no_auth
@@ -40,42 +52,6 @@ def test_delete_attendance_from_client_object_with_id():
 
 
 @skip_if_no_auth
-def test_delete_attendance_from_client_object_no_id_query():
-    employee_id = get_test_employee().id_
-    employee = personio.get_employee(employee_id)
-    delete_all_attendances_for_employee(employee)
-    attendance = create_attendance_for_user(employee_id, create=True)
-    assert len(personio.get_attendances([employee_id])) == 1
-    attendance.id_ = None
-    personio.delete_attendance(attendance, remote_query_id=True)
-    assert len(personio.get_attendances([employee_id])) == 0
-
-
-@skip_if_no_auth
-def test_delete_attendance_from_client_object_no_id_no_query():
-    employee_id = get_test_employee().id_
-    employee = personio.get_employee(employee_id)
-    delete_all_attendances_for_employee(employee)
-    attendance = create_attendance_for_user(employee_id, create=True)
-    assert len(personio.get_attendances([employee_id])) == 1
-    attendance.id_ = None
-    with pytest.raises(ValueError):
-        personio.delete_attendance(attendance, remote_query_id=False)
-
-
-@skip_if_no_auth
-def test_delete_attendance_from_model_no_client():
-    employee_id = get_test_employee().id_
-    employee = personio.get_employee(employee_id)
-    delete_all_attendances_for_employee(employee)
-    attendance = create_attendance_for_user(employee_id, create=True)
-    assert len(personio.get_attendances([employee_id])) == 1
-    attendance.delete()
-    with pytest.raises(PersonioApiError):
-        personio.delete_attendance(attendance, remote_query_id=False)
-
-
-@skip_if_no_auth
 def test_delete_attendance_from_model_passed_client():
     employee_id = get_test_employee().id_
     employee = personio.get_employee(employee_id)
@@ -93,43 +69,9 @@ def test_delete_attendance_from_model_with_client():
     delete_all_attendances_for_employee(employee)
     attendance = create_attendance_for_user(employee_id, create=True)
     assert len(personio.get_attendances([employee_id])) == 1
-    attendance.client = personio
+    attendance._client = personio
     attendance.delete()
     assert len(personio.get_attendances([employee_id])) == 0
-
-
-@skip_if_no_auth
-def test_add_attendance_id():
-    employee_id = get_test_employee().id_
-    employee = personio.get_employee(employee_id)
-    delete_all_attendances_for_employee(employee)
-    attendance = create_attendance_for_user(employee_id, create=True)
-    attendance_id = attendance.id_
-    attendance_date = attendance.date
-    attendance.id_ = None
-    assert attendance.id_ is None
-    personio._Personio__add_remote_attendance_id(attendance)
-    assert attendance.id_ == attendance_id
-
-    # Test error conditions
-    attendance.id_ = None
-    attendance.employee_id = None
-    with pytest.raises(ValueError):
-        personio._Personio__add_remote_attendance_id(attendance)
-    attendance.employee_id = employee_id
-    attendance.date = None
-    with pytest.raises(ValueError):
-        personio._Personio__add_remote_attendance_id(attendance)
-    attendance.date = attendance_date
-    attendance.id_ = attendance_id
-    attendance.delete(personio)
-    with pytest.raises(ValueError):
-        personio._Personio__add_remote_attendance_id(attendance)
-    attendance_1 = create_attendance_for_user(employee_id, start_time="08:00", end_time="12:00", create=True)
-    attendance_2 = create_attendance_for_user(employee_id, start_time="13:00", end_time="17:00", create=True)
-    attendance_1.id_ = None
-    with pytest.raises(ValueError):
-        personio._Personio__add_remote_attendance_id(attendance_1)
 
 
 def delete_all_attendances_for_employee(employee: Employee):

@@ -672,11 +672,11 @@ class Attendance(WritablePersonioResource):
     def _create(self, client: 'Personio'):
         get_client(self, client).create_attendances([self])
 
-    def _update(self, client: 'Personio', allow_remote_query: bool = False):
-        get_client(self, client).update_attendance(self, remote_query_id=allow_remote_query)
+    def _update(self, client: 'Personio'):
+        get_client(self, client).update_attendance(self)
 
-    def _delete(self, client: 'Personio', allow_remote_query: bool = False):
-        get_client(self, client).delete_attendance(self, remote_query_id=allow_remote_query)
+    def _delete(self, client: 'Personio'):
+        get_client(self, client).delete_attendance(self)
 
     def to_body_params(self, patch_existing_attendance=False):
         """
@@ -695,24 +695,21 @@ class Attendance(WritablePersonioResource):
             if self.date is not None:
                 body_dict['date'] = self.date.strftime("%Y-%m-%d")
             if self.start_time is not None:
-                body_dict['start_time'] = DurationFieldMapping.serialize(self.start_time)
+                body_dict['start_time'] = str(self.start_time)
             if self.end_time is not None:
-                body_dict['end_time'] = DurationFieldMapping.serialize(self.end_time)
+                body_dict['end_time'] = str(self.end_time)
             if self.break_duration is not None:
                 body_dict['break'] = self.break_duration
             if self.comment is not None:
                 body_dict['comment'] = self.comment
             return body_dict
         else:
-            return \
-                {
-                    "employee": self.employee_id,
+            return {"employee": self.employee_id,
                     "date": self.date.strftime("%Y-%m-%d"),
-                    "start_time": DurationFieldMapping.serialize(self.start_time),
-                    "end_time": DurationFieldMapping.serialize(self.end_time),
+                    "start_time": self.start_time,
+                    "end_time": self.end_time,
                     "break": self.break_duration or 0,
-                    "comment": self.comment or ""
-                }
+                    "comment": self.comment or ""}
 
 
 class Employee(WritablePersonioResource, LabeledAttributesMixin):

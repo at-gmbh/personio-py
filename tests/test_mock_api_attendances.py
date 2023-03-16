@@ -50,7 +50,7 @@ def test_get_attendance():
     source_dict = json_dict_attendance_rms['data'][0]
     target_dict = release.to_dict()
     compare_labeled_attributes(source_dict, target_dict)
-    
+
 @responses.activate
 def test_patch_attendances():
     mock_attendances()
@@ -60,8 +60,7 @@ def test_patch_attendances():
     attendance_to_patch = attendances[0]
     attendance_to_patch.break_duration = 1
     personio.update_attendance(attendance_to_patch)
-    
-    
+
 @responses.activate
 def test_delete_attendances():
     mock_attendances()
@@ -70,8 +69,6 @@ def test_delete_attendances():
     attendances = personio.get_attendances(2116366)
     attendance_to_delete = attendances[0]
     personio.delete_attendance(attendance_to_delete)    
-
-    
 
 def mock_attendances():
     # mock the get absences endpoint (with different array offsets)

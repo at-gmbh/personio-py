@@ -35,6 +35,8 @@ class Personio:
 
     BASE_URL = "https://api.personio.de/v1/"
     """base URL of the Personio HTTP API"""
+    ATTENDANCE_URL = 'company/attendances'
+    ABSENCE_URL = 'company/time-offs'
 
     def __init__(self, base_url: str = None, client_id: str = None, client_secret: str = None,
                  dynamic_fields: List[DynamicMapping] = None):
@@ -138,9 +140,9 @@ class Personio:
         else:
             raise PersonioApiError.from_response(response)
 
-    def request_paginated(
-            self, path: str, method='GET', params: Dict[str, Any] = None,
-            data: Dict[str, Any] = None, auth_rotation=True, limit=200) -> Dict[str, Any]:
+    def request_paginated(self, path: str, method='GET', params: Dict[str, Any] = None,
+                          data: Dict[str, Any] = None, auth_rotation=True, limit=200
+                          ) -> Dict[str, Any]:
         """
         Make a request against the Personio API, expecting a json response that may be paginated,
         i.e. not all results might have been returned after the first request. Will continue
@@ -159,22 +161,36 @@ class Personio:
                that is enforced on the server side)
         :return: the parsed json response, when the request was successful, or a PersonioApiError
         """
-        # prepare the params dict (need limit and offset as parameters)
+        if self.ABSENCE_URL == path:
+            offset = 1
+            url_type = 'absence'
+        elif self.ATTENDANCE_URL == path:
+            offset = 0
+            url_type = 'attendance'
+        else:
+            raise ValueError(f"Invalid path: {path}")
+
         if params is None:
             params = {}
         params['limit'] = limit
-        params['offset'] = 1
-        # continue making requests until no more data is returned
+        params['offset'] = offset
         data_acc = []
         while True:
             response = self.request_json(path, method, params, data, auth_rotation=auth_rotation)
-            resp_data = response['data']
+            resp_data = response.get('data')
             if resp_data:
-                data_acc.extend(resp_data)
-                if response['metadata']['current_page'] == response['metadata']['total_pages']:
-                    break
-                else:
-                    params['offset'] += 1
+                if url_type == 'absence':
+                    data_acc.extend(resp_data)
+                    if response['metadata']['current_page'] == response['metadata']['total_pages']:
+                        break
+                    else:
+                        params['offset'] += 1
+                elif url_type == 'attendance':
+                    if params['offset'] >= response['metadata']['total_elements']:
+                        break
+                    else:
+                        data_acc.extend(resp_data)
+                        params['offset'] += limit
             else:
                 break
         # return the accumulated data
@@ -211,6 +227,7 @@ class Personio:
     def get_employees(self) -> List[Employee]:
         """
         Get a list of all employee records in your account.
+        Does not involve pagination.
 
         :return: list of ``Employee`` instances
         """
@@ -221,6 +238,7 @@ class Personio:
     def get_employee(self, employee_id: int) -> Employee:
         """
         Get a single employee with the specified ID.
+        Does not involve pagination.
 
         :param employee_id: the Personio ID of the employee to fetch
         :return: an ``Employee`` instance or a PersonioApiError, if the employee does not exist
@@ -275,8 +293,9 @@ class Personio:
         """
         raise NotImplementedError()
 
-    def get_attendances(self, employees: Union[int, List[int], Employee, List[Employee]],
-                        start_date: datetime = None, end_date: datetime = None) -> List[Attendance]:
+    def get_attendances(
+            self, employees: Union[int, List[int], Employee, List[Employee]],
+            start_date: datetime = None, end_date: datetime = None) -> List[Attendance]:
         """
         Get a list of all attendance records for the employees with the specified IDs
 
@@ -292,7 +311,7 @@ class Personio:
         :return: list of ``Attendance`` records for the specified employees
         """
         attendances = self._get_employee_metadata(
-            'company/attendances', Attendance, employees, start_date, end_date)
+            self.ATTENDANCE_URL, Attendance, employees, start_date, end_date)
         for attendance in attendances:
             attendance._client = self
         return attendances
@@ -310,18 +329,18 @@ class Personio:
             attendance.to_body_params(patch_existing_attendance=False) for attendance in attendances
         ]
         response = self.request_json(
-            path='company/attendances',
+            path=self.ATTENDANCE_URL,
             method='POST',
             data={"attendances": data_to_send}
         )
         if response['success']:
-            for i in range(len(attendances)):
-                attendances[i].id_ = response['data']['id'][i]
-                attendances[i].client = self
+            for attendance, response_id in zip(attendances, response['data']['id']):
+                attendance.id_ = response_id
+                attendance.client = self
             return True
         return False
 
-    def update_attendance(self, attendance: Attendance, remote_query_id=False):
+    def update_attendance(self, attendance: Attendance):
         """
         Update an existing attendance record
 
@@ -330,8 +349,6 @@ class Personio:
         DO NOT SET THE ID YOURSELF.
 
         :param attendance: The Attendance object holding the new data.
-        :param remote_query_id: Allow a remote query for the id if it is not set within the given
-        Attendance object.
         :raises:
             ValueError: If a query is required but not allowed or the query does not provide
             exactly one result.
@@ -339,22 +356,15 @@ class Personio:
         if attendance.id_ is not None:
             # remote query not necessary
             response = self.request_json(
-                path=f'company/attendances/{attendance.id_}',
+                path=f'{self.ATTENDANCE_URL}/{attendance.id_}',
                 method='PATCH',
                 data=attendance.to_body_params(patch_existing_attendance=True)
             )
             return response
         else:
-            if remote_query_id:
-                attendance = self.__add_remote_attendance_id(attendance)
-                self.update_attendance(attendance)
-            else:
-                raise ValueError(
-                    "You either need to provide the attendance id" +
-                    "or allow a remote query."
-                )
+            raise ValueError("You need to provide the attendance id")
 
-    def delete_attendance(self, attendance: Attendance or int, remote_query_id=False):
+    def delete_attendance(self, attendance: Attendance or int):
         """
         Delete an existing record
 
@@ -364,27 +374,19 @@ class Personio:
 
         :param attendance: The Attendance object holding the new data or an attendance record id to
         delete.
-        :param remote_query_id: Allow a remote query for the id if it is not set within the given
-        Attendance object.
         :raises:
             ValueError: If a query is required but not allowed or the query does not provide
             exactly one result.
         """
         if isinstance(attendance, int):
-            response = self.request_json(path=f'company/attendances/{attendance}', method='DELETE')
+            response = self.request_json(path=f'{self.ATTENDANCE_URL}/{attendance}',
+                                         method='DELETE')
             return response
         elif isinstance(attendance, Attendance):
             if attendance.id_ is not None:
                 return self.delete_attendance(attendance.id_)
             else:
-                if remote_query_id:
-                    attendance = self.__add_remote_attendance_id(attendance)
-                    self.delete_attendance(attendance.id_)
-                else:
-                    raise ValueError(
-                        "You either need to provide the attendance" +
-                        "id or allow a remote query."
-                    )
+                raise ValueError("You need to provide the attendance")
         else:
             raise ValueError("attendance must be an Attendance object or an integer")
 
@@ -401,8 +403,9 @@ class Personio:
         absence_types = [AbsenceType.from_dict(d, self) for d in response['data']]
         return absence_types
 
-    def get_absences(self, employees: Union[int, List[int], Employee, List[Employee]],
-                     start_date: datetime = None, end_date: datetime = None) -> List[Absence]:
+    def get_absences(
+            self, employees: Union[int, List[int], Employee, List[Employee]],
+            start_date: datetime = None, end_date: datetime = None) -> List[Absence]:
         """
         Get a list of all absence records for the employees with the specified IDs.
 
@@ -418,7 +421,7 @@ class Personio:
         :return: list of ``Absence`` records for the specified employees
         """
         return self._get_employee_metadata(
-            'company/time-offs', Absence, employees, start_date, end_date)
+            self.ABSENCE_URL, Absence, employees, start_date, end_date)
 
     def get_absence(self, absence: Union[Absence, int]) -> Absence:
         """
@@ -427,7 +430,7 @@ class Personio:
         :param absence: The absence id to fetch.
         """
         if isinstance(absence, int):
-            response = self.request_json(f'company/time-offs/{absence}')
+            response = self.request_json(f'{self.ABSENCE_URL}/{absence}')
             return Absence.from_dict(response['data'], self)
         else:
             if absence.id_:
@@ -444,7 +447,7 @@ class Personio:
         :raises PersonioError: If the absence could not be created on the Personio servers
         """
         data = absence.to_body_params()
-        response = self.request_json('company/time-offs', method='POST', data=data)
+        response = self.request_json(self.ABSENCE_URL, method='POST', data=data)
         if response['success']:
             absence.id_ = response['data']['attributes']['id']
             return absence
@@ -457,12 +460,12 @@ class Personio:
         An absence id is required.
 
         :param absence: The Absence object holding
-            the new data or an absence record id to delete.
+               the new data or an absence record id to delete.
         :raises ValueError: If a query is required but not allowed
-            or the query does not provide exactly one result.
+                or the query does not provide exactly one result.
         """
         if isinstance(absence, int):
-            response = self.request_json(path=f'company/time-offs/{absence}', method='DELETE')
+            response = self.request_json(path=f'{self.ABSENCE_URL}/{absence}', method='DELETE')
             return response['success']
         elif isinstance(absence, Absence):
             if absence.id_ is not None:
