@@ -373,7 +373,7 @@ class Personio:
         attendance id. DO NOT SET THE ID YOURSELF.
 
         :param attendance: The Attendance object holding the new data or an attendance record id to
-        delete.
+            delete.
         :raises:
             ValueError: If a query is required but not allowed or the query does not provide
             exactly one result.
