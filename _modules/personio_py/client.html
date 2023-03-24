@@ -91,7 +91,7 @@
 
 
 <div class="viewcode-block" id="Personio"><a class="viewcode-back" href="../../api.html#personio_py.Personio">[docs]</a><span class="k">class</span> <span class="nc">Personio</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    the Personio API client.</span>
 
 <span class="sd">    :param base_url: use this custom base URL instead of the default https://api.personio.de/v1/</span>
@@ -104,7 +104,9 @@
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">BASE_URL</span> <span class="o">=</span> <span class="s2">&quot;https://api.personio.de/v1/&quot;</span>
-    <span class="sd">&quot;&quot;&quot;base URL of the Personio HTTP API&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;base URL of the Personio HTTP API&quot;&quot;&quot;</span>
+    <span class="n">ATTENDANCE_URL</span> <span class="o">=</span> <span class="s1">&#39;company/attendances&#39;</span>
+    <span class="n">ABSENCE_URL</span> <span class="o">=</span> <span class="s1">&#39;company/time-offs&#39;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">base_url</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">client_id</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">client_secret</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
                  <span class="n">dynamic_fields</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">DynamicMapping</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
@@ -117,7 +119,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">search_index</span> <span class="o">=</span> <span class="n">SearchIndex</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
 
 <div class="viewcode-block" id="Personio.authenticate"><a class="viewcode-back" href="../../api.html#personio_py.Personio.authenticate">[docs]</a>    <span class="k">def</span> <span class="nf">authenticate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Try to authenticate (using Personio&#39;s ``/auth`` endpoint) with the credentials</span>
 <span class="sd">        (client ID and secret) that were provided to this instance.</span>
 
@@ -146,7 +148,7 @@
 <div class="viewcode-block" id="Personio.request"><a class="viewcode-back" href="../../api.html#personio_py.Personio.request">[docs]</a>    <span class="k">def</span> <span class="nf">request</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s1">&#39;GET&#39;</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
                 <span class="n">data</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">headers</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
                 <span class="n">auth_rotation</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Response</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Make a request against the Personio API.</span>
 <span class="sd">        Returns the HTTP response, which might be successful or not.</span>
 
@@ -186,7 +188,7 @@
 
 <div class="viewcode-block" id="Personio.request_json"><a class="viewcode-back" href="../../api.html#personio_py.Personio.request_json">[docs]</a>    <span class="k">def</span> <span class="nf">request_json</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s1">&#39;GET&#39;</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
                      <span class="n">data</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">auth_rotation</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Make a request against the Personio API, expecting a json response.</span>
 <span class="sd">        Returns the parsed json response as dictionary. Will raise a PersonioApiError if the</span>
 <span class="sd">        request fails.</span>
@@ -208,10 +210,10 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">PersonioApiError</span><span class="o">.</span><span class="n">from_response</span><span class="p">(</span><span class="n">response</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Personio.request_paginated"><a class="viewcode-back" href="../../api.html#personio_py.Personio.request_paginated">[docs]</a>    <span class="k">def</span> <span class="nf">request_paginated</span><span class="p">(</span>
-            <span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s1">&#39;GET&#39;</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-            <span class="n">data</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">auth_rotation</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">limit</span><span class="o">=</span><span class="mi">200</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<div class="viewcode-block" id="Personio.request_paginated"><a class="viewcode-back" href="../../api.html#personio_py.Personio.request_paginated">[docs]</a>    <span class="k">def</span> <span class="nf">request_paginated</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s1">&#39;GET&#39;</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                          <span class="n">data</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">auth_rotation</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">limit</span><span class="o">=</span><span class="mi">200</span>
+                          <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Make a request against the Personio API, expecting a json response that may be paginated,</span>
 <span class="sd">        i.e. not all results might have been returned after the first request. Will continue</span>
 <span class="sd">        to make requests until no more results are provided by the Personio API.</span>
@@ -229,22 +231,36 @@
 <span class="sd">               that is enforced on the server side)</span>
 <span class="sd">        :return: the parsed json response, when the request was successful, or a PersonioApiError</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c1"># prepare the params dict (need limit and offset as parameters)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ABSENCE_URL</span> <span class="o">==</span> <span class="n">path</span><span class="p">:</span>
+            <span class="n">offset</span> <span class="o">=</span> <span class="mi">1</span>
+            <span class="n">url_type</span> <span class="o">=</span> <span class="s1">&#39;absence&#39;</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">ATTENDANCE_URL</span> <span class="o">==</span> <span class="n">path</span><span class="p">:</span>
+            <span class="n">offset</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">url_type</span> <span class="o">=</span> <span class="s1">&#39;attendance&#39;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid path: </span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
         <span class="k">if</span> <span class="n">params</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">params</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="n">params</span><span class="p">[</span><span class="s1">&#39;limit&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">limit</span>
-        <span class="n">params</span><span class="p">[</span><span class="s1">&#39;offset&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
-        <span class="c1"># continue making requests until no more data is returned</span>
+        <span class="n">params</span><span class="p">[</span><span class="s1">&#39;offset&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">offset</span>
         <span class="n">data_acc</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
             <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">request_json</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">method</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">auth_rotation</span><span class="o">=</span><span class="n">auth_rotation</span><span class="p">)</span>
-            <span class="n">resp_data</span> <span class="o">=</span> <span class="n">response</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">]</span>
+            <span class="n">resp_data</span> <span class="o">=</span> <span class="n">response</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;data&#39;</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">resp_data</span><span class="p">:</span>
-                <span class="n">data_acc</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">resp_data</span><span class="p">)</span>
-                <span class="k">if</span> <span class="n">response</span><span class="p">[</span><span class="s1">&#39;metadata&#39;</span><span class="p">][</span><span class="s1">&#39;current_page&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">response</span><span class="p">[</span><span class="s1">&#39;metadata&#39;</span><span class="p">][</span><span class="s1">&#39;total_pages&#39;</span><span class="p">]:</span>
-                    <span class="k">break</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="n">params</span><span class="p">[</span><span class="s1">&#39;offset&#39;</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="k">if</span> <span class="n">url_type</span> <span class="o">==</span> <span class="s1">&#39;absence&#39;</span><span class="p">:</span>
+                    <span class="n">data_acc</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">resp_data</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">response</span><span class="p">[</span><span class="s1">&#39;metadata&#39;</span><span class="p">][</span><span class="s1">&#39;current_page&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">response</span><span class="p">[</span><span class="s1">&#39;metadata&#39;</span><span class="p">][</span><span class="s1">&#39;total_pages&#39;</span><span class="p">]:</span>
+                        <span class="k">break</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">params</span><span class="p">[</span><span class="s1">&#39;offset&#39;</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="k">elif</span> <span class="n">url_type</span> <span class="o">==</span> <span class="s1">&#39;attendance&#39;</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">params</span><span class="p">[</span><span class="s1">&#39;offset&#39;</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">response</span><span class="p">[</span><span class="s1">&#39;metadata&#39;</span><span class="p">][</span><span class="s1">&#39;total_elements&#39;</span><span class="p">]:</span>
+                        <span class="k">break</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">data_acc</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">resp_data</span><span class="p">)</span>
+                        <span class="n">params</span><span class="p">[</span><span class="s1">&#39;offset&#39;</span><span class="p">]</span> <span class="o">+=</span> <span class="n">limit</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">break</span>
         <span class="c1"># return the accumulated data</span>
@@ -253,7 +269,7 @@
 
 <div class="viewcode-block" id="Personio.request_image"><a class="viewcode-back" href="../../api.html#personio_py.Personio.request_image">[docs]</a>    <span class="k">def</span> <span class="nf">request_image</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s1">&#39;GET&#39;</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
                       <span class="n">auth_rotation</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bytes</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Request an image file (as png or jpg) from the Personio API.</span>
 <span class="sd">        Returns the image as byte array, or None, if no image is available for this resource</span>
 <span class="sd">        (HTTP status 404).</span>
@@ -279,8 +295,9 @@
             <span class="k">raise</span> <span class="n">PersonioApiError</span><span class="o">.</span><span class="n">from_response</span><span class="p">(</span><span class="n">response</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Personio.get_employees"><a class="viewcode-back" href="../../api.html#personio_py.Personio.get_employees">[docs]</a>    <span class="k">def</span> <span class="nf">get_employees</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Employee</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get a list of all employee records in your account.</span>
+<span class="sd">        Does not involve pagination.</span>
 
 <span class="sd">        :return: list of ``Employee`` instances</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -289,8 +306,9 @@
         <span class="k">return</span> <span class="n">employees</span></div>
 
 <div class="viewcode-block" id="Personio.get_employee"><a class="viewcode-back" href="../../api.html#personio_py.Personio.get_employee">[docs]</a>    <span class="k">def</span> <span class="nf">get_employee</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">employee_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Employee</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get a single employee with the specified ID.</span>
+<span class="sd">        Does not involve pagination.</span>
 
 <span class="sd">        :param employee_id: the Personio ID of the employee to fetch</span>
 <span class="sd">        :return: an ``Employee`` instance or a PersonioApiError, if the employee does not exist</span>
@@ -301,7 +319,7 @@
 
 <div class="viewcode-block" id="Personio.get_employee_picture"><a class="viewcode-back" href="../../api.html#personio_py.Personio.get_employee_picture">[docs]</a>    <span class="k">def</span> <span class="nf">get_employee_picture</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">employee</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">Employee</span><span class="p">],</span> <span class="n">width</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> \
             <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bytes</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get the profile picture of the specified employee as image file</span>
 <span class="sd">        (usually png or jpg).</span>
 
@@ -318,7 +336,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">request_image</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">auth_rotation</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Personio.create_employee"><a class="viewcode-back" href="../../api.html#personio_py.Personio.create_employee">[docs]</a>    <span class="k">def</span> <span class="nf">create_employee</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">employee</span><span class="p">:</span> <span class="n">Employee</span><span class="p">,</span> <span class="n">refresh</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Employee</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        placeholder; not ready to be used</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># TODO warn about limited selection of fields</span>
@@ -340,14 +358,15 @@
             <span class="k">return</span> <span class="n">employee</span></div>
 
 <div class="viewcode-block" id="Personio.update_employee"><a class="viewcode-back" href="../../api.html#personio_py.Personio.update_employee">[docs]</a>    <span class="k">def</span> <span class="nf">update_employee</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">employee</span><span class="p">:</span> <span class="n">Employee</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        placeholder; not ready to be used</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="Personio.get_attendances"><a class="viewcode-back" href="../../api.html#personio_py.Personio.get_attendances">[docs]</a>    <span class="k">def</span> <span class="nf">get_attendances</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">employees</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">Employee</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="n">Employee</span><span class="p">]],</span>
-                        <span class="n">start_date</span><span class="p">:</span> <span class="n">datetime</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">end_date</span><span class="p">:</span> <span class="n">datetime</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Attendance</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<div class="viewcode-block" id="Personio.get_attendances"><a class="viewcode-back" href="../../api.html#personio_py.Personio.get_attendances">[docs]</a>    <span class="k">def</span> <span class="nf">get_attendances</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span> <span class="n">employees</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">Employee</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="n">Employee</span><span class="p">]],</span>
+            <span class="n">start_date</span><span class="p">:</span> <span class="n">datetime</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">end_date</span><span class="p">:</span> <span class="n">datetime</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Attendance</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get a list of all attendance records for the employees with the specified IDs</span>
 
 <span class="sd">        Note that internally, multiple requests may be made by this function due to limitations</span>
@@ -361,31 +380,88 @@
 <span class="sd">        :param end_date: only return attendance records up to this date (inclusive, optional)</span>
 <span class="sd">        :return: list of ``Attendance`` records for the specified employees</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_employee_metadata</span><span class="p">(</span>
-            <span class="s1">&#39;company/attendances&#39;</span><span class="p">,</span> <span class="n">Attendance</span><span class="p">,</span> <span class="n">employees</span><span class="p">,</span> <span class="n">start_date</span><span class="p">,</span> <span class="n">end_date</span><span class="p">)</span></div>
+        <span class="n">attendances</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_employee_metadata</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ATTENDANCE_URL</span><span class="p">,</span> <span class="n">Attendance</span><span class="p">,</span> <span class="n">employees</span><span class="p">,</span> <span class="n">start_date</span><span class="p">,</span> <span class="n">end_date</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">attendance</span> <span class="ow">in</span> <span class="n">attendances</span><span class="p">:</span>
+            <span class="n">attendance</span><span class="o">.</span><span class="n">_client</span> <span class="o">=</span> <span class="bp">self</span>
+        <span class="k">return</span> <span class="n">attendances</span></div>
 
-<div class="viewcode-block" id="Personio.create_attendances"><a class="viewcode-back" href="../../api.html#personio_py.Personio.create_attendances">[docs]</a>    <span class="k">def</span> <span class="nf">create_attendances</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attendances</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Attendance</span><span class="p">]):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        placeholder; not ready to be used</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c1"># attendances can be created individually, but here you can push a huge bunch of items</span>
-        <span class="c1"># in a single request, which can be significantly faster</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span></div>
+<div class="viewcode-block" id="Personio.create_attendances"><a class="viewcode-back" href="../../api.html#personio_py.Personio.create_attendances">[docs]</a>    <span class="k">def</span> <span class="nf">create_attendances</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attendances</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Attendance</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create all given attendance records.</span>
 
-<div class="viewcode-block" id="Personio.update_attendance"><a class="viewcode-back" href="../../api.html#personio_py.Personio.update_attendance">[docs]</a>    <span class="k">def</span> <span class="nf">update_attendance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attendance_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        placeholder; not ready to be used</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span></div>
+<span class="sd">        Note: If one or more attendances can not be created, other attendances will be created but</span>
+<span class="sd">        their corresponding objects passed as attendances will not be updated.</span>
 
-<div class="viewcode-block" id="Personio.delete_attendance"><a class="viewcode-back" href="../../api.html#personio_py.Personio.delete_attendance">[docs]</a>    <span class="k">def</span> <span class="nf">delete_attendance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attendance_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        placeholder; not ready to be used</span>
+<span class="sd">        :param attendances: A list of attendance records to be created.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span></div>
+        <span class="n">data_to_send</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">attendance</span><span class="o">.</span><span class="n">to_body_params</span><span class="p">(</span><span class="n">patch_existing_attendance</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="k">for</span> <span class="n">attendance</span> <span class="ow">in</span> <span class="n">attendances</span>
+        <span class="p">]</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">request_json</span><span class="p">(</span>
+            <span class="n">path</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ATTENDANCE_URL</span><span class="p">,</span>
+            <span class="n">method</span><span class="o">=</span><span class="s1">&#39;POST&#39;</span><span class="p">,</span>
+            <span class="n">data</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;attendances&quot;</span><span class="p">:</span> <span class="n">data_to_send</span><span class="p">}</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">response</span><span class="p">[</span><span class="s1">&#39;success&#39;</span><span class="p">]:</span>
+            <span class="k">for</span> <span class="n">attendance</span><span class="p">,</span> <span class="n">response_id</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">attendances</span><span class="p">,</span> <span class="n">response</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">][</span><span class="s1">&#39;id&#39;</span><span class="p">]):</span>
+                <span class="n">attendance</span><span class="o">.</span><span class="n">id_</span> <span class="o">=</span> <span class="n">response_id</span>
+                <span class="n">attendance</span><span class="o">.</span><span class="n">client</span> <span class="o">=</span> <span class="bp">self</span>
+            <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">return</span> <span class="kc">False</span></div>
+
+<div class="viewcode-block" id="Personio.update_attendance"><a class="viewcode-back" href="../../api.html#personio_py.Personio.update_attendance">[docs]</a>    <span class="k">def</span> <span class="nf">update_attendance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attendance</span><span class="p">:</span> <span class="n">Attendance</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Update an existing attendance record</span>
+
+<span class="sd">        Either an attendance id or o remote query is required. Remote queries are only executed</span>
+<span class="sd">        if required. An Attendance object returned by get_attendances() include the attendance id.</span>
+<span class="sd">        DO NOT SET THE ID YOURSELF.</span>
+
+<span class="sd">        :param attendance: The Attendance object holding the new data.</span>
+<span class="sd">        :raises:</span>
+<span class="sd">            ValueError: If a query is required but not allowed or the query does not provide</span>
+<span class="sd">            exactly one result.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">attendance</span><span class="o">.</span><span class="n">id_</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1"># remote query not necessary</span>
+            <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">request_json</span><span class="p">(</span>
+                <span class="n">path</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">ATTENDANCE_URL</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">attendance</span><span class="o">.</span><span class="n">id_</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span>
+                <span class="n">method</span><span class="o">=</span><span class="s1">&#39;PATCH&#39;</span><span class="p">,</span>
+                <span class="n">data</span><span class="o">=</span><span class="n">attendance</span><span class="o">.</span><span class="n">to_body_params</span><span class="p">(</span><span class="n">patch_existing_attendance</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="p">)</span>
+            <span class="k">return</span> <span class="n">response</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;You need to provide the attendance id&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Personio.delete_attendance"><a class="viewcode-back" href="../../api.html#personio_py.Personio.delete_attendance">[docs]</a>    <span class="k">def</span> <span class="nf">delete_attendance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attendance</span><span class="p">:</span> <span class="n">Attendance</span> <span class="ow">or</span> <span class="nb">int</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Delete an existing record</span>
+
+<span class="sd">        Either an attendance id or o remote query is required. Remote queries are only</span>
+<span class="sd">        executed if required. An Attendance object returned by get_attendances() include the</span>
+<span class="sd">        attendance id. DO NOT SET THE ID YOURSELF.</span>
+
+<span class="sd">        :param attendance: The Attendance object holding the new data or an attendance record id to</span>
+<span class="sd">            delete.</span>
+<span class="sd">        :raises:</span>
+<span class="sd">            ValueError: If a query is required but not allowed or the query does not provide</span>
+<span class="sd">            exactly one result.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">attendance</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+            <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">request_json</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">ATTENDANCE_URL</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">attendance</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span>
+                                         <span class="n">method</span><span class="o">=</span><span class="s1">&#39;DELETE&#39;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">response</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">attendance</span><span class="p">,</span> <span class="n">Attendance</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">attendance</span><span class="o">.</span><span class="n">id_</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">delete_attendance</span><span class="p">(</span><span class="n">attendance</span><span class="o">.</span><span class="n">id_</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;You need to provide the attendance&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;attendance must be an Attendance object or an integer&quot;</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Personio.get_absence_types"><a class="viewcode-back" href="../../api.html#personio_py.Personio.get_absence_types">[docs]</a>    <span class="k">def</span> <span class="nf">get_absence_types</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">AbsenceType</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get a list of all available absence types, e.g. &quot;paid vacation&quot; or &quot;parental leave&quot;.</span>
 
 <span class="sd">        The absence types are used to classify the absences of employees</span>
@@ -397,9 +473,10 @@
         <span class="n">absence_types</span> <span class="o">=</span> <span class="p">[</span><span class="n">AbsenceType</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">response</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">]]</span>
         <span class="k">return</span> <span class="n">absence_types</span></div>
 
-<div class="viewcode-block" id="Personio.get_absences"><a class="viewcode-back" href="../../api.html#personio_py.Personio.get_absences">[docs]</a>    <span class="k">def</span> <span class="nf">get_absences</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">employees</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">Employee</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="n">Employee</span><span class="p">]],</span>
-                     <span class="n">start_date</span><span class="p">:</span> <span class="n">datetime</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">end_date</span><span class="p">:</span> <span class="n">datetime</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Absence</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<div class="viewcode-block" id="Personio.get_absences"><a class="viewcode-back" href="../../api.html#personio_py.Personio.get_absences">[docs]</a>    <span class="k">def</span> <span class="nf">get_absences</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span> <span class="n">employees</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">Employee</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="n">Employee</span><span class="p">]],</span>
+            <span class="n">start_date</span><span class="p">:</span> <span class="n">datetime</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">end_date</span><span class="p">:</span> <span class="n">datetime</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Absence</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get a list of all absence records for the employees with the specified IDs.</span>
 
 <span class="sd">        Note that internally, multiple requests may be made by this function due to limitations</span>
@@ -414,16 +491,16 @@
 <span class="sd">        :return: list of ``Absence`` records for the specified employees</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_employee_metadata</span><span class="p">(</span>
-            <span class="s1">&#39;company/time-offs&#39;</span><span class="p">,</span> <span class="n">Absence</span><span class="p">,</span> <span class="n">employees</span><span class="p">,</span> <span class="n">start_date</span><span class="p">,</span> <span class="n">end_date</span><span class="p">)</span></div>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ABSENCE_URL</span><span class="p">,</span> <span class="n">Absence</span><span class="p">,</span> <span class="n">employees</span><span class="p">,</span> <span class="n">start_date</span><span class="p">,</span> <span class="n">end_date</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Personio.get_absence"><a class="viewcode-back" href="../../api.html#personio_py.Personio.get_absence">[docs]</a>    <span class="k">def</span> <span class="nf">get_absence</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">absence</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Absence</span><span class="p">,</span> <span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Absence</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get an absence record from a given id.</span>
 
 <span class="sd">        :param absence: The absence id to fetch.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">absence</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
-            <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">request_json</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;company/time-offs/</span><span class="si">{</span><span class="n">absence</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">request_json</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">ABSENCE_URL</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">absence</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
             <span class="k">return</span> <span class="n">Absence</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">response</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">],</span> <span class="bp">self</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">absence</span><span class="o">.</span><span class="n">id_</span><span class="p">:</span>
@@ -433,32 +510,32 @@
                 <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_absence</span><span class="p">(</span><span class="n">absence</span><span class="o">.</span><span class="n">id_</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Personio.create_absence"><a class="viewcode-back" href="../../api.html#personio_py.Personio.create_absence">[docs]</a>    <span class="k">def</span> <span class="nf">create_absence</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">absence</span><span class="p">:</span> <span class="n">Absence</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Absence</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Creates an absence record on the Personio servers</span>
 
 <span class="sd">        :param absence: The absence object to be created</span>
 <span class="sd">        :raises PersonioError: If the absence could not be created on the Personio servers</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">data</span> <span class="o">=</span> <span class="n">absence</span><span class="o">.</span><span class="n">to_body_params</span><span class="p">()</span>
-        <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">request_json</span><span class="p">(</span><span class="s1">&#39;company/time-offs&#39;</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s1">&#39;POST&#39;</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">)</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">request_json</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ABSENCE_URL</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s1">&#39;POST&#39;</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">response</span><span class="p">[</span><span class="s1">&#39;success&#39;</span><span class="p">]:</span>
             <span class="n">absence</span><span class="o">.</span><span class="n">id_</span> <span class="o">=</span> <span class="n">response</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">][</span><span class="s1">&#39;attributes&#39;</span><span class="p">][</span><span class="s1">&#39;id&#39;</span><span class="p">]</span>
             <span class="k">return</span> <span class="n">absence</span>
         <span class="k">raise</span> <span class="n">PersonioError</span><span class="p">(</span><span class="s2">&quot;Could not create absence&quot;</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Personio.delete_absence"><a class="viewcode-back" href="../../api.html#personio_py.Personio.delete_absence">[docs]</a>    <span class="k">def</span> <span class="nf">delete_absence</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">absence</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Absence</span><span class="p">,</span> <span class="nb">int</span><span class="p">]):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Delete an existing record</span>
 
 <span class="sd">        An absence id is required.</span>
 
 <span class="sd">        :param absence: The Absence object holding</span>
-<span class="sd">            the new data or an absence record id to delete.</span>
+<span class="sd">               the new data or an absence record id to delete.</span>
 <span class="sd">        :raises ValueError: If a query is required but not allowed</span>
-<span class="sd">            or the query does not provide exactly one result.</span>
+<span class="sd">                or the query does not provide exactly one result.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">absence</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
-            <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">request_json</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;company/time-offs/</span><span class="si">{</span><span class="n">absence</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s1">&#39;DELETE&#39;</span><span class="p">)</span>
+            <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">request_json</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">ABSENCE_URL</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">absence</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s1">&#39;DELETE&#39;</span><span class="p">)</span>
             <span class="k">return</span> <span class="n">response</span><span class="p">[</span><span class="s1">&#39;success&#39;</span><span class="p">]</span>
         <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">absence</span><span class="p">,</span> <span class="n">Absence</span><span class="p">):</span>
             <span class="k">if</span> <span class="n">absence</span><span class="o">.</span><span class="n">id_</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -469,7 +546,7 @@
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;absence must be an Absence object or an integer&quot;</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Personio.search"><a class="viewcode-back" href="../../api.html#personio_py.Personio.search">[docs]</a>    <span class="k">def</span> <span class="nf">search</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">query</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">active_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Employee</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Execute a search on the search index.</span>
 
 <span class="sd">        If the index does not exist, or has been invalidated or is expired, the full list</span>
@@ -489,7 +566,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">search_index</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="n">active_only</span><span class="o">=</span><span class="n">active_only</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Personio.search_first"><a class="viewcode-back" href="../../api.html#personio_py.Personio.search_first">[docs]</a>    <span class="k">def</span> <span class="nf">search_first</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">query</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">active_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Employee</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Execute a search on the search index and return the first result (if there is one) or None.</span>
 
 <span class="sd">        This is basically the &quot;I&#39;m Feeling Lucky&quot; button.</span>
@@ -502,7 +579,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">search_index</span><span class="o">.</span><span class="n">search_first</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="n">active_only</span><span class="o">=</span><span class="n">active_only</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Personio.invalidate_index"><a class="viewcode-back" href="../../api.html#personio_py.Personio.invalidate_index">[docs]</a>    <span class="k">def</span> <span class="nf">invalidate_index</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Invalidates the search index. New data will be requested on the next search.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">search_index</span><span class="o">.</span><span class="n">invalidate</span><span class="p">()</span></div>
@@ -533,7 +610,7 @@
             <span class="bp">cls</span><span class="p">,</span> <span class="n">employees</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">Employee</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="n">Employee</span><span class="p">]],</span>
             <span class="n">start_date</span><span class="p">:</span> <span class="n">datetime</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">end_date</span><span class="p">:</span> <span class="n">datetime</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> \
             <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">datetime</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Whenever we need a list of employee IDs, a start date and an end date, this function comes</span>
 <span class="sd">        in handy:</span>
 
@@ -558,7 +635,7 @@
         <span class="k">return</span> <span class="n">employee_ids</span><span class="p">,</span> <span class="n">start_date</span><span class="p">,</span> <span class="n">end_date</span>
 
     <span class="k">def</span> <span class="nf">__add_remote_absence_id</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">absence</span><span class="p">:</span> <span class="n">Absence</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Absence</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Queries the API for an absence record matching</span>
 <span class="sd">        the given Absence object and adds the remote id.</span>
 

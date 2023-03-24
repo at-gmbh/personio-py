@@ -98,6 +98,16 @@ List of <code class="xref py py-class docutils literal notranslate"><span class=
 </ul>
 </dd>
 </dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="personio_py.Personio.ABSENCE_URL">
+<span class="sig-name descname"><span class="pre">ABSENCE_URL</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'company/time-offs'</span></em><a class="headerlink" href="#personio_py.Personio.ABSENCE_URL" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="personio_py.Personio.ATTENDANCE_URL">
+<span class="sig-name descname"><span class="pre">ATTENDANCE_URL</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'company/attendances'</span></em><a class="headerlink" href="#personio_py.Personio.ATTENDANCE_URL" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="personio_py.Personio.authenticate">
 <span class="sig-name descname"><span class="pre">authenticate</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/personio_py/client.html#Personio.authenticate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#personio_py.Personio.authenticate" title="Permalink to this definition"></a></dt>
@@ -127,8 +137,15 @@ If the authentication failed, a <code class="docutils literal notranslate"><span
 
 <dl class="py method">
 <dt class="sig sig-object py" id="personio_py.Personio.create_attendances">
-<span class="sig-name descname"><span class="pre">create_attendances</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">attendances</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#personio_py.models.Attendance" title="personio_py.models.Attendance"><span class="pre">personio_py.models.Attendance</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/personio_py/client.html#Personio.create_attendances"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#personio_py.Personio.create_attendances" title="Permalink to this definition"></a></dt>
-<dd><p>placeholder; not ready to be used</p>
+<span class="sig-name descname"><span class="pre">create_attendances</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">attendances</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#personio_py.models.Attendance" title="personio_py.models.Attendance"><span class="pre">personio_py.models.Attendance</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference internal" href="_modules/personio_py/client.html#Personio.create_attendances"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#personio_py.Personio.create_attendances" title="Permalink to this definition"></a></dt>
+<dd><p>Create all given attendance records.</p>
+<p>Note: If one or more attendances can not be created, other attendances will be created but
+their corresponding objects passed as attendances will not be updated.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>attendances</strong> – A list of attendance records to be created.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
@@ -156,8 +173,21 @@ or the query does not provide exactly one result.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="personio_py.Personio.delete_attendance">
-<span class="sig-name descname"><span class="pre">delete_attendance</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">attendance_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/personio_py/client.html#Personio.delete_attendance"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#personio_py.Personio.delete_attendance" title="Permalink to this definition"></a></dt>
-<dd><p>placeholder; not ready to be used</p>
+<span class="sig-name descname"><span class="pre">delete_attendance</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">attendance</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#personio_py.models.Attendance" title="personio_py.models.Attendance"><span class="pre">personio_py.models.Attendance</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/personio_py/client.html#Personio.delete_attendance"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#personio_py.Personio.delete_attendance" title="Permalink to this definition"></a></dt>
+<dd><p>Delete an existing record</p>
+<p>Either an attendance id or o remote query is required. Remote queries are only
+executed if required. An Attendance object returned by get_attendances() include the
+attendance id. DO NOT SET THE ID YOURSELF.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>attendance</strong> – The Attendance object holding the new data or an attendance record id to
+delete.</p>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p>ValueError: If a query is required but not allowed or the query does not provide
+exactly one result.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
@@ -230,7 +260,8 @@ Attendance records for all matching employees will be retrieved.</p></li>
 <dl class="py method">
 <dt class="sig sig-object py" id="personio_py.Personio.get_employee">
 <span class="sig-name descname"><span class="pre">get_employee</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">employee_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#personio_py.models.Employee" title="personio_py.models.Employee"><span class="pre">personio_py.models.Employee</span></a></span></span><a class="reference internal" href="_modules/personio_py/client.html#Personio.get_employee"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#personio_py.Personio.get_employee" title="Permalink to this definition"></a></dt>
-<dd><p>Get a single employee with the specified ID.</p>
+<dd><p>Get a single employee with the specified ID.
+Does not involve pagination.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>employee_id</strong> – the Personio ID of the employee to fetch</p>
@@ -264,7 +295,8 @@ Defaults to the original width of the profile picture.</p></li>
 <dl class="py method">
 <dt class="sig sig-object py" id="personio_py.Personio.get_employees">
 <span class="sig-name descname"><span class="pre">get_employees</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#personio_py.models.Employee" title="personio_py.models.Employee"><span class="pre">personio_py.models.Employee</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/personio_py/client.html#Personio.get_employees"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#personio_py.Personio.get_employees" title="Permalink to this definition"></a></dt>
-<dd><p>Get a list of all employee records in your account.</p>
+<dd><p>Get a list of all employee records in your account.
+Does not involve pagination.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p>list of <code class="docutils literal notranslate"><span class="pre">Employee</span></code> instances</p>
@@ -425,8 +457,20 @@ For details about the search function, please refer to <code class="xref py py-c
 
 <dl class="py method">
 <dt class="sig sig-object py" id="personio_py.Personio.update_attendance">
-<span class="sig-name descname"><span class="pre">update_attendance</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">attendance_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/personio_py/client.html#Personio.update_attendance"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#personio_py.Personio.update_attendance" title="Permalink to this definition"></a></dt>
-<dd><p>placeholder; not ready to be used</p>
+<span class="sig-name descname"><span class="pre">update_attendance</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">attendance</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#personio_py.models.Attendance" title="personio_py.models.Attendance"><span class="pre">personio_py.models.Attendance</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/personio_py/client.html#Personio.update_attendance"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#personio_py.Personio.update_attendance" title="Permalink to this definition"></a></dt>
+<dd><p>Update an existing attendance record</p>
+<p>Either an attendance id or o remote query is required. Remote queries are only executed
+if required. An Attendance object returned by get_attendances() include the attendance id.
+DO NOT SET THE ID YOURSELF.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>attendance</strong> – The Attendance object holding the new data.</p>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p>ValueError: If a query is required but not allowed or the query does not provide
+exactly one result.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
@@ -485,6 +529,16 @@ a nested dictionary…)</p>
 <dt class="sig sig-object py" id="personio_py.models.Attendance">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">personio_py.models.</span></span><span class="sig-name descname"><span class="pre">Attendance</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">client</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Personio</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dynamic</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dynamic_raw</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#personio_py.models.DynamicAttr" title="personio_py.models.DynamicAttr"><span class="pre">DynamicAttr</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">id_</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">employee_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">date</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">datetime.datetime</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_time</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end_time</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">break_duration</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">comment</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_holiday</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_on_time_off</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/personio_py/models.html#Attendance"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#personio_py.models.Attendance" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#personio_py.models.WritablePersonioResource" title="personio_py.models.WritablePersonioResource"><code class="xref py py-class docutils literal notranslate"><span class="pre">personio_py.models.WritablePersonioResource</span></code></a></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="personio_py.models.Attendance.to_body_params">
+<span class="sig-name descname"><span class="pre">to_body_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">patch_existing_attendance</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/personio_py/models.html#Attendance.to_body_params"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#personio_py.models.Attendance.to_body_params" title="Permalink to this definition"></a></dt>
+<dd><p>Return the Attendance object in the representation expected by the Personio API</p>
+<p>For an attendance record to be created all_values_required needs to be True.
+For patch operations only the attendance id is required, but it is not
+included into the body params.</p>
+<p>:param patch_existing_attendance Get patch body. If False a create body is returned.</p>
+</dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="personio_py.models.Attendance.to_dict">
 <span class="sig-name descname"><span class="pre">to_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nested</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/personio_py/models.html#Attendance.to_dict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#personio_py.models.Attendance.to_dict" title="Permalink to this definition"></a></dt>

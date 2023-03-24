@@ -87,7 +87,7 @@
 
 
 <div class="viewcode-block" id="FieldMapping"><a class="viewcode-back" href="../../api.html#personio_py.mapping.FieldMapping">[docs]</a><span class="k">class</span> <span class="nc">FieldMapping</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A generic mapping from a Personio API field to a Python object.</span>
 <span class="sd">    The default implementation works great for strings, but for more complex types,</span>
 <span class="sd">    please refer to the subclasses of ``FieldMapping``.</span>
@@ -103,7 +103,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">field_type</span> <span class="o">=</span> <span class="n">field_type</span>
 
 <div class="viewcode-block" id="FieldMapping.serialize"><a class="viewcode-back" href="../../api.html#personio_py.mapping.FieldMapping.serialize">[docs]</a>    <span class="k">def</span> <span class="nf">serialize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">T</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Dict</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Serialize the parsed value to the format that the Personio API expects.</span>
 
 <span class="sd">        :param value: the value to serialize</span>
@@ -112,7 +112,7 @@
         <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">value</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="FieldMapping.deserialize"><a class="viewcode-back" href="../../api.html#personio_py.mapping.FieldMapping.deserialize">[docs]</a>    <span class="k">def</span> <span class="nf">deserialize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Dict</span><span class="p">],</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">T</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Deserialize the Personio API value to a more useful Python data type.</span>
 
 <span class="sd">        :param value: the value as provided by the Personio API</span>
@@ -262,16 +262,16 @@
 
 
 <div class="viewcode-block" id="DynamicMapping"><a class="viewcode-back" href="../../api.html#personio_py.mapping.DynamicMapping">[docs]</a><span class="k">class</span> <span class="nc">DynamicMapping</span><span class="p">(</span><span class="n">NamedTuple</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Defines a mapping from a dynamic field to a more memorable name and its actual data type,</span>
 <span class="sd">    so that it may be converted into a proper python type, if possible.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">field_id</span><span class="p">:</span> <span class="nb">int</span>
-    <span class="sd">&quot;&quot;&quot;the id number of the dynamic field, e.g. for &#39;dynamic_123456&#39;, field_id=123456&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;the id number of the dynamic field, e.g. for &#39;dynamic_123456&#39;, field_id=123456&quot;&quot;&quot;</span>
     <span class="n">alias</span><span class="p">:</span> <span class="nb">str</span>
-    <span class="sd">&quot;&quot;&quot;a more memorable name than the field_id, will be used as dictionary key&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;a more memorable name than the field_id, will be used as dictionary key&quot;&quot;&quot;</span>
     <span class="n">data_type</span><span class="p">:</span> <span class="n">Type</span><span class="p">[</span><span class="n">T</span><span class="p">]</span>
-    <span class="sd">&quot;&quot;&quot;the data type of the field, for automatic conversion (e.g. str to datetime)&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;the data type of the field, for automatic conversion (e.g. str to datetime)&quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="DynamicMapping.get_field_mapping"><a class="viewcode-back" href="../../api.html#personio_py.mapping.DynamicMapping.get_field_mapping">[docs]</a>    <span class="k">def</span> <span class="nf">get_field_mapping</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FieldMappingType</span><span class="p">:</span>
         <span class="n">api_field</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;dynamic_</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">field_id</span><span class="si">}</span><span class="s1">&#39;</span>

@@ -77,15 +77,15 @@
 
 
 <div class="viewcode-block" id="PersonioError"><a class="viewcode-back" href="../../api.html#personio_py.PersonioError">[docs]</a><span class="k">class</span> <span class="nc">PersonioError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;A generic error caused by personio-py&quot;&quot;&quot;</span></div>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;A generic error caused by personio-py&quot;&quot;&quot;</span></div>
 
 
 <div class="viewcode-block" id="MissingCredentialsError"><a class="viewcode-back" href="../../api.html#personio_py.MissingCredentialsError">[docs]</a><span class="k">class</span> <span class="nc">MissingCredentialsError</span><span class="p">(</span><span class="n">PersonioError</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;you are missing some strictly required credentials&quot;&quot;&quot;</span></div>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;you are missing some strictly required credentials&quot;&quot;&quot;</span></div>
 
 
 <div class="viewcode-block" id="PersonioApiError"><a class="viewcode-back" href="../../api.html#personio_py.PersonioApiError">[docs]</a><span class="k">class</span> <span class="nc">PersonioApiError</span><span class="p">(</span><span class="n">PersonioError</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    An error response from the Personio HTTP API</span>
 
 <span class="sd">    :param status_code: the HTTP status code of the API response</span>
@@ -107,7 +107,7 @@
 
 <div class="viewcode-block" id="PersonioApiError.from_response"><a class="viewcode-back" href="../../api.html#personio_py.PersonioApiError.from_response">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">from_response</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">response</span><span class="p">:</span> <span class="n">Response</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Creates a ``PersonioApiError`` from the specified HTTP response.</span>
 
 <span class="sd">        :param response: a HTTP error response from Personio</span>
@@ -143,7 +143,7 @@
 
 
 <div class="viewcode-block" id="UnsupportedMethodError"><a class="viewcode-back" href="../../api.html#personio_py.UnsupportedMethodError">[docs]</a><span class="k">class</span> <span class="nc">UnsupportedMethodError</span><span class="p">(</span><span class="n">PersonioError</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;this method is not supported by this class (but it might be by a similar one)&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;this method is not supported by this class (but it might be by a similar one)&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">method</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">clazz</span><span class="p">:</span> <span class="n">Type</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
