@@ -1,22 +1,22 @@
 repos:
--   repo: https://github.com/pre-commit/pre-commit-hooks
+  - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v2.5.0
     hooks:
-    -   id: check-added-large-files
-    -   id: check-ast
-    -   id: check-builtin-literals
-    -   id: check-merge-conflict
-    -   id: check-yaml
-    -   id: end-of-file-fixer
-    -   id: mixed-line-ending
-    -   id: trailing-whitespace
--   repo: https://github.com/asottile/pyupgrade
+      - id: check-added-large-files
+      - id: check-ast
+      - id: check-builtin-literals
+      - id: check-merge-conflict
+      - id: check-yaml
+      - id: end-of-file-fixer
+      - id: mixed-line-ending
+      - id: trailing-whitespace
+  - repo: https://github.com/asottile/pyupgrade
     rev: v2.7.2
     hooks:
-    -   id: pyupgrade
-        args: [--py37-plus]
--   repo: https://gitlab.com/pycqa/flake8
-    rev: '3.8.3'
+      - id: pyupgrade
+        args: [ --py37-plus ]
+  - repo: https://github.com/pycqa/flake8
+    rev: '6.0.0'
     hooks:
-    -   id: flake8
-        args: ['--max-complexity=10', '--max-line-length=100', '--ignore=F401,W504', '--exclude=tests/*']
+      - id: flake8
+        args: [ '--max-complexity=10', '--max-line-length=100', '--ignore=F401,W504', '--exclude=tests/*,setup.py' ]

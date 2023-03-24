@@ -28,7 +28,8 @@ def test_raw_api_attendances():
 def test_raw_api_absence_types():
     params = {"limit": 200, "offset": 0}
     absence_types = personio.request_json('company/time-off-types', params=params)
-    assert len(absence_types['data']) >= 10 # Personio test accounts know 10 different absence types
+    # Personio test accounts know 10 different absence types
+    assert len(absence_types['data']) >= 10
 
 
 @skip_if_no_auth

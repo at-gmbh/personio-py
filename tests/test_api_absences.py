@@ -1,7 +1,7 @@
-from .apitest_shared import *
-from datetime import timedelta, date
+from datetime import timedelta
 
-from personio_py import Employee, ShortEmployee, Personio, PersonioError, Absence, AbsenceType
+from personio_py import Employee, Absence, AbsenceType
+from tests.apitest_shared import *
 
 
 @skip_if_no_auth
@@ -138,7 +138,10 @@ def create_absence_for_user(employee: Employee,
                             create: bool = False) -> Absence:
     if not time_off_type:
         absence_types = personio.get_absence_types()
-        time_off_type = [absence_type for absence_type in absence_types if absence_type.name == "Unpaid vacation"][0]
+        time_off_type = [
+            absence_type for absence_type in absence_types
+            if absence_type.name == "Unpaid vacation"
+        ][0]
     if not start_date:
         start_date = date(year=2022, month=1, day=1)
     if not end_date:

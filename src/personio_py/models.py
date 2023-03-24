@@ -9,9 +9,11 @@ from functools import total_ordering
 from typing import Any, Dict, List, NamedTuple, Optional, TYPE_CHECKING, Tuple, Type, TypeVar
 
 from personio_py import PersonioError, UnsupportedMethodError
-from personio_py.mapping import BooleanFieldMapping, DateFieldMapping, DateTimeFieldMapping, \
-    DurationFieldMapping, DynamicMapping, FieldMapping, ListFieldMapping, NumericFieldMapping, \
+from personio_py.mapping import (
+    BooleanFieldMapping, DateFieldMapping, DateTimeFieldMapping,
+    DurationFieldMapping, DynamicMapping, FieldMapping, ListFieldMapping, NumericFieldMapping,
     ObjectFieldMapping
+)
 
 if TYPE_CHECKING:
     # only type checkers may import Personio, otherwise we get an evil circular import error
@@ -670,13 +672,46 @@ class Attendance(WritablePersonioResource):
         return d
 
     def _create(self, client: 'Personio'):
-        pass
+        get_client(self, client).create_attendances([self])
 
     def _update(self, client: 'Personio'):
-        pass
+        get_client(self, client).update_attendance(self)
 
     def _delete(self, client: 'Personio'):
-        pass
+        get_client(self, client).delete_attendance(self)
+
+    def to_body_params(self, patch_existing_attendance=False):
+        """
+        Return the Attendance object in the representation expected by the Personio API
+
+        For an attendance record to be created all_values_required needs to be True.
+        For patch operations only the attendance id is required, but it is not
+        included into the body params.
+
+        :param patch_existing_attendance Get patch body. If False a create body is returned.
+        """
+        if patch_existing_attendance:
+            if self.id_ is None:
+                raise ValueError("An attendance id is required")
+            body_dict = {}
+            if self.date is not None:
+                body_dict['date'] = self.date.strftime("%Y-%m-%d")
+            if self.start_time is not None:
+                body_dict['start_time'] = str(self.start_time)
+            if self.end_time is not None:
+                body_dict['end_time'] = str(self.end_time)
+            if self.break_duration is not None:
+                body_dict['break'] = self.break_duration
+            if self.comment is not None:
+                body_dict['comment'] = self.comment
+            return body_dict
+        else:
+            return {"employee": self.employee_id,
+                    "date": self.date.strftime("%Y-%m-%d"),
+                    "start_time": self.start_time,
+                    "end_time": self.end_time,
+                    "break": self.break_duration or 0,
+                    "comment": self.comment or ""}
 
 
 class Employee(WritablePersonioResource, LabeledAttributesMixin):

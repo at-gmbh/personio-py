@@ -1,6 +1,8 @@
+from datetime import datetime
+
 from personio_py import Employee, Department
 from tests.apitest_shared import *
-from datetime import datetime
+
 
 @skip_if_no_auth
 def test_get_employees():
