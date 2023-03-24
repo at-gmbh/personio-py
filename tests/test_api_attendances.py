@@ -1,8 +1,7 @@
-from tests.apitest_shared import *
-
-from personio_py import Employee, Attendance, PersonioApiError
-
 from datetime import datetime
+
+from personio_py import Employee, Attendance
+from tests.apitest_shared import *
 
 
 @skip_if_no_auth

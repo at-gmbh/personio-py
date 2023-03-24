@@ -9,9 +9,11 @@ from functools import total_ordering
 from typing import Any, Dict, List, NamedTuple, Optional, TYPE_CHECKING, Tuple, Type, TypeVar
 
 from personio_py import PersonioError, UnsupportedMethodError
-from personio_py.mapping import BooleanFieldMapping, DateFieldMapping, DateTimeFieldMapping, \
-    DurationFieldMapping, DynamicMapping, FieldMapping, ListFieldMapping, NumericFieldMapping, \
+from personio_py.mapping import (
+    BooleanFieldMapping, DateFieldMapping, DateTimeFieldMapping,
+    DurationFieldMapping, DynamicMapping, FieldMapping, ListFieldMapping, NumericFieldMapping,
     ObjectFieldMapping
+)
 
 if TYPE_CHECKING:
     # only type checkers may import Personio, otherwise we get an evil circular import error

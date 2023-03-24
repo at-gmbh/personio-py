@@ -1,13 +1,15 @@
-import responses
 import re
-
 from datetime import timedelta, date
 
-from personio_py import Attendance, Employee
+import responses
 
-from tests.mock_data import json_dict_attendance_create_no_break, \
+from personio_py import Attendance, Employee
+from tests.mock_data import (
+    json_dict_attendance_create_no_break,
     json_dict_attendance_rms, json_dict_attendance_patch, json_dict_attendance_delete
+)
 from tests.test_mock_api import compare_labeled_attributes, mock_personio
+
 
 @responses.activate
 def test_create_attendance():
@@ -68,24 +70,24 @@ def test_delete_attendances():
     personio = mock_personio()
     attendances = personio.get_attendances(2116366)
     attendance_to_delete = attendances[0]
-    personio.delete_attendance(attendance_to_delete)    
+    personio.delete_attendance(attendance_to_delete)
 
 def mock_attendances():
     # mock the get absences endpoint (with different array offsets)
     responses.add(
         responses.GET, re.compile('https://api.personio.de/v1/company/attendances?.*'),
         status=200, json=json_dict_attendance_rms, adding_headers={'Authorization': 'Bearer foo'})
-    
+
 def mock_create_attendance():
     responses.add(
         responses.POST,  'https://api.personio.de/v1/company/attendances',
         status=200, json=json_dict_attendance_create_no_break, adding_headers={'Authorization': 'Bearer bar'})
-    
+
 def mock_patch_attendance():
     responses.add(
         responses.PATCH,  'https://api.personio.de/v1/company/attendances/33479712',
         status=200, json=json_dict_attendance_patch, adding_headers={'Authorization': 'Bearer bar'})
-    
+
 def mock_delete_attendance():
     responses.add(
         responses.DELETE,  'https://api.personio.de/v1/company/attendances/33479712',
