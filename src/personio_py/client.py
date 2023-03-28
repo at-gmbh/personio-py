@@ -37,6 +37,7 @@ class Personio:
     """base URL of the Personio HTTP API"""
     ATTENDANCE_URL = 'company/attendances'
     ABSENCE_URL = 'company/time-offs'
+    PROJECT_URL = 'company/attendances/projects/'
 
     def __init__(self, base_url: str = None, client_id: str = None, client_secret: str = None,
                  dynamic_fields: List[DynamicMapping] = None):
@@ -521,7 +522,7 @@ class Personio:
 
         :return: list of ``Project`` records
         """
-        response = self.request_json(f'company/attendances/projects/')
+        response = self.request_json(self.PROJECT_URL)
         projects = [Project.from_dict(d, self) for d in response['data']]
 
         return projects
@@ -534,9 +535,9 @@ class Personio:
         :raises PersonioError: If the project could not be created on the Personio servers
         """
         data = project.to_body_params()
-        response = self.request_json('company/attendances/projects/', method='POST', data=data)
+        response = self.request_json(self.PROJECT_URL, method='POST', data=data)
         if response['success']:
-            project.id_ = response['data']['attributes']['id']
+            project.id_ = response['data']['id']
             return project
         raise PersonioError("Could not create project")
 
@@ -548,7 +549,7 @@ class Personio:
         :raises PersonioErrror: If the project could not be created on the Personio servers
         """
         data = project.to_body_params()
-        response = self.request_json(f'company/attendances/projects/{project.id_}', method='PATCH', data=data)
+        response = self.request_json(f'{self.PROJECT_URL}{project.id_}', method='PATCH', data=data)
         if response['success']:
             return project
         raise PersonioError("Could not update project")
@@ -562,8 +563,8 @@ class Personio:
             or the query does not provide exactly one result.
         """
         if isinstance(project, int):
-            response = self.request_json(f'company/attendances/projects/{project.id_}', method='DELETE')
-            return response['success']
+            response = self.request(f'{self.PROJECT_URL}{project}', method='DELETE')
+            return response
         elif isinstance(project, Project):
             if project.id_ is not None:
                 return self.delete_project(project.id_)
