@@ -622,6 +622,49 @@ class Absence(WritablePersonioResource):
             data['comment'] = self.comment
         return data
 
+class Project(WritablePersonioResource):
+
+    _api_type_name = "Project"
+    _field_mapping_list = [
+        # note: the id is actually not in the attributes dict, but one level higher
+        NumericFieldMapping('id', 'id_', int),
+        FieldMapping('name', 'name', str),
+        BooleanFieldMapping('active', 'active'),
+        DateTimeFieldMapping('created_at', 'created_at'),
+        DateTimeFieldMapping('updated_at', 'updated_at')
+    ]
+
+    def __init__(self, client: 'Personio' = None, dynamic: Dict[str, Any] = None,
+                 dynamic_raw: List['DynamicAttr'] = None, id_: int = None, name: str = None, active: bool = None, created_at: datetime = None, updated_at: datetime = None, **kwargs):
+        super().__init__(client=client, dynamic=dynamic, dynamic_raw=dynamic_raw, **kwargs)
+        self.id_ = id_
+        self.name = name
+        self.active = active
+        self.created_at = created_at
+        self.updated_at = updated_at
+
+    def _create(self, client: 'Personio' = None):
+        return get_client(self, client).create_project(self)
+
+    def _delete(self, client: 'Personio' = None):
+        return get_client(self, client).delete_project(self)
+
+    def _update(self, client: 'Personio'= None):
+        return get_client(self, client).update_project(self)
+
+    def to_dict(self, nested=False) -> Dict[str, Any]:
+        # yes, this is weird an unnecessary, but that's how the api works
+        d = super().to_dict()
+        d['id'] = self.id_
+        del d['attributes']['id']
+        return d
+
+    def to_body_params(self):
+        data = {
+            'name': self.name,
+            'active': self.active
+        }
+        return data
 
 class Attendance(WritablePersonioResource):
 

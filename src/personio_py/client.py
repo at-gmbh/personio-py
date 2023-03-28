@@ -10,7 +10,7 @@ from urllib.parse import urljoin
 import requests
 from requests import Response
 
-from personio_py import Absence, AbsenceType, Attendance, DynamicMapping, Employee
+from personio_py import Absence, AbsenceType, Attendance, DynamicMapping, Employee, Project
 from personio_py.errors import MissingCredentialsError, PersonioApiError, PersonioError
 from personio_py.models import PersonioResource
 from personio_py.search import SearchIndex
@@ -513,6 +513,64 @@ class Personio:
         Invalidates the search index. New data will be requested on the next search.
         """
         self.search_index.invalidate()
+
+    def get_projects(self):
+        """
+        Get a list of all projects used to attendances.
+
+
+        :return: list of ``Project`` records
+        """
+        response = self.request_json(f'company/attendances/projects/')
+        projects = [Project.from_dict(d, self) for d in response['data']]
+
+        return projects
+
+    def create_project(self, project: Project) -> Project:
+        """
+        Creates a project record on the Personio servers.
+
+        :param project: The project object to be created
+        :raises PersonioError: If the project could not be created on the Personio servers
+        """
+        data = project.to_body_params()
+        response = self.request_json('company/attendances/projects/', method='POST', data=data)
+        if response['success']:
+            project.id_ = response['data']['attributes']['id']
+            return project
+        raise PersonioError("Could not create project")
+
+    def update_project(self, project: Project) -> Project:
+        """
+        Updates a project record on the Personio servers.
+
+        :param project: The project object to be updated
+        :raises PersonioErrror: If the project could not be created on the Personio servers
+        """
+        data = project.to_body_params()
+        response = self.request_json(f'company/attendances/projects/{project.id_}', method='PATCH', data=data)
+        if response['success']:
+            return project
+        raise PersonioError("Could not update project")
+
+    def delete_project(self, project: Union[Project, int]) -> None:
+        """
+        Deletes a project record on the Personio servers.
+
+        :param project: The project object to be updated
+        :raises ValueError: If a query is required but not allowed
+            or the query does not provide exactly one result.
+        """
+        if isinstance(project, int):
+            response = self.request_json(f'company/attendances/projects/{project.id_}', method='DELETE')
+            return response['success']
+        elif isinstance(project, Project):
+            if project.id_ is not None:
+                return self.delete_project(project.id_)
+            else:
+                raise ValueError("Only a project with a project id can be deleted.")
+        else:
+            raise ValueError("project must be a Project object or an integer")
 
     def _get_employee_metadata(
             self, path: str, resource_cls: Type[PersonioResourceType],
