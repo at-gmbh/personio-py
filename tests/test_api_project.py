@@ -6,12 +6,12 @@ from personio_py import Project
 def test_get_projects():
     create_test_project(name = "test project")
     projects = personio.get_projects()
-        
+
     assert len(projects)>0
-    assert projects[0].name == "test project"
-    assert projects[0].active == False
-    personio.delete_project(projects[0])
-    
+    assert projects[-1].name == "test project"
+    assert projects[-1].active == False
+    personio.delete_project(projects[-1])
+
 
 @skip_if_no_auth
 def test_update_project():
@@ -28,10 +28,10 @@ def test_update_project():
     updated_project = personio.update_project(project)
 
     assert updated_project.active == False
-    
+
     personio.delete_project(project)
 
-@skip_if_no_auth    
+@skip_if_no_auth
 def test_delete_project_by_id():
     project = create_test_project(name="delete project by id", active=True)
     response = personio.delete_project(project.id_)
