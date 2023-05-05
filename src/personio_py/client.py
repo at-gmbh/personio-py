@@ -515,16 +515,14 @@ class Personio:
         """
         self.search_index.invalidate()
 
-    def get_projects(self):
+    def get_projects(self) -> List[Project]:
         """
-        Get a list of all projects used to attendances.
-
+        Get a list of all company projects.
 
         :return: list of ``Project`` records
         """
         response = self.request_json(self.PROJECT_URL)
         projects = [Project.from_dict(d, self) for d in response['data']]
-
         return projects
 
     def create_project(self, project: Project) -> Project:
