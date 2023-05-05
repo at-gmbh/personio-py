@@ -80,7 +80,7 @@
 <span class="kn">import</span> <span class="nn">requests</span>
 <span class="kn">from</span> <span class="nn">requests</span> <span class="kn">import</span> <span class="n">Response</span>
 
-<span class="kn">from</span> <span class="nn">personio_py</span> <span class="kn">import</span> <span class="n">Absence</span><span class="p">,</span> <span class="n">AbsenceType</span><span class="p">,</span> <span class="n">Attendance</span><span class="p">,</span> <span class="n">DynamicMapping</span><span class="p">,</span> <span class="n">Employee</span>
+<span class="kn">from</span> <span class="nn">personio_py</span> <span class="kn">import</span> <span class="n">Absence</span><span class="p">,</span> <span class="n">AbsenceType</span><span class="p">,</span> <span class="n">Attendance</span><span class="p">,</span> <span class="n">DynamicMapping</span><span class="p">,</span> <span class="n">Employee</span><span class="p">,</span> <span class="n">Project</span>
 <span class="kn">from</span> <span class="nn">personio_py.errors</span> <span class="kn">import</span> <span class="n">MissingCredentialsError</span><span class="p">,</span> <span class="n">PersonioApiError</span><span class="p">,</span> <span class="n">PersonioError</span>
 <span class="kn">from</span> <span class="nn">personio_py.models</span> <span class="kn">import</span> <span class="n">PersonioResource</span>
 <span class="kn">from</span> <span class="nn">personio_py.search</span> <span class="kn">import</span> <span class="n">SearchIndex</span>
@@ -107,6 +107,7 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;base URL of the Personio HTTP API&quot;&quot;&quot;</span>
     <span class="n">ATTENDANCE_URL</span> <span class="o">=</span> <span class="s1">&#39;company/attendances&#39;</span>
     <span class="n">ABSENCE_URL</span> <span class="o">=</span> <span class="s1">&#39;company/time-offs&#39;</span>
+    <span class="n">PROJECT_URL</span> <span class="o">=</span> <span class="s1">&#39;company/attendances/projects&#39;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">base_url</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">client_id</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">client_secret</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
                  <span class="n">dynamic_fields</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">DynamicMapping</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
@@ -583,6 +584,62 @@
 <span class="sd">        Invalidates the search index. New data will be requested on the next search.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">search_index</span><span class="o">.</span><span class="n">invalidate</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="Personio.get_projects"><a class="viewcode-back" href="../../api.html#personio_py.Personio.get_projects">[docs]</a>    <span class="k">def</span> <span class="nf">get_projects</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Project</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get a list of all company projects.</span>
+
+<span class="sd">        :return: list of ``Project`` records</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">request_json</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">PROJECT_URL</span><span class="p">)</span>
+        <span class="n">projects</span> <span class="o">=</span> <span class="p">[</span><span class="n">Project</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">response</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">]]</span>
+        <span class="k">return</span> <span class="n">projects</span></div>
+
+<div class="viewcode-block" id="Personio.create_project"><a class="viewcode-back" href="../../api.html#personio_py.Personio.create_project">[docs]</a>    <span class="k">def</span> <span class="nf">create_project</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">project</span><span class="p">:</span> <span class="n">Project</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Project</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Creates a project record on the Personio servers.</span>
+
+<span class="sd">        :param project: The project object to be created</span>
+<span class="sd">        :raises PersonioError: If the project could not be created on the Personio servers</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">project</span><span class="o">.</span><span class="n">to_body_params</span><span class="p">()</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">request_json</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">PROJECT_URL</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s1">&#39;POST&#39;</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">response</span><span class="p">[</span><span class="s1">&#39;success&#39;</span><span class="p">]:</span>
+            <span class="n">project</span><span class="o">.</span><span class="n">id_</span> <span class="o">=</span> <span class="n">response</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">][</span><span class="s1">&#39;id&#39;</span><span class="p">]</span>
+            <span class="k">return</span> <span class="n">project</span>
+        <span class="k">raise</span> <span class="n">PersonioError</span><span class="p">(</span><span class="s2">&quot;Could not create project&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Personio.update_project"><a class="viewcode-back" href="../../api.html#personio_py.Personio.update_project">[docs]</a>    <span class="k">def</span> <span class="nf">update_project</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">project</span><span class="p">:</span> <span class="n">Project</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Project</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Updates a project record on the Personio servers.</span>
+
+<span class="sd">        :param project: The project object to be updated</span>
+<span class="sd">        :raises PersonioErrror: If the project could not be created on the Personio servers</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">project</span><span class="o">.</span><span class="n">to_body_params</span><span class="p">()</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">request_json</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">PROJECT_URL</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">project</span><span class="o">.</span><span class="n">id_</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s1">&#39;PATCH&#39;</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">response</span><span class="p">[</span><span class="s1">&#39;success&#39;</span><span class="p">]:</span>
+            <span class="k">return</span> <span class="n">project</span>
+        <span class="k">raise</span> <span class="n">PersonioError</span><span class="p">(</span><span class="s2">&quot;Could not update project&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Personio.delete_project"><a class="viewcode-back" href="../../api.html#personio_py.Personio.delete_project">[docs]</a>    <span class="k">def</span> <span class="nf">delete_project</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">project</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Project</span><span class="p">,</span> <span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Deletes a project record on the Personio servers.</span>
+
+<span class="sd">        :param project: The project object to be updated</span>
+<span class="sd">        :raises ValueError: If a query is required but not allowed</span>
+<span class="sd">            or the query does not provide exactly one result.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">project</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+            <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">request</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">PROJECT_URL</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">project</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s1">&#39;DELETE&#39;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">response</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">project</span><span class="p">,</span> <span class="n">Project</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">project</span><span class="o">.</span><span class="n">id_</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">delete_project</span><span class="p">(</span><span class="n">project</span><span class="o">.</span><span class="n">id_</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Only a project with a project id can be deleted.&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;project must be a Project object or an integer&quot;</span><span class="p">)</span></div>
 
     <span class="k">def</span> <span class="nf">_get_employee_metadata</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">resource_cls</span><span class="p">:</span> <span class="n">Type</span><span class="p">[</span><span class="n">PersonioResourceType</span><span class="p">],</span>

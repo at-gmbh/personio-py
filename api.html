@@ -108,6 +108,11 @@ List of <code class="xref py py-class docutils literal notranslate"><span class=
 <span class="sig-name descname"><span class="pre">ATTENDANCE_URL</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'company/attendances'</span></em><a class="headerlink" href="#personio_py.Personio.ATTENDANCE_URL" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
+<dl class="py attribute">
+<dt class="sig sig-object py" id="personio_py.Personio.PROJECT_URL">
+<span class="sig-name descname"><span class="pre">PROJECT_URL</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'company/attendances/projects'</span></em><a class="headerlink" href="#personio_py.Personio.PROJECT_URL" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="personio_py.Personio.authenticate">
 <span class="sig-name descname"><span class="pre">authenticate</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/personio_py/client.html#Personio.authenticate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#personio_py.Personio.authenticate" title="Permalink to this definition"></a></dt>
@@ -155,6 +160,20 @@ their corresponding objects passed as attendances will not be updated.</p>
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="personio_py.Personio.create_project">
+<span class="sig-name descname"><span class="pre">create_project</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">project</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#personio_py.models.Project" title="personio_py.models.Project"><span class="pre">personio_py.models.Project</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#personio_py.models.Project" title="personio_py.models.Project"><span class="pre">personio_py.models.Project</span></a></span></span><a class="reference internal" href="_modules/personio_py/client.html#Personio.create_project"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#personio_py.Personio.create_project" title="Permalink to this definition"></a></dt>
+<dd><p>Creates a project record on the Personio servers.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>project</strong> – The project object to be created</p>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><a class="reference internal" href="#personio_py.PersonioError" title="personio_py.PersonioError"><strong>PersonioError</strong></a> – If the project could not be created on the Personio servers</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="personio_py.Personio.delete_absence">
 <span class="sig-name descname"><span class="pre">delete_absence</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">absence</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#personio_py.models.Absence" title="personio_py.models.Absence"><span class="pre">personio_py.models.Absence</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/personio_py/client.html#Personio.delete_absence"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#personio_py.Personio.delete_absence" title="Permalink to this definition"></a></dt>
 <dd><p>Delete an existing record</p>
@@ -186,6 +205,21 @@ delete.</p>
 <dt class="field-even">Raises</dt>
 <dd class="field-even"><p>ValueError: If a query is required but not allowed or the query does not provide
 exactly one result.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="personio_py.Personio.delete_project">
+<span class="sig-name descname"><span class="pre">delete_project</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">project</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#personio_py.models.Project" title="personio_py.models.Project"><span class="pre">personio_py.models.Project</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/personio_py/client.html#Personio.delete_project"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#personio_py.Personio.delete_project" title="Permalink to this definition"></a></dt>
+<dd><p>Deletes a project record on the Personio servers.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>project</strong> – The project object to be updated</p>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><strong>ValueError</strong> – If a query is required but not allowed
+or the query does not provide exactly one result.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -300,6 +334,17 @@ Does not involve pagination.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p>list of <code class="docutils literal notranslate"><span class="pre">Employee</span></code> instances</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="personio_py.Personio.get_projects">
+<span class="sig-name descname"><span class="pre">get_projects</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#personio_py.models.Project" title="personio_py.models.Project"><span class="pre">personio_py.models.Project</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/personio_py/client.html#Personio.get_projects"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#personio_py.Personio.get_projects" title="Permalink to this definition"></a></dt>
+<dd><p>Get a list of all company projects.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>list of <code class="docutils literal notranslate"><span class="pre">Project</span></code> records</p>
 </dd>
 </dl>
 </dd></dl>
@@ -477,6 +522,20 @@ exactly one result.</p>
 <dt class="sig sig-object py" id="personio_py.Personio.update_employee">
 <span class="sig-name descname"><span class="pre">update_employee</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">employee</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#personio_py.models.Employee" title="personio_py.models.Employee"><span class="pre">personio_py.models.Employee</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/personio_py/client.html#Personio.update_employee"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#personio_py.Personio.update_employee" title="Permalink to this definition"></a></dt>
 <dd><p>placeholder; not ready to be used</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="personio_py.Personio.update_project">
+<span class="sig-name descname"><span class="pre">update_project</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">project</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#personio_py.models.Project" title="personio_py.models.Project"><span class="pre">personio_py.models.Project</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#personio_py.models.Project" title="personio_py.models.Project"><span class="pre">personio_py.models.Project</span></a></span></span><a class="reference internal" href="_modules/personio_py/client.html#Personio.update_project"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#personio_py.Personio.update_project" title="Permalink to this definition"></a></dt>
+<dd><p>Updates a project record on the Personio servers.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>project</strong> – The project object to be updated</p>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><strong>PersonioErrror</strong> – If the project could not be created on the Personio servers</p>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
@@ -728,6 +787,34 @@ a nested dictionary…)</p>
 <dt class="sig sig-object py" id="personio_py.models.PersonioResource.to_tuple">
 <span class="sig-name descname"><span class="pre">to_tuple</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span></span></span><a class="reference internal" href="_modules/personio_py/models.html#PersonioResource.to_tuple"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#personio_py.models.PersonioResource.to_tuple" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="personio_py.models.Project">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">personio_py.models.</span></span><span class="sig-name descname"><span class="pre">Project</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">client</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Personio</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dynamic</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dynamic_raw</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#personio_py.models.DynamicAttr" title="personio_py.models.DynamicAttr"><span class="pre">DynamicAttr</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">id_</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">active</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">created_at</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">datetime.datetime</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">updated_at</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">datetime.datetime</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/personio_py/models.html#Project"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#personio_py.models.Project" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#personio_py.models.WritablePersonioResource" title="personio_py.models.WritablePersonioResource"><code class="xref py py-class docutils literal notranslate"><span class="pre">personio_py.models.WritablePersonioResource</span></code></a></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="personio_py.models.Project.to_body_params">
+<span class="sig-name descname"><span class="pre">to_body_params</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/personio_py/models.html#Project.to_body_params"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#personio_py.models.Project.to_body_params" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="personio_py.models.Project.to_dict">
+<span class="sig-name descname"><span class="pre">to_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nested</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/personio_py/models.html#Project.to_dict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#personio_py.models.Project.to_dict" title="Permalink to this definition"></a></dt>
+<dd><p>Convert this PersonioResource to a dictionary that has the same structure as the
+json data from the Personio API.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>nested</strong> – indicate that this resource is part of a nested dictionary
+(Personio resources can have a different serialization when they are part of
+a nested dictionary…)</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>the Personio resource as dictionary (same structure as in the Personio API)</p>
+</dd>
+</dl>
+</dd></dl>
 
 </dd></dl>
 
