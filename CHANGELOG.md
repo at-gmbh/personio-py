@@ -4,19 +4,10 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.2.4](https://github.com/at-gmbh/personio-py/tree/feature/projects-fateme) - 2023-03-30
-
-* debug projects feature ([#36](https://github.com/at-gmbh/personio-py/pull/36))
-* add tests
-
-## [0.2.3](https://github.com/at-gmbh/personio-py/tree/v0.2.3) - 2023-02-08
-
-* debug attendance feature
-* add support for attendance paginated API requests
-
 ## [Unreleased](https://github.com/at-gmbh/personio-py/compare/v0.2.2...HEAD)
 
-* add support for Projects ([#30](https://github.com/at-gmbh/personio-py/pull/30))
+* add support for Projects ([#36](https://github.com/at-gmbh/personio-py/pull/36))
+* add support for attendances, with paginated API requests ([#35](https://github.com/at-gmbh/personio-py/pull/35))
 
 ## [0.2.2](https://github.com/at-gmbh/personio-py/tree/v0.2.2) - 2022-07-04
 
