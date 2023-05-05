@@ -84,31 +84,59 @@ This project is released on [PyPI](https://pypi.org/project/personio-py/). Most 
 
 ## API Functions
 
-Available
+Since the [Personio API](https://developer.personio.de/reference/introduction) gets extended over time, personio-py usually only implements a subset of all available API features. This section gives an overview, which API functions are accessible through personio-py.
 
-* [`POST /auth`](https://developer.personio.de/reference#auth): fully transparent authentication handling
-* [`GET /company/employees`](https://developer.personio.de/reference#get_company-employees): list all employees
-* [`GET /company/employees/{id}`](https://developer.personio.de/reference#get_company-employees-employee-id): get the employee with the specified ID
-* [`GET /company/employees/{id}/profile-picture/{width}`](https://developer.personio.de/reference#get_company-employees-employee-id-profile-picture-width): get the profile picture of the specified employee
-* [`GET /company/attendances`](https://developer.personio.de/reference#get_company-attendances): fetch attendance data for the company employees
-* [`POST /company/attendances`](https://developer.personio.de/reference#post_company-attendances): add attendance data for the company employees
-* [`DELETE /company/attendances/{id}`](https://developer.personio.de/reference#delete_company-attendances-id): delete the attendance entry with the specified ID
-* [`PATCH /company/attendances/{id}`](https://developer.personio.de/reference#patch_company-attendances-id): update the attendance entry with the specified ID
-* [`GET /company/time-off-types`](https://developer.personio.de/reference#get_company-time-off-types): get a list of available absences types
-* [`GET /company/time-offs`](https://developer.personio.de/reference#get_company-time-offs): fetch absence data for the company employees
-* [`POST /company/time-offs`](https://developer.personio.de/reference#post_company-time-offs): add absence data for the company employees
-* [`GET /company/time-offs/{id}`](https://developer.personio.de/reference#get_company-time-offs-id): get the absence entry with the specified ID
-* [`DELETE /company/time-offs/{id}`](https://developer.personio.de/reference#delete_company-time-offs-id): delete the absence entry with the specified ID
-* [`GET /company/attendances/projects`](https://developer.personio.de/reference/get_company-attendances-projects): fetch projects for attendances
-* [`POST /company/attendances/projects`](https://developer.personio.de/reference/post_company-attendances-projects): create a project for attendance
-* [`DELETE /company/attendances/projects`](https://developer.personio.de/reference/delete_company-attendances-projects-id): delete a project for attendance
-* [`PATCH /company/attendances/projects/{id}`](https://developer.personio.de/reference/patch_company-attendances-projects-id): update a project for attendance
+### Available
 
+Authentication
 
-Work in Progress
+* [`POST /auth`](https://developer.personio.de/reference/post_auth-1): fully transparent authentication handling
 
-* [`POST /company/employees`](https://developer.personio.de/reference#post_company-employees): create a new employee
-* [`PATCH /company/employees/{id}`](https://developer.personio.de/reference#patch_company-employees-employee-id): update an existing employee entry
+Employees
+
+* [`GET /company/employees`](https://developer.personio.de/reference/get_company-employees): list all employees
+* [`POST /company/employees`](https://developer.personio.de/reference/post_company-employees): create a new employee
+* [`GET /company/employees/{id}`](https://developer.personio.de/reference/get_company-employees-employee-id): get the employee with the specified ID
+* [`GET /company/employees/{id}/profile-picture/{width}`](https://developer.personio.de/reference/get_company-employees-employee-id-profile-picture-width): get the profile picture of the specified employee
+
+Attendances
+
+* [`GET /company/attendances`](https://developer.personio.de/reference/get_company-attendances): fetch attendance data for the company employees
+* [`POST /company/attendances`](https://developer.personio.de/reference/post_company-attendances): add attendance data for the company employees
+* [`DELETE /company/attendances/{id}`](https://developer.personio.de/reference/delete_company-attendances-id): delete the attendance entry with the specified ID
+* [`PATCH /company/attendances/{id}`](https://developer.personio.de/reference/patch_company-attendances-id): update the attendance entry with the specified ID
+
+Projects
+
+* [`GET /company/attendances/projects`](https://developer.personio.de/reference/get_company-attendances-projects): provides a list of all company projects
+* [`POST /company/attendances/projects`](https://developer.personio.de/reference/post_company-attendances-projects): creates a project into the company account
+* [`DELETE /company/attendances/projects/{id}`](https://developer.personio.de/reference/delete_company-attendances-projects-id): deletes a project from the company account
+* [`PATCH /company/attendances/projects/{id}`](https://developer.personio.de/reference/patch_company-attendances-projects-id): updates a project with the given data
+
+Absences
+
+* [`GET /company/time-off-types`](https://developer.personio.de/reference/get_company-time-off-types): get a list of available absences types
+* [`GET /company/time-offs`](https://developer.personio.de/reference/get_company-time-offs): fetch absence data for the company employees
+* [`POST /company/time-offs`](https://developer.personio.de/reference/post_company-time-offs): add absence data for the company employees
+* [`GET /company/time-offs/{id}`](https://developer.personio.de/reference/get_company-time-offs-id): get the absence entry with the specified ID
+* [`DELETE /company/time-offs/{id}`](https://developer.personio.de/reference/delete_company-time-offs-id): delete the absence entry with the specified ID
+
+### Not yet implemented
+
+* [`PATCH /company/employees/{id}`](https://developer.personio.de/reference/patch_company-employees-employee-id): update an existing employee entry
+* [`GET /company/employees/{employee_id}/absences/balance`](https://developer.personio.de/reference/get_company-employees-employee-id-absences-balance): retrieve the absence balance for a specific employee
+* [`GET /company/employees/custom-attributes`](https://developer.personio.de/reference/get_company-employees-custom-attributes): this endpoint is an alias for /company/employees/attributes
+* [`GET /company/employees/attributes`](https://developer.personio.de/reference/get_company-employees-attributes): lists all the allowed attributes per API credentials including custom (dynamic) attributes.
+* [`GET /company/absence-periods`](https://developer.personio.de/reference/get_company-absence-periods)
+* [`POST /company/absence-periods`](https://developer.personio.de/reference/post_company-absence-periods)
+* [`DELETE /company/absence-periods/{id}`](https://developer.personio.de/reference/delete_company-absence-periods-id)
+
+* [`GET /company/document-categories`](https://developer.personio.de/reference/get_company-document-categories): this endpoint is responsible for fetching all document categories of the company
+* [`POST /company/documents`](https://developer.personio.de/reference/post_company-documents): this endpoint is responsible for uploading documents for the company employees
+* [`GET /company/custom-reports/reports`](https://developer.personio.de/reference/listreports): this endpoint provides you with metadata about existing custom reports in your Personio account, such as report name, report type, report date / timeframe
+* [`GET /company/custom-reports/reports/{report_id}`](https://developer.personio.de/reference/listreportitems): this endpoint provides you with the data of an existing Custom Report
+* [`GET /company/custom-reports/columns`](https://developer.personio.de/reference/listcolumns): this endpoint provides human-readable labels for report table columns
+* all of the [recruiting API](https://developer.personio.de/reference/introduction-1)
 
 ## Contact
 
