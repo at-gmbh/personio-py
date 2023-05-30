@@ -9,9 +9,11 @@ from functools import total_ordering
 from typing import Any, Dict, List, NamedTuple, Optional, TYPE_CHECKING, Tuple, Type, TypeVar
 
 from personio_py import PersonioError, UnsupportedMethodError
-from personio_py.mapping import BooleanFieldMapping, DateFieldMapping, DateTimeFieldMapping, \
-    DurationFieldMapping, DynamicMapping, FieldMapping, ListFieldMapping, NumericFieldMapping, \
+from personio_py.mapping import (
+    BooleanFieldMapping, DateFieldMapping, DateTimeFieldMapping,
+    DurationFieldMapping, DynamicMapping, FieldMapping, ListFieldMapping, NumericFieldMapping,
     ObjectFieldMapping, TimeFieldMapping
+)
 
 if TYPE_CHECKING:
     # only type checkers may import Personio, otherwise we get an evil circular import error
@@ -620,6 +622,7 @@ class Absence(WritablePersonioResource):
             data['comment'] = self.comment
         return data
 
+
 class Project(WritablePersonioResource):
 
     _api_type_name = "Project"
@@ -633,7 +636,9 @@ class Project(WritablePersonioResource):
     ]
 
     def __init__(self, client: 'Personio' = None, dynamic: Dict[str, Any] = None,
-                 dynamic_raw: List['DynamicAttr'] = None, id_: int = None, name: str = None, active: bool = None, created_at: datetime = None, updated_at: datetime = None, **kwargs):
+                 dynamic_raw: List['DynamicAttr'] = None, id_: int = None, name: str = None,
+                 active: bool = None, created_at: datetime = None, updated_at: datetime = None,
+                 **kwargs):
         super().__init__(client=client, dynamic=dynamic, dynamic_raw=dynamic_raw, **kwargs)
         self.id_ = id_
         self.name = name
@@ -647,7 +652,7 @@ class Project(WritablePersonioResource):
     def _delete(self, client: 'Personio' = None):
         return get_client(self, client).delete_project(self)
 
-    def _update(self, client: 'Personio'= None):
+    def _update(self, client: 'Personio' = None):
         return get_client(self, client).update_project(self)
 
     def to_dict(self, nested=False) -> Dict[str, Any]:
@@ -660,9 +665,9 @@ class Project(WritablePersonioResource):
     def to_body_params(self):
         data = {
             'name': self.name,
-            'active': self.active
-        }
+            'active': self.active}
         return data
+
 
 class Attendance(WritablePersonioResource):
 
@@ -722,13 +727,46 @@ class Attendance(WritablePersonioResource):
         return d
 
     def _create(self, client: 'Personio'):
-        pass
+        get_client(self, client).create_attendances([self])
 
     def _update(self, client: 'Personio'):
-        pass
+        get_client(self, client).update_attendance(self)
 
     def _delete(self, client: 'Personio'):
-        pass
+        get_client(self, client).delete_attendance(self)
+
+    def to_body_params(self, patch_existing_attendance=False):
+        """
+        Return the Attendance object in the representation expected by the Personio API
+
+        For an attendance record to be created all_values_required needs to be True.
+        For patch operations only the attendance id is required, but it is not
+        included into the body params.
+
+        :param patch_existing_attendance Get patch body. If False a create body is returned.
+        """
+        if patch_existing_attendance:
+            if self.id_ is None:
+                raise ValueError("An attendance id is required")
+            body_dict = {}
+            if self.date is not None:
+                body_dict['date'] = self.date.strftime("%Y-%m-%d")
+            if self.start_time is not None:
+                body_dict['start_time'] = str(self.start_time)
+            if self.end_time is not None:
+                body_dict['end_time'] = str(self.end_time)
+            if self.break_duration is not None:
+                body_dict['break'] = self.break_duration
+            if self.comment is not None:
+                body_dict['comment'] = self.comment
+            return body_dict
+        else:
+            return {"employee": self.employee_id,
+                    "date": self.date.strftime("%Y-%m-%d"),
+                    "start_time": self.start_time,
+                    "end_time": self.end_time,
+                    "break": self.break_duration or 0,
+                    "comment": self.comment or ""}
 
 
 class Employee(WritablePersonioResource, LabeledAttributesMixin):

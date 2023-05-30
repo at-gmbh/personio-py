@@ -721,7 +721,8 @@ json_string_attendance_rms = """
 {
   "success": true,
   "metadata":{
-        "current_page":1,
+        "total_elements": 3,
+        "current_page":0,
         "total_pages":1
     },
   "data": [{
@@ -1147,3 +1148,107 @@ json_string_get_absence = """
    }
 }"""
 json_dict_get_absence = json.loads(json_string_get_absence)
+
+json_string_attendance_create_no_break = """
+{
+   "success":true,
+   "data":{
+      "id": [83648700],
+      "message": "success"
+   }
+}
+"""
+json_dict_attendance_create_no_break = json.loads(json_string_attendance_create_no_break)
+
+json_string_attendance_patch = """
+{
+   "success":true,
+   "data":{
+      "message": "success"
+   }
+}
+"""
+json_dict_attendance_patch = json.loads(json_string_attendance_patch)
+
+json_string_attendance_delete = """
+{
+   "success":true,
+   "data":{
+      "message": "success"
+   }
+}
+"""
+json_dict_attendance_delete = json.loads(json_string_attendance_delete)
+
+json_string_project_rms = """
+{
+  "success": true,
+  "data": [
+    {
+      "id": 238751,
+      "type": "Project",
+      "attributes": {
+        "name": "conwik project",
+        "active": true,
+        "created_at": "2019-03-01T16:00:00",
+        "updated_at": "2020-03-02T16:11:35"
+      }
+    }, {
+      "id": 238750,
+      "type": "Project",
+      "attributes": {
+        "name": "mock project",
+        "active": true,
+        "created_at": "2023-03-28T16:11:35",
+        "updated_at": "2023-03-28T16:11:35"
+      }
+    }, {
+      "id": 238752,
+      "type": "Project",
+      "attributes": {
+        "name": "alianz project",
+        "active": false,
+        "created_at": "2020-10-10T10:11:35",
+        "updated_at": "2023-02-22T17:11:35"
+      }
+    }
+    ]
+}
+"""
+json_dict_project_rms = json.loads(json_string_project_rms)
+
+json_string_project_create = """
+{
+  "success":true,
+   "data":{
+      "id": 83648600,
+      "message": "success"
+   }
+}
+"""
+json_dict_project_create = json.loads(json_string_project_create)
+
+json_string_project_delete = """
+{
+   "text":"",
+   "status_code": 204
+}
+"""
+json_dict_project_delete = json.loads(json_string_project_delete)
+
+json_string_project_update = """
+{
+  "success": true,
+  "data": {
+      "id": 238760,
+      "type": "Project",
+      "attributes": {
+        "name": "updated mock project",
+        "active": true,
+        "created_at": "2023-03-28T16:11:35",
+        "updated_at": "2023-03-28T16:11:52"
+      }
+    }
+}
+"""
+json_dict_project_update = json.loads(json_string_project_update)

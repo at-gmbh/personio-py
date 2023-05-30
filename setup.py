@@ -13,7 +13,7 @@ __version__ = run_path('src/personio_py/version.py')['__version__']
 
 def read(fname):
     """Utility function to read the README file."""
-    return open(os.path.join(os.path.dirname(__file__), fname), 'r', encoding='utf-8').read()
+    return open(os.path.join(os.path.dirname(__file__), fname), encoding='utf-8').read()
 
 
 class DistCommand(Command):
