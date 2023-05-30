@@ -163,18 +163,20 @@ class Personio:
         if params is None:
             params = {}
         params['limit'] = limit
-        params['offset'] = 1
+        params['offset'] = 0
         # continue making requests until no more data is returned
         data_acc = []
         while True:
-            response = self.request_json(path, method, params, data, auth_rotation=auth_rotation)
+
+            response = self.request_json(
+                path, method, params, data, auth_rotation=auth_rotation)
             resp_data = response['data']
             if resp_data:
                 data_acc.extend(resp_data)
-                if response['metadata']['current_page'] == response['metadata']['total_pages']:
+                if response['metadata']['current_page'] == response['metadata']['total_pages']-1:
                     break
                 else:
-                    params['offset'] += 1
+                    params['offset'] += limit
             else:
                 break
         # return the accumulated data
