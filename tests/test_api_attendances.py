@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, time
 
 from personio_py import Employee, Attendance
 from tests.apitest_shared import *
@@ -97,13 +97,16 @@ def create_attendance_for_user(
                  comment: str = None,
                  is_holiday: bool = None,
                  is_on_time_off: bool = None,
+                 updated_at: datetime = None,
+                 status: str = None,
+                 project: int = None,
                  create: bool = False):
     if not date:
         date = datetime(2021, 1, 1)
     if not start_time:
-        start_time = "08:00"
+        start_time = time(9)
     if not end_time:
-        end_time = "17:00"
+        end_time = time(17)
 
     attendance_to_create = Attendance(
         employee_id=employee_id,
@@ -113,7 +116,10 @@ def create_attendance_for_user(
         break_duration=break_duration,
         comment=comment,
         is_holiday=is_holiday,
-        is_on_time_off=is_on_time_off
+        is_on_time_off=is_on_time_off,
+        updated_at=updated_at,
+        status=status,
+        project=project
     )
     if create:
         attendance_to_create.create(personio)
