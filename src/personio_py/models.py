@@ -350,7 +350,7 @@ class BaseEmployee(PersonioResource):
     """these are the standard fields that are required by the Employee create/update API"""
     _api_fields_optional: ClassVar[List] = [
         'gender', 'position', 'subcompany', ('department.name', 'department'),
-        ('office.name', 'office'), 'hire_date', ('weekly_working_hours', 'weekly_hours')]
+        ('office.name', 'office'), 'hire_date', 'weekly_working_hours']
     """these are the standard fields that are supported by the Employee create/update API,
     but optional. Any other standard fields besides those defined in `_api_fields_required` are
     not supported and will by ignored by the Personio API"""
