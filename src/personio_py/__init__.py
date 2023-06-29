@@ -33,6 +33,7 @@ from .models import (
     ShortEmployee,
     Team,
     WorkSchedule,
+    Project
 )
 from .search import SearchIndex
 from .client import Personio

@@ -118,6 +118,10 @@ class AbsenceEntitlement(PersonioResource):
 
 class AbsenceType(PersonioResource):
     _api_type_name = "TimeOffType"
+    _field_mapping_list = [
+        NumericFieldMapping('id', 'id_', int),
+        FieldMapping('name', 'name', str),
+    ]
 
     id: int = None
     name: Optional[str] = None
@@ -256,6 +260,98 @@ class Absence(PersonioResource):
         return data
 
 
+class Project(WritablePersonioResource):
+
+    _api_type_name = "Project"
+    _field_mapping_list = [
+        # note: the id is actually not in the attributes dict, but one level higher
+        NumericFieldMapping('id', 'id_', int),
+        FieldMapping('name', 'name', str),
+        BooleanFieldMapping('active', 'active'),
+        DateTimeFieldMapping('created_at', 'created_at'),
+        DateTimeFieldMapping('updated_at', 'updated_at')
+    ]
+
+    def __init__(self, client: 'Personio' = None, dynamic: Dict[str, Any] = None,
+                 dynamic_raw: List['DynamicAttr'] = None, id_: int = None, name: str = None,
+                 active: bool = None, created_at: datetime = None, updated_at: datetime = None,
+                 **kwargs):
+        super().__init__(client=client, dynamic=dynamic, dynamic_raw=dynamic_raw, **kwargs)
+        self.id_ = id_
+        self.name = name
+        self.active = active
+        self.created_at = created_at
+        self.updated_at = updated_at
+
+    def _create(self, client: 'Personio' = None):
+        return get_client(self, client).create_project(self)
+
+    def _delete(self, client: 'Personio' = None):
+        return get_client(self, client).delete_project(self)
+
+    def _update(self, client: 'Personio' = None):
+        return get_client(self, client).update_project(self)
+
+    def to_dict(self, nested=False) -> Dict[str, Any]:
+        # yes, this is weird an unnecessary, but that's how the api works
+        d = super().to_dict()
+        d['id'] = self.id_
+        del d['attributes']['id']
+        return d
+
+    def to_body_params(self):
+        data = {
+            'name': self.name,
+            'active': self.active}
+        return data
+
+
+class Project(WritablePersonioResource):
+
+    _api_type_name = "Project"
+    _field_mapping_list = [
+        # note: the id is actually not in the attributes dict, but one level higher
+        NumericFieldMapping('id', 'id_', int),
+        FieldMapping('name', 'name', str),
+        BooleanFieldMapping('active', 'active'),
+        DateTimeFieldMapping('created_at', 'created_at'),
+        DateTimeFieldMapping('updated_at', 'updated_at')
+    ]
+
+    def __init__(self, client: 'Personio' = None, dynamic: Dict[str, Any] = None,
+                 dynamic_raw: List['DynamicAttr'] = None, id_: int = None, name: str = None,
+                 active: bool = None, created_at: datetime = None, updated_at: datetime = None,
+                 **kwargs):
+        super().__init__(client=client, dynamic=dynamic, dynamic_raw=dynamic_raw, **kwargs)
+        self.id_ = id_
+        self.name = name
+        self.active = active
+        self.created_at = created_at
+        self.updated_at = updated_at
+
+    def _create(self, client: 'Personio' = None):
+        return get_client(self, client).create_project(self)
+
+    def _delete(self, client: 'Personio' = None):
+        return get_client(self, client).delete_project(self)
+
+    def _update(self, client: 'Personio' = None):
+        return get_client(self, client).update_project(self)
+
+    def to_dict(self, nested=False) -> Dict[str, Any]:
+        # yes, this is weird an unnecessary, but that's how the api works
+        d = super().to_dict()
+        d['id'] = self.id_
+        del d['attributes']['id']
+        return d
+
+    def to_body_params(self):
+        data = {
+            'name': self.name,
+            'active': self.active}
+        return data
+
+
 class Attendance(PersonioResource):
     _api_type_name = 'AttendancePeriod'
 
@@ -289,22 +385,47 @@ class AbsenceBalance(PersonioResource):
     balance: Optional[float] = None
 
 
-class PersonioTags(list):
+    def _create(self, client: 'Personio'):
+        pass
 
-    @classmethod
-    def __get_validators__(cls):
-        yield cls.validate
+    def _update(self, client: 'Personio'):
+        pass
 
-    @classmethod
-    def validate(cls, v):
-        if isinstance(v, str):
-            return [tag.strip() for tag in v.split(',')]
-        elif isinstance(v, list):
-            return v
-        elif not v:
-            return None
+    def _delete(self, client: 'Personio'):
+        pass
+
+    def to_body_params(self, patch_existing_attendance=False):
+        """
+        Return the Attendance object in the representation expected by the Personio API
+
+        For an attendance record to be created all_values_required needs to be True.
+        For patch operations only the attendance id is required, but it is not
+        included into the body params.
+
+        :param patch_existing_attendance Get patch body. If False a create body is returned.
+        """
+        if patch_existing_attendance:
+            if self.id_ is None:
+                raise ValueError("An attendance id is required")
+            body_dict = {}
+            if self.date is not None:
+                body_dict['date'] = self.date.strftime("%Y-%m-%d")
+            if self.start_time is not None:
+                body_dict['start_time'] = str(self.start_time)
+            if self.end_time is not None:
+                body_dict['end_time'] = str(self.end_time)
+            if self.break_duration is not None:
+                body_dict['break'] = self.break_duration
+            if self.comment is not None:
+                body_dict['comment'] = self.comment
+            return body_dict
         else:
-            raise TypeError(f"unexpected input type {type(v)}")
+            return {"employee": self.employee_id,
+                    "date": self.date.strftime("%Y-%m-%d"),
+                    "start_time": self.start_time,
+                    "end_time": self.end_time,
+                    "break": self.break_duration or 0,
+                    "comment": self.comment or ""}
 
 
 class CustomAttribute(BaseModel):
