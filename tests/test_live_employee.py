@@ -78,7 +78,7 @@ def test_employee_custom_attributes():
 
 @skip_if_no_auth
 def test_create_employee():
-    # note: sice Personio does not provide any API endpoints to delete employees,
+    # note: since Personio does not provide any API endpoints to delete employees,
     # you have to manually delete this employee via the web UI if you want to run
     # this test more than once...
     personio.update_model(globals())

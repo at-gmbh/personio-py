@@ -23,7 +23,7 @@ repos:
         args: ['--max-line-length=100', '--ignore=F401,W503']
         exclude: ^setup.py
   - repo: https://github.com/pycqa/isort
-    rev: '5.10.1'
+    rev: '5.12.0'
     hooks:
       - id: isort
         args: ['--py', '38', '--line-length', '100', '--multi-line', '2']

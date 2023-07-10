@@ -1,5 +1,6 @@
 from datetime import date
 from functools import lru_cache
+from typing import List
 
 import pytest
 
@@ -121,12 +122,12 @@ def test_delete_absences_from_client_object_without_id():
         personio.delete_absence(absence)
 
 
-def delete_absences(client: Personio, absences: [int] or [Absence]):
+def delete_absences(client: Personio, absences: List[int] or List[Absence]):
     for absence in absences:
         client.delete_absence(absence)
 
 
-def create_absences(client: Personio, absences: [Absence]):
+def create_absences(client: Personio, absences: List[Absence]):
     for absence in absences:
         client.create_absence(absence)
 
