@@ -12,8 +12,8 @@ import requests
 from requests import Response
 
 from personio_py import Absence, AbsenceBalance, AbsenceType, Attendance, BaseEmployee, \
-    CustomAttribute, Employee, Project, MissingCredentialsError, PersonioApiError, PersonioError, \
-    PersonioResourceType, SearchIndex, g, update_model
+    CustomAttribute, Employee, MissingCredentialsError, PersonioApiError, PersonioError, \
+    PersonioResourceType, Project, SearchIndex, g, update_model
 
 logger = logging.getLogger('personio_py')
 
@@ -361,8 +361,6 @@ class Personio:
         """
         attendances = self._get_employee_metadata(
             self.ATTENDANCE_URL, Attendance, employees, start_date, end_date)
-        for attendance in attendances:
-            attendance._client = self
         return attendances
 
     def create_attendances(self, attendances: List[Attendance]) -> bool:
@@ -384,8 +382,7 @@ class Personio:
         )
         if response['success']:
             for attendance, response_id in zip(attendances, response['data']['id']):
-                attendance.id_ = response_id
-                attendance.client = self
+                attendance.id = response_id
             return True
         return False
 
@@ -402,16 +399,17 @@ class Personio:
             ValueError: If a query is required but not allowed or the query does not provide
             exactly one result.
         """
-        if attendance.id_ is not None:
+        if attendance.id is not None:
             # remote query not necessary
             response = self.request_json(
-                path=f'{self.ATTENDANCE_URL}/{attendance.id_}',
+                path=f'{self.ATTENDANCE_URL}/{attendance.id}',
                 method='PATCH',
                 data=attendance.to_body_params(patch_existing_attendance=True)
             )
-            return response
-        else:
-            raise ValueError("You need to provide the attendance id")
+            if response['success']:
+                return attendance
+            raise ValueError("Could not update attendance")
+        raise ValueError("You need to provide the attendance id")
 
     def delete_attendance(self, attendance: Union[Attendance, int]):
         """
@@ -432,8 +430,8 @@ class Personio:
                                          method='DELETE')
             return response
         elif isinstance(attendance, Attendance):
-            if attendance.id_ is not None:
-                return self.delete_attendance(attendance.id_)
+            if attendance.id is not None:
+                return self.delete_attendance(attendance.id)
             else:
                 raise ValueError("You need to provide the attendance")
         else:
@@ -571,7 +569,7 @@ class Personio:
         :return: list of ``Project`` records
         """
         response = self.request_json(self.PROJECT_URL)
-        projects = [Project.from_dict(d, self) for d in response['data']]
+        projects = [Project(**d) for d in response['data']]
         return projects
 
     def create_project(self, project: Project) -> Project:
@@ -584,7 +582,7 @@ class Personio:
         data = project.to_body_params()
         response = self.request_json(self.PROJECT_URL, method='POST', data=data)
         if response['success']:
-            project.id_ = response['data']['id']
+            project.id = response['data']['id']
             return project
         raise PersonioError("Could not create project")
 
@@ -596,7 +594,7 @@ class Personio:
         :raises PersonioErrror: If the project could not be created on the Personio servers
         """
         data = project.to_body_params()
-        response = self.request_json(f'{self.PROJECT_URL}/{project.id_}', method='PATCH', data=data)
+        response = self.request_json(f'{self.PROJECT_URL}/{project.id}', method='PATCH', data=data)
         if response['success']:
             return project
         raise PersonioError("Could not update project")
@@ -613,8 +611,8 @@ class Personio:
             response = self.request(f'{self.PROJECT_URL}/{project}', method='DELETE')
             return response
         elif isinstance(project, Project):
-            if project.id_ is not None:
-                return self.delete_project(project.id_)
+            if project.id is not None:
+                return self.delete_project(project.id)
             else:
                 raise ValueError("Only a project with a project id can be deleted.")
         else:
