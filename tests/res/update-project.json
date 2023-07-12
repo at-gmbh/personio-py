@@ -1,0 +1,13 @@
+{
+    "success": true,
+    "data": {
+        "id": 238760,
+        "type": "Project",
+        "attributes": {
+          "name": "updated mock project",
+          "active": true,
+          "created_at": "2023-03-28T16:11:35",
+          "updated_at": "2023-03-28T16:11:52"
+        }
+      }
+  }

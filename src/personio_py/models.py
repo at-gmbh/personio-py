@@ -106,6 +106,7 @@ class PersonioResource(BaseModel):
     class Config:
         extra = Extra.ignore
         anystr_strip_whitespace = True
+        allow_population_by_field_name = True
 
 
 class AbsenceEntitlement(PersonioResource):
@@ -118,10 +119,6 @@ class AbsenceEntitlement(PersonioResource):
 
 class AbsenceType(PersonioResource):
     _api_type_name = "TimeOffType"
-    _field_mapping_list = [
-        NumericFieldMapping('id', 'id_', int),
-        FieldMapping('name', 'name', str),
-    ]
 
     id: int = None
     name: Optional[str] = None
@@ -260,44 +257,23 @@ class Absence(PersonioResource):
         return data
 
 
-class Project(WritablePersonioResource):
-
+class Project(PersonioResource):
     _api_type_name = "Project"
-    _field_mapping_list = [
-        # note: the id is actually not in the attributes dict, but one level higher
-        NumericFieldMapping('id', 'id_', int),
-        FieldMapping('name', 'name', str),
-        BooleanFieldMapping('active', 'active'),
-        DateTimeFieldMapping('created_at', 'created_at'),
-        DateTimeFieldMapping('updated_at', 'updated_at')
-    ]
 
-    def __init__(self, client: 'Personio' = None, dynamic: Dict[str, Any] = None,
-                 dynamic_raw: List['DynamicAttr'] = None, id_: int = None, name: str = None,
-                 active: bool = None, created_at: datetime = None, updated_at: datetime = None,
-                 **kwargs):
-        super().__init__(client=client, dynamic=dynamic, dynamic_raw=dynamic_raw, **kwargs)
-        self.id_ = id_
-        self.name = name
-        self.active = active
-        self.created_at = created_at
-        self.updated_at = updated_at
+    id: int = None
+    name: Optional[str] = None
+    active: Optional[bool] = None
+    created_at: Optional[datetime] = None
+    updated_at: Optional[datetime] = None
 
-    def _create(self, client: 'Personio' = None):
-        return get_client(self, client).create_project(self)
+    def create(self):
+        return g.get_client().create_project(self)
 
-    def _delete(self, client: 'Personio' = None):
-        return get_client(self, client).delete_project(self)
+    def delete(self):
+        return g.get_client().delete_project(self)
 
-    def _update(self, client: 'Personio' = None):
-        return get_client(self, client).update_project(self)
-
-    def to_dict(self, nested=False) -> Dict[str, Any]:
-        # yes, this is weird an unnecessary, but that's how the api works
-        d = super().to_dict()
-        d['id'] = self.id_
-        del d['attributes']['id']
-        return d
+    def update(self):
+        return g.get_client().update_project(self)
 
     def to_body_params(self):
         data = {
@@ -305,66 +281,30 @@ class Project(WritablePersonioResource):
             'active': self.active}
         return data
 
-
-class Project(WritablePersonioResource):
-
-    _api_type_name = "Project"
-    _field_mapping_list = [
-        # note: the id is actually not in the attributes dict, but one level higher
-        NumericFieldMapping('id', 'id_', int),
-        FieldMapping('name', 'name', str),
-        BooleanFieldMapping('active', 'active'),
-        DateTimeFieldMapping('created_at', 'created_at'),
-        DateTimeFieldMapping('updated_at', 'updated_at')
-    ]
-
-    def __init__(self, client: 'Personio' = None, dynamic: Dict[str, Any] = None,
-                 dynamic_raw: List['DynamicAttr'] = None, id_: int = None, name: str = None,
-                 active: bool = None, created_at: datetime = None, updated_at: datetime = None,
-                 **kwargs):
-        super().__init__(client=client, dynamic=dynamic, dynamic_raw=dynamic_raw, **kwargs)
-        self.id_ = id_
-        self.name = name
-        self.active = active
-        self.created_at = created_at
-        self.updated_at = updated_at
-
-    def _create(self, client: 'Personio' = None):
-        return get_client(self, client).create_project(self)
-
-    def _delete(self, client: 'Personio' = None):
-        return get_client(self, client).delete_project(self)
-
-    def _update(self, client: 'Personio' = None):
-        return get_client(self, client).update_project(self)
-
-    def to_dict(self, nested=False) -> Dict[str, Any]:
-        # yes, this is weird an unnecessary, but that's how the api works
-        d = super().to_dict()
-        d['id'] = self.id_
-        del d['attributes']['id']
+    def _get_kwargs_from_api_dict(cls, d: Dict) -> Dict:
+        # handle 'type' & 'attributes', if available
+        id = d.get('id')
+        # keep id for project
+        if 'type' in d and 'attributes' in d:
+            cls._check_api_type(d)
+            d = d['attributes']
+            d['id'] = id
+        # transform the non-flat form of the input dictionary to a simple key-value dict
+        if not cls._flat_dict:
+            d = {k: v['value'] for k, v in d.items()}
         return d
-
-    def to_body_params(self):
-        data = {
-            'name': self.name,
-            'active': self.active}
-        return data
 
 
 class Attendance(PersonioResource):
     _api_type_name = 'AttendancePeriod'
 
+    id: int = None
     employee: Optional[int] = None
     day: Optional[date] = Field(None, alias='date')
     start_time: Optional[time] = None
     end_time: Optional[time] = None
-    break_minutes: Optional[int] = Field(None, alias='break')
+    break_duration: Optional[int] = Field(None, alias='break')
     comment: Optional[str] = None
-    updated_at: Optional[datetime] = None
-    status: Optional[str] = None
-    is_holiday: Optional[bool] = None
-    is_on_time_off: Optional[bool] = None
 
     def create(self):
         return g.get_client().create_attendances([self])
@@ -378,22 +318,6 @@ class Attendance(PersonioResource):
     def get_employee(self):
         return g.get_client().get_employee(self.employee)
 
-
-class AbsenceBalance(PersonioResource):
-    id: int = None
-    name: Optional[str] = None
-    balance: Optional[float] = None
-
-
-    def _create(self, client: 'Personio'):
-        pass
-
-    def _update(self, client: 'Personio'):
-        pass
-
-    def _delete(self, client: 'Personio'):
-        pass
-
     def to_body_params(self, patch_existing_attendance=False):
         """
         Return the Attendance object in the representation expected by the Personio API
@@ -405,11 +329,11 @@ class AbsenceBalance(PersonioResource):
         :param patch_existing_attendance Get patch body. If False a create body is returned.
         """
         if patch_existing_attendance:
-            if self.id_ is None:
+            if self.id is None:
                 raise ValueError("An attendance id is required")
             body_dict = {}
-            if self.date is not None:
-                body_dict['date'] = self.date.strftime("%Y-%m-%d")
+            if self.day is not None:
+                body_dict['date'] = self.day.strftime("%Y-%m-%d")
             if self.start_time is not None:
                 body_dict['start_time'] = str(self.start_time)
             if self.end_time is not None:
@@ -420,12 +344,49 @@ class AbsenceBalance(PersonioResource):
                 body_dict['comment'] = self.comment
             return body_dict
         else:
-            return {"employee": self.employee_id,
-                    "date": self.date.strftime("%Y-%m-%d"),
-                    "start_time": self.start_time,
-                    "end_time": self.end_time,
+            return {"employee": self.employee,
+                    "date": self.day.strftime("%Y-%m-%d"),
+                    "start_time": str(self.start_time),
+                    "end_time": str(self.end_time),
                     "break": self.break_duration or 0,
                     "comment": self.comment or ""}
+
+    def _get_kwargs_from_api_dict(cls, d: Dict) -> Dict:
+        # handle 'type' & 'attributes', if available
+        id = d.get('id')
+        # keep id for attendance
+        if 'type' in d and 'attributes' in d:
+            cls._check_api_type(d)
+            d = d['attributes']
+            d['id'] = id
+        # transform the non-flat form of the input dictionary to a simple key-value dict
+        if not cls._flat_dict:
+            d = {k: v['value'] for k, v in d.items()}
+        return d
+
+
+class AbsenceBalance(PersonioResource):
+    id: int = None
+    name: Optional[str] = None
+    balance: Optional[float] = None
+
+
+class PersonioTags(list):
+
+    @classmethod
+    def __get_validators__(cls):
+        yield cls.validate
+
+    @classmethod
+    def validate(cls, v):
+        if isinstance(v, str):
+            return [tag.strip() for tag in v.split(',')]
+        elif isinstance(v, list):
+            return v
+        elif not v:
+            return None
+        else:
+            raise TypeError(f"unexpected input type {type(v)}")
 
 
 class CustomAttribute(BaseModel):

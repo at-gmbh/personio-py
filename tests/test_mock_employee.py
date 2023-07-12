@@ -1,3 +1,4 @@
+import re
 from datetime import date
 from typing import Dict
 
@@ -27,7 +28,7 @@ def test_get_employees():
     assert alan.position == 'Chief Cryptanalyst'
     assert alan.vacation_day_balance == 25
     assert rms.hire_date.year == 1983
-    assert rms.work_schedule.monday.seconds == 8*60*60
+    assert rms.work_schedule.monday.seconds == 8 * 60 * 60
     # validate serialization
     source_dict = load_mock_data('get-employees.json')
     ada_source_dict = source_dict['data'][2]
@@ -65,7 +66,22 @@ def test_auth_rotation_fail():
     assert "authorization header" in str(e.value).lower()
 
 
-# TODO test employee create/update
+# TODO test employee create
+@responses.activate
+def test_update_employee():
+    mock_get_employee()
+    mock_update_employee()
+    personio = mock_personio()
+    employee = personio.get_employee(2040614)
+
+    employee.weekly_working_hours = 30
+    d_before = dict(employee)
+    updated_employee = employee.update(refresh=False)
+    d_after = dict(updated_employee)
+
+    del d_before['last_modified_at']
+    del d_after['last_modified_at']
+    assert d_after == d_before
 
 
 def test_resource_equality():
@@ -120,4 +136,24 @@ def mock_employees():
         url='https://api.personio.de/v1/company/employees',
         status=200,
         json=load_mock_data('get-employees.json'),
+        adding_headers={'Authorization': 'Bearer rotated_dummy_token'})
+
+
+def mock_get_employee():
+    """mock the patch employees endpoint"""
+    responses.add(
+        method=responses.GET,
+        url='https://api.personio.de/v1/company/employees/2040614',
+        status=200,
+        json=load_mock_data('get-employee-ada.json'),
+        adding_headers={'Authorization': 'Bearer rotated_dummy_token'})
+
+
+def mock_update_employee():
+    """mock the patch employees endpoint"""
+    responses.add(
+        method=responses.PATCH,
+        url='https://api.personio.de/v1/company/employees/2040614',
+        status=200,
+        json=load_mock_data('update-employee.json'),
         adding_headers={'Authorization': 'Bearer rotated_dummy_token'})
