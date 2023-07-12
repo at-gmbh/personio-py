@@ -110,8 +110,6 @@ def create_attendance_for_user(employee_id: int,
                                end_time: str = None,
                                break_duration: int = None,
                                comment: str = None,
-                               is_holiday: bool = None,
-                               is_on_time_off: bool = None,
                                create: bool = False):
     if not date:
         date = datetime(2021, 1, 1)
@@ -126,9 +124,7 @@ def create_attendance_for_user(employee_id: int,
         start_time=start_time,
         end_time=end_time,
         break_duration=break_duration,
-        comment=comment,
-        is_holiday=is_holiday,
-        is_on_time_off=is_on_time_off
+        comment=comment
     )
     if create:
         attendance_to_create.create()
