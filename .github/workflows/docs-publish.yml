@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - master
-      - master
     paths:
       # on documentation change (changelog & contribution guidlines are a part of that)
       - 'docs/**'
