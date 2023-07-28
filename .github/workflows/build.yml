@@ -36,11 +36,11 @@ jobs:
         run: poetry install --only=linter --no-interaction
       # run linters (all config is in pyproject.toml)
       - name: Check for security issues with bandit
-        run: bandit -r src
+        run: poetry run bandit -r src
       - name: Check for code style violations with ruff
-        run: ruff check .
+        run: poetry run ruff check .
       - name: Check for well-formatted import statements with isort
-        run: isort src
+        run: poetry run isort src
 
   build-and-test:
     name: Build and Test (Python ${{ matrix.python-version }} on ${{ matrix.os }})
