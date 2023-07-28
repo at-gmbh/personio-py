@@ -64,6 +64,12 @@ ignore = ["F401"]
 py_version = 38
 line_length = 100
 multi_line_output = 2
+skip = ["__init__.py"]
+
+[tool.pytest.ini_options]
+minversion = "6.0"
+addopts = "--cov src --cov-report=term --cov-report=xml"
+testpaths = ["tests"]
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
