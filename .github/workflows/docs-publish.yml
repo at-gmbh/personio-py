@@ -21,7 +21,6 @@ on:
 
 jobs:
   docs:
-  docs:
     name: Sphinx Docs & Release on GitHub Pages
     runs-on: ubuntu-latest
     steps:
