@@ -25,7 +25,7 @@ jobs:
         with:
           python-version: '3.11'
       - name: Install Poetry
-        uses: snok/install-poetry@v1
+        run: pip install poetry
       - name: Load cached venv
         id: cached-poetry-dependencies
         uses: actions/cache@v3
@@ -60,12 +60,8 @@ jobs:
         uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
-      # install & configure poetry
       - name: Install Poetry
-        uses: snok/install-poetry@v1
-        with:
-          virtualenvs-create: true
-          virtualenvs-in-project: true
+        run: pip install poetry
       # load cached dependencies, if cache exists, and install dependencies
       - name: Load cached venv
         id: cached-poetry-dependencies
