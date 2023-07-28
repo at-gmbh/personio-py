@@ -19,10 +19,10 @@ jobs:
     name: Coverage Reports on codecov.io
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-python@v2
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
         with:
-          python-version: '3.10'
+          python-version: '3.11'
       - name: Install Poetry
         uses: snok/install-poetry@v1
         with:
@@ -33,12 +33,13 @@ jobs:
         with:
           path: .venv
           key: venv-${{ runner.os }}-${{ hashFiles('**/poetry.lock') }}
-      - name: Install library
-        run: poetry install --no-interaction
+      - name: Install dependencies
+        run: poetry install --only=main,test --no-interaction
       - name: Generate coverage report
         run: poetry run pytest --cov=src --cov-report=xml --cov-report=term
       - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v1
+        uses: codecov/codecov-action@v3
         with:
-          file: ./coverage.xml
+          files: ./coverage.xml
           fail_ci_if_error: true
+          verbose: true

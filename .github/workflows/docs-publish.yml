@@ -24,23 +24,23 @@ jobs:
     name: Sphinx Docs & Release on GitHub Pages
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-python@v2
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
         with:
-          python-version: '3.10'
+          python-version: '3.11'
       - name: Install Poetry
         uses: snok/install-poetry@v1
         with:
           virtualenvs-create: true
           virtualenvs-in-project: true
       - name: Load cached venv
-        uses: actions/cache@v2
+        id: cached-poetry-dependencies
+        uses: actions/cache@v3
         with:
           path: .venv
-          key: venv-${{ runner.os }}-${{ hashFiles('**/poetry.lock') }}
-      - name: Install personio-py and all dependencies
-        run: |
-          poetry install --no-interaction
+          key: venv-docs-${{ hashFiles('**/poetry.lock') }}
+      - name: Install dependencies
+        run: poetry install --only=docs --no-interaction
       - name: Generate Sphinx Documentation
         run: |
           source .venv/bin/activate

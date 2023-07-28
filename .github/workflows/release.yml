@@ -12,15 +12,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       # make use of python & poetry
-      - uses: actions/checkout@v2
-      - uses: actions/setup-python@v2
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
         with:
           python-version: '3.8'
       - name: Install Poetry
         uses: snok/install-poetry@v1
-        with:
-          virtualenvs-create: true
-          virtualenvs-in-project: true
       # build wheel and sdist
       - name: Build Wheel
         run: |
