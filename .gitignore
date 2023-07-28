@@ -59,6 +59,7 @@ target/
 .env
 .venv
 venv*/
+.python-version
 
 # IDE settings
 .vscode/
