@@ -33,7 +33,7 @@ jobs:
           path: .venv
           key: venv-docs-${{ hashFiles('**/poetry.lock') }}
       - name: Install dependencies
-        run: poetry install --only=docs --no-interaction
+        run: poetry install --only=main,docs --no-interaction
       - name: Generate Sphinx Documentation
         run: |
           source .venv/bin/activate
