@@ -94,7 +94,7 @@ def test_resource_equality():
 
 def test_resource_inequality():
     employee_1 = get_test_employee()
-    employee_2 = employee_1.copy(deep=True)
+    employee_2 = employee_1.model_copy(deep=True)
     employee_2.id = 42
     employee_2.first_name = 'Beta'
     assert employee_1.first_name == 'Ada'

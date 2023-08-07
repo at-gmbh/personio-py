@@ -163,7 +163,7 @@ def serialization_test(employee: Employee):
     # from/to json
     json_str = employee.json()
     assert json_str
-    parsed_json = Employee.parse_raw(json_str)
+    parsed_json = Employee.model_validate_json(json_str)
     assert parsed_json == employee
 
 

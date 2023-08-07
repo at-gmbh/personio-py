@@ -5,7 +5,7 @@ from typing import List
 import pytest
 
 from personio_py import Personio, PersonioError
-from personio_py.models import Absence, AbsenceType, Employee
+from personio_py.models import Absence, AbsenceType, Employee, ShortEmployee
 from tests import connection
 from tests.connection import get_skipif, personio
 from tests.test_live_employee import get_tim
