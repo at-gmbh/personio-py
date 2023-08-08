@@ -161,7 +161,7 @@ def serialization_test(employee: Employee):
     parsed_dict = Employee(**d)
     assert parsed_dict == employee
     # from/to json
-    json_str = employee.json()
+    json_str = employee.model_dump_json()
     assert json_str
     parsed_json = Employee.model_validate_json(json_str)
     assert parsed_json == employee

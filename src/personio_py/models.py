@@ -204,13 +204,13 @@ class WorkSchedule(PersonioResource):
         if self._is_api_dict(kwargs):
             kwargs = self._get_kwargs_from_api_dict(kwargs)
         # fix the time format so that it can be parsed as timedelta
-        for key, field in self.model_fields.items():
-            if key == "id":
-                continue
-            value = kwargs.get(key)
-            if timedelta in field.annotation.__args__ and \
-               isinstance(value, str) and value.count(':') < 2:
-                kwargs[key] = value + ':00'
+        # for key, field in self.model_fields.items():
+        #     if key == "id":
+        #         continue
+        #     value = kwargs.get(key)
+        #     if timedelta in field.annotation.__args__ and \
+        #        isinstance(value, str) and value.count(':') < 2:
+        #         kwargs[key] = value + ':00'
         super().__init__(**kwargs)
 
 
