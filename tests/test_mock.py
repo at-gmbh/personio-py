@@ -1,15 +1,17 @@
 import json
 import re
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 from functools import lru_cache
 from typing import Any, Dict
 
 import pytest
 import responses
-from pydantic.datetime_parse import parse_duration
 
 from personio_py import Personio, PersonioApiError
 from tests import resource_dir
+
+# from pydantic.datetime_parse import parse_duration
+
 
 iso_date_match = re.compile(r'\d\d\d\d-\d\d-\d\d')
 timedelta_match = re.compile(r'\d\d:\d\d')
@@ -125,6 +127,13 @@ def compare_serialized_values(expected: Any, actual: Any):
                 assert actual == expected
     else:
         assert actual == expected
+
+
+def parse_duration(duration):
+    dt = datetime.strptime(duration, "%H:%M:%S")
+    total_sec = dt.hour*3600 + dt.minute*60 + dt.second
+    td = timedelta(seconds=total_sec)
+    return td
 
 
 def compare_dates(expected: date, actual: Any):
