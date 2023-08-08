@@ -9,7 +9,9 @@ import unicodedata
 from datetime import date, datetime, time, timedelta
 from typing import TYPE_CHECKING, Any, ClassVar, Dict, List, Optional, Tuple, Type, TypeVar, Union
 
-from pydantic import BaseModel, Extra, Field, PrivateAttr, create_model, validator
+from pydantic import BaseModel, ConfigDict, Extra, Field, GetCoreSchemaHandler, PrivateAttr, \
+    create_model, field_validator
+from pydantic_core import CoreSchema, core_schema
 
 from personio_py import PersonioError, g
 from personio_py.util import ReadOnlyDict, log_once
@@ -88,7 +90,7 @@ class PersonioResource(BaseModel):
         elif required:
             raise PersonioError(f"required field {field} has no value")
 
-    @validator('*', pre=True)
+    @field_validator('*', mode="before")
     def _empty_str_to_none(cls, v):
         """custom validator for Personio API objects that converts empty strings to None"""
         return None if v == '' else v
@@ -103,10 +105,8 @@ class PersonioResource(BaseModel):
             field_tuple = tuple(self.__dict__.values())
         return hash((type(self),) + field_tuple)
 
-    class Config:
-        extra = Extra.ignore
-        anystr_strip_whitespace = True
-        allow_population_by_field_name = True
+    model_config = ConfigDict(extra=Extra.ignore, str_strip_whitespace=True,
+                              populate_by_name=True)
 
 
 class AbsenceEntitlement(PersonioResource):
@@ -204,10 +204,13 @@ class WorkSchedule(PersonioResource):
         if self._is_api_dict(kwargs):
             kwargs = self._get_kwargs_from_api_dict(kwargs)
         # fix the time format so that it can be parsed as timedelta
-        for key, field in self.__fields__.items():
-            value = kwargs.get(key)
-            if field.type_ == timedelta and isinstance(value, str) and value.count(':') < 2:
-                kwargs[field.name] = value + ':00'
+        # for key, field in self.model_fields.items():
+        #     if key == "id":
+        #         continue
+        #     value = kwargs.get(key)
+        #     if timedelta in field.annotation.__args__ and \
+        #        isinstance(value, str) and value.count(':') < 2:
+        #         kwargs[key] = value + ':00'
         super().__init__(**kwargs)
 
 
@@ -233,7 +236,7 @@ class Absence(PersonioResource):
     created_at: Optional[datetime] = None
     updated_at: Optional[datetime] = None
 
-    @validator('start_date', 'end_date', pre=True)
+    @field_validator('start_date', 'end_date', mode="before")
     def _datetime_to_date(cls, v):
         if v and isinstance(v, str):
             return v[:10]
@@ -255,6 +258,12 @@ class Absence(PersonioResource):
         for field in self._api_fields_optional:
             self._add_api_dict_field(self, data, field, required=False)
         return data
+
+    @field_validator('employee', mode="before")
+    def short_employee_conversion(cls, v):
+        if isinstance(v, Employee):
+            return v.to_short_employee()
+        return v
 
 
 class Project(PersonioResource):
@@ -374,8 +383,9 @@ class AbsenceBalance(PersonioResource):
 class PersonioTags(list):
 
     @classmethod
-    def __get_validators__(cls):
-        yield cls.validate
+    def __get_pydantic_core_schema__(cls, source_type: Any,
+                                     handler: GetCoreSchemaHandler) -> CoreSchema:
+        return core_schema.no_info_after_validator_function(cls.validate, core_schema.str_schema())
 
     @classmethod
     def validate(cls, v):
@@ -502,8 +512,8 @@ class BaseEmployee(PersonioResource):
     team: Optional[Team] = None
     """the team this employee is assigned to"""
 
-    @validator('hire_date', 'contract_end_date', 'termination_date', 'probation_period_end',
-               'last_working_day', pre=True)
+    @field_validator('hire_date', 'contract_end_date', 'termination_date', 'probation_period_end',
+                     'last_working_day', mode="before")
     def _datetime_to_date(cls, v):
         if v and isinstance(v, str):
             return v[:10]
@@ -644,9 +654,9 @@ class BaseEmployee(PersonioResource):
             for a in dynamic_attributes}
         # add metadata to pydantic fields
         attributes_dict = {a.key: a for a in attributes}
-        for key, field in employee_cls.__fields__.items():
+        for key, field in employee_cls.model_fields.items():
             if key in attributes_dict:
-                field.field_info.title = attributes_dict[key].label
+                field.title = attributes_dict[key].label
         # add aliases as properties
         for attribute in dynamic_attributes:
             key = attribute.key
@@ -692,6 +702,10 @@ class BaseEmployee(PersonioResource):
         # remove leading digits, since they are not allowed in python attribute names
         result = result.lstrip('0123456789_')
         return result
+
+    def to_short_employee(self):
+        return ShortEmployee(id=self.id, first_name=self.first_name,
+                             last_name=self.last_name, email=self.email)
 
 
 # Here, Employee is just an alias for BaseEmployee

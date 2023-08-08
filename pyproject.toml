@@ -33,7 +33,7 @@ classifiers = [
 [tool.poetry.dependencies]
 python = ">=3.8,<4.0"
 requests = "^2.26"
-pydantic = "^1.9"
+pydantic = "2.1"
 
 [tool.poetry.group.test.dependencies]
 pytest = "^7.0"

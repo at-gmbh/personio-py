@@ -73,7 +73,7 @@ def test_get_absence_from_object_without_id():
     mock_get_absences_single()
     # get all properties of this absence object
     target = personio.get_absence(17205942)
-    search = target.copy()
+    search = target.model_copy()
     search.id = None
     # now find this absence without knowing its ID
     absence = personio.get_absence(search)
