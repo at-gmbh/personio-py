@@ -37,6 +37,17 @@ def test_get_employees():
 
 
 @responses.activate
+def test_employee_serialization():
+    mock_employees()
+    personio = mock_personio()
+    # get the list of employees
+    employees = personio.get_employees()
+    for employee in employees:
+        assert employee.id
+        serialization_test(employee)
+
+
+@responses.activate
 def test_get_employee_by_id():
     # mock the get employee endpoint
     responses.add(
@@ -127,6 +138,23 @@ def get_test_employee() -> Employee:
     personio = mock_personio()
     employees = personio.get_employees()
     return employees[-1]
+
+
+@responses.activate
+def serialization_test(employee: Employee):
+    # reload the Employee class
+    from personio_py import Employee
+
+    # from/to dict
+    d = dict(employee)
+    assert d
+    parsed_dict = Employee(**d)
+    assert parsed_dict == employee
+    # from/to json
+    json_str = employee.model_dump_json()
+    assert json_str
+    parsed_json = Employee.model_validate_json(json_str)
+    assert parsed_json == employee
 
 
 def mock_employees():
