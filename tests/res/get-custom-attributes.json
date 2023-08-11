@@ -232,7 +232,7 @@
     {
       "key": "dynamic_1146716",
       "label": "Geplante Schulungen",
-      "type": "list",
+      "type": "tags",
       "universal_id": null
     }
   ]
