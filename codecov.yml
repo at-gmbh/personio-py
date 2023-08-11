@@ -4,3 +4,8 @@ codecov:
 coverage:
   precision: 1
   range: "80...95"
+  status:
+    project:
+      default:
+        target: auto
+        threshold: 10%
