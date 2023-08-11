@@ -401,13 +401,23 @@ class PersonioTags(list):
 
 class CustomAttribute(BaseModel):
     _type_mapping: ClassVar[Dict[str, Type]] = {
+        # standard text field, no line breaks
         'standard': str,
+        # a date field. the API provides date and time information as ISO 8601 string
         'date': datetime,
+        # an interger field
         'integer': int,
+        # a float field (limited precision)
         'decimal': float,
+        # "list" refers to an option field, where only one item can be selected.
+        # only the selected item is provided by the API, therefore this is a string.
         'list': str,
+        # a hyperlink
         'link': str,
-        'tags': PersonioTags,
+        # "tags" refers to a multiple choice field, where you can select 0 or more items from a
+        # predefined list of items. The list of all selected items is provided by the API.
+        'tags': list[str],
+        # a multiline text field, can contain line breaks
         'multiline': str,
     }
 
