@@ -16,6 +16,11 @@ from pydantic_core import CoreSchema, core_schema
 from personio_py import PersonioError, g
 from personio_py.util import ReadOnlyDict, log_once
 
+try:
+    from typing import Annotated
+except ImportError:
+    from typing_extensions import Annotated
+
 if TYPE_CHECKING:
     # the Personio client should only be visible for type checkers to avoid circular imports
     from personio_py import Personio
