@@ -346,6 +346,10 @@
         "dynamic_1146666": {
           "label": "Birthday",
           "value": "1912-06-23T00:00:00+01:00"
+        },
+        "dynamic_1146716":{
+          "label": "Scheduled Trainings",
+          "value": "CI/CD,Presentation Training"
         }
       }
     },
