@@ -76,7 +76,8 @@ class PersonioResource(BaseModel):
             log_once(
                 logging.WARNING,
                 f"Unexpected API type '{api_type_name}' for class {cls.__name__}, "
-                f"expected '{cls._api_type_name}' instead")
+                f"expected '{cls._api_type_name}' instead"
+            )
 
     @classmethod
     def _add_api_dict_field(
