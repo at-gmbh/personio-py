@@ -9,9 +9,8 @@ import unicodedata
 from datetime import date, datetime, time, timedelta
 from typing import TYPE_CHECKING, Any, ClassVar, Dict, List, Optional, Tuple, Type, TypeVar, Union
 
-from pydantic import BaseModel, ConfigDict, Extra, Field, GetCoreSchemaHandler, PrivateAttr, \
+from pydantic import BaseModel, BeforeValidator, ConfigDict, Extra, Field, PrivateAttr, \
     create_model, field_validator
-from pydantic_core import CoreSchema, core_schema
 
 from personio_py import PersonioError, g
 from personio_py.util import ReadOnlyDict, log_once
@@ -385,23 +384,32 @@ class AbsenceBalance(PersonioResource):
     balance: Optional[float] = None
 
 
-class PersonioTags(list):
+def _parse_tags(v: Union[str, List[str], None]) -> Optional[List[str]]:
+    """
+    The 'tags' type is a multiple choice field, where the user can select 0 or more fields from
+    a list of values. The personio API provides this list of values as a single string with
+    comma separated values. When we serialize this type, we store it as list of strings.
+    Therefore we need this parsing function so that we can handle both the comma separated string
+    and the list of string.
 
-    @classmethod
-    def __get_pydantic_core_schema__(cls, source_type: Any,
-                                     handler: GetCoreSchemaHandler) -> CoreSchema:
-        return core_schema.no_info_after_validator_function(cls.validate, core_schema.str_schema())
+    :param v: value of the tags field (string, list of strings, or None)
+    :return: the parsed tags value, as list of strings, or None
+    """
+    if isinstance(v, str):
+        return [tag.strip() for tag in v.split(',')]
+    elif isinstance(v, list):
+        return v
+    elif not v:
+        return None
+    else:
+        raise ValueError(f"unexpected input type {type(v)}")
 
-    @classmethod
-    def validate(cls, v):
-        if isinstance(v, str):
-            return [tag.strip() for tag in v.split(',')]
-        elif isinstance(v, list):
-            return v
-        elif not v:
-            return None
-        else:
-            raise TypeError(f"unexpected input type {type(v)}")
+
+PersonioTags = Annotated[
+    List[str],
+    BeforeValidator(_parse_tags),
+]
+"""The Personio 'tags' type, which is basically a multiple choice field"""
 
 
 class CustomAttribute(BaseModel):
@@ -421,7 +429,7 @@ class CustomAttribute(BaseModel):
         'link': str,
         # "tags" refers to a multiple choice field, where you can select 0 or more items from a
         # predefined list of items. The list of all selected items is provided by the API.
-        'tags': list[str],
+        'tags': PersonioTags,
         # a multiline text field, can contain line breaks
         'multiline': str,
     }
