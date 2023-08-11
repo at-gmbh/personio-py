@@ -2,6 +2,7 @@
 Definition of ORMs for objects that are available in the Personio API
 """
 import inspect
+import json
 import logging
 import operator
 import sys
@@ -397,7 +398,12 @@ def _parse_tags(v: Union[str, List[str], None]) -> Optional[List[str]]:
     :return: the parsed tags value, as list of strings, or None
     """
     if isinstance(v, str):
-        return [tag.strip() for tag in v.split(',')]
+        if v.startswith('[') and v.endswith(']'):
+            # this is a json list, stored as string. Personio does that sometimes, apparently
+            return json.loads(v)
+        else:
+            # otherwise Personio usually provides a comma-separated list of strings
+            return [tag.strip() for tag in v.split(',')]
     elif isinstance(v, list):
         return v
     elif not v:
