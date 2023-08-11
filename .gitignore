@@ -59,10 +59,9 @@ target/
 .env
 .venv
 venv*/
+.python-version
 
 # IDE settings
 .vscode/
 .idea/
 *.iws
-
-# project-specific stuff

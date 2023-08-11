@@ -1,0 +1,79 @@
+[tool.poetry]
+name = "personio-py"
+version = "1.0.0a1"
+description = "a lightweight Personio API client"
+authors = ["Sebastian Straub <sebastian.straub@alexanderthamm.com>"]
+license = "Apache-2.0"
+readme = "README.md"
+homepage = "https://github.com/at-gmbh/personio-py"
+repository = "https://github.com/at-gmbh/personio-py"
+documentation = "https://at-gmbh.github.io/personio-py/"
+packages = [
+    { include = "personio_py", from = "src" },
+]
+classifiers = [
+    # Full list: https://pypi.python.org/pypi?%3Aaction=list_classifiers
+    "License :: OSI Approved :: Apache Software License",
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Topic :: Internet :: WWW/HTTP",
+    "Topic :: Office/Business",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Typing :: Typed",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+]
+
+[tool.poetry.dependencies]
+python = ">=3.8,<4.0"
+requests = "^2.26"
+pydantic = "^2.1"
+typing-extensions = {version = "^4.7", python = "<3.9"}
+
+[tool.poetry.group.test.dependencies]
+pytest = "^7.0"
+pytest-cov = "^4.0"
+responses = "^0.23"
+
+[tool.poetry.group.linter.dependencies]
+ruff = "^0.0.280"
+bandit = "^1.7"
+isort = "^5.12.0"
+
+[tool.poetry.group.docs.dependencies]
+Sphinx = "^4.3.2"
+sphinx-rtd-theme = "^1.0.0"
+recommonmark = "^0.7.1"
+docutils = "0.16"
+mistune = "0.8.4"
+m2r = "^0.2.1"
+
+[tool.poetry.group.dev.dependencies]
+pre-commit = "^3.0"
+pytest-pycharm = "^0.7.0"
+
+[tool.ruff]
+line-length = 100
+src = ["src", "tests"]
+ignore = ["F401"]
+
+[tool.isort]
+py_version = 38
+line_length = 100
+multi_line_output = 2
+skip = ["__init__.py"]
+
+[tool.pytest.ini_options]
+minversion = "6.0"
+addopts = "--cov src --cov-report=term --cov-report=xml"
+testpaths = ["tests"]
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"

@@ -1,4 +1,6 @@
-from tests.apitest_shared import *
+from tests.connection import get_skipif, get_test_employee, personio
+
+skip_if_no_auth = get_skipif()
 
 
 @skip_if_no_auth
@@ -13,10 +15,11 @@ def test_raw_api_employees():
 
 @skip_if_no_auth
 def test_raw_api_attendances():
+    employee = get_test_employee()
     params = {
-        "start_date": "2020-01-01",
-        "end_date": "2020-06-01",
-        "employees[]": [1142212, 1142211],
+        "start_date": "2010-01-01",
+        "end_date": "2030-01-01",
+        "employees[]": [employee.id],
         "limit": 200,
         "offset": 0
     }
@@ -28,16 +31,16 @@ def test_raw_api_attendances():
 def test_raw_api_absence_types():
     params = {"limit": 200, "offset": 0}
     absence_types = personio.request_json('company/time-off-types', params=params)
-    # Personio test accounts know 10 different absence types
-    assert len(absence_types['data']) >= 10
+    assert absence_types['data']
 
 
 @skip_if_no_auth
 def test_raw_api_absences():
+    employee = get_test_employee()
     params = {
-        "start_date": "2020-01-01",
-        "end_date": "2020-06-01",
-        "employees[]": [1142212],  # [2007207, 2007248]
+        "start_date": "2010-01-01",
+        "end_date": "2030-01-01",
+        "employees[]": [employee.id],
         "limit": 200,
         "offset": 0
     }

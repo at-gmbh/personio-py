@@ -1,0 +1,33 @@
+{
+    "success": true,
+    "data": [
+      {
+        "id": 238751,
+        "type": "Project",
+        "attributes": {
+          "name": "conwik project",
+          "active": true,
+          "created_at": "2019-03-01T16:00:00",
+          "updated_at": "2020-03-02T16:11:35"
+        }
+      }, {
+        "id": 238750,
+        "type": "Project",
+        "attributes": {
+          "name": "mock project",
+          "active": true,
+          "created_at": "2023-03-28T16:11:35",
+          "updated_at": "2023-03-28T16:11:35"
+        }
+      }, {
+        "id": 238752,
+        "type": "Project",
+        "attributes": {
+          "name": "alianz project",
+          "active": false,
+          "created_at": "2020-10-10T10:11:35",
+          "updated_at": "2023-02-22T17:11:35"
+        }
+      }
+      ]
+  }

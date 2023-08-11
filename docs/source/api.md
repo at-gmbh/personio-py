@@ -15,13 +15,13 @@ If you'd like to make a contribution, please join the project [on GitHub](https:
 
 ```eval_rst
 .. automodule:: personio_py.models
-    :exclude-members: log_once
+    :exclude-members: employee_classes
 ```
 
-## mapping
+## Search
 
 ```eval_rst
-.. automodule:: personio_py.mapping
+.. autoclass:: personio_py.SearchIndex
 ```
 
 ## Errors

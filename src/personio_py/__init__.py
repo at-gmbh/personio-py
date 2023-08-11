@@ -5,32 +5,35 @@ a lightweight Personio API client
 """
 
 __title__ = "personio-py"
-__copyright__ = "© 2020 Alexander Thamm GmbH"
+__copyright__ = "© 2020-2023 Alexander Thamm GmbH"
 
 from .version import __version__
 from .errors import (
-    PersonioError,
     MissingCredentialsError,
     PersonioApiError,
-    UnsupportedMethodError,
-)
-from .mapping import (
-    DynamicMapping
+    PersonioError,
+    UnsupportedMethodError
 )
 from .models import (
+    update_model,
     Absence,
+    AbsenceBalance,
     AbsenceEntitlement,
     AbsenceType,
     Attendance,
+    BaseEmployee,
     CostCenter,
+    CustomAttribute,
     Department,
-    DynamicAttr,
     Employee,
     HolidayCalendar,
     Office,
+    PersonioResource,
+    PersonioResourceType,
     ShortEmployee,
     Team,
     WorkSchedule,
     Project
 )
-from personio_py.client import Personio
+from .search import SearchIndex
+from .client import Personio

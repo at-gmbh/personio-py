@@ -1,35 +1,30 @@
 import re
-from datetime import timedelta, date
+from datetime import date, time
 
 import responses
 
 from personio_py import Attendance, Employee
-from tests.mock_data import (
-    json_dict_attendance_create_no_break,
-    json_dict_attendance_rms, json_dict_attendance_patch, json_dict_attendance_delete
-)
-from tests.test_mock_api import compare_labeled_attributes, mock_personio
+from tests.test_mock import load_mock_data, mock_personio
 
 
 @responses.activate
 def test_create_attendance():
     mock_create_attendance()
-    personio = mock_personio()
+    mock_personio()
     employee = Employee(
-        first_name="Alan",
+        id=2116365,
+        first_name='Alan',
         last_name='Turing',
-        email='alan.turing@cetitec.com'
-    )
+        email='alan.turing@cetitec.com')
     attendance = Attendance(
-        client=personio,
-        employee=employee,
+        employee=employee.id,
         date=date(2020, 1, 10),
         start_time="09:00",
         end_time="17:00",
-        break_duration=0
-        )
+        break_duration=0)
     attendance.create()
-    assert attendance.id_
+    assert attendance.id
+
 
 @responses.activate
 def test_get_attendance():
@@ -43,15 +38,12 @@ def test_get_attendance():
     assert len(selection) == 1
     release = selection[0]
     assert "free software" in release.comment
-    assert release.date == date(1985, 3, 20)
-    assert release.start_time == timedelta(seconds=11*60*60)
-    assert release.end_time == timedelta(seconds=12.5*60*60)
+    assert release.day == date(1985, 3, 20)
+    assert release.start_time == time(hour=11)
+    assert release.end_time == time(hour=12, minute=30)
     assert release.break_duration == 60
-    assert release.employee_id == 2116366
-    # validate serialization
-    source_dict = json_dict_attendance_rms['data'][0]
-    target_dict = release.to_dict()
-    compare_labeled_attributes(source_dict, target_dict)
+    assert release.employee == 2116366
+
 
 @responses.activate
 def test_patch_attendances():
@@ -63,6 +55,7 @@ def test_patch_attendances():
     attendance_to_patch.break_duration = 1
     personio.update_attendance(attendance_to_patch)
 
+
 @responses.activate
 def test_delete_attendances():
     mock_attendances()
@@ -72,23 +65,39 @@ def test_delete_attendances():
     attendance_to_delete = attendances[0]
     personio.delete_attendance(attendance_to_delete)
 
+
 def mock_attendances():
     # mock the get absences endpoint (with different array offsets)
     responses.add(
-        responses.GET, re.compile('https://api.personio.de/v1/company/attendances?.*'),
-        status=200, json=json_dict_attendance_rms, adding_headers={'Authorization': 'Bearer foo'})
+        responses.GET,
+        re.compile('https://api.personio.de/v1/company/attendances?.*'),
+        status=200,
+        json=load_mock_data('get-attendance.json'),
+        adding_headers={'Authorization': 'Bearer foo'})
+
 
 def mock_create_attendance():
     responses.add(
-        responses.POST,  'https://api.personio.de/v1/company/attendances',
-        status=200, json=json_dict_attendance_create_no_break, adding_headers={'Authorization': 'Bearer bar'})
+        responses.POST,
+        'https://api.personio.de/v1/company/attendances',
+        status=200,
+        json=load_mock_data('create-attendance-no-break.json'),
+        adding_headers={'Authorization': 'Bearer bar'})
+
 
 def mock_patch_attendance():
     responses.add(
-        responses.PATCH,  'https://api.personio.de/v1/company/attendances/33479712',
-        status=200, json=json_dict_attendance_patch, adding_headers={'Authorization': 'Bearer bar'})
+        responses.PATCH,
+        'https://api.personio.de/v1/company/attendances/33479712',
+        status=200,
+        json=load_mock_data("update-attendance.json"),
+        adding_headers={'Authorization': 'Bearer bar'})
+
 
 def mock_delete_attendance():
     responses.add(
-        responses.DELETE,  'https://api.personio.de/v1/company/attendances/33479712',
-        status=200, json=json_dict_attendance_delete, adding_headers={'Authorization': 'Bearer bar'})
+        responses.DELETE,
+        'https://api.personio.de/v1/company/attendances/33479712',
+        status=200,
+        json=load_mock_data('delete-attendance.json'),
+        adding_headers={'Authorization': 'Bearer bar'})

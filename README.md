@@ -19,7 +19,7 @@
 >>> absences = p.get_absences(ada)
 >>> len(absences)
 12
->>> absences[0].to_dict()
+>>> dict(absences[0])
 {'id': 42, 'status': 'approved', 'start_date': '2020-08-01', 'end_date': '2020-08-16', ...}
 ```
 
@@ -32,11 +32,11 @@ If something appears to be broken, please have a look at the [open issues](https
 ## Features
 
 * Aims to cover all functions of the Personio API (work in progress)
-* Python function wrappers for all API endpoints as part of the Personio class
+* Python function wrappers for all endpoints of the Personnel Data API as part of the Personio class
 * Object mappings for all API resources, e.g. an Employee is an object with properties for all the information that is provided by the REST API.
-* Completely transparent handling of authentication and key rotation
+* Transparent handling of authentication and key rotation
 * Support for Type Hints
-* Only one dependency: [requests](https://pypi.org/project/requests/)
+* Built with [requests](https://requests.readthedocs.io/) and [pydantic](https://docs.pydantic.dev/)
 
 ## Getting Started
 
@@ -50,37 +50,39 @@ Now you can `import personio_py` and start coding. Please have a look at the [Us
 
 Contributions are very welcome! For our contribution guidelines, please have a look at [CONTRIBUTING.md](./CONTRIBUTING.md).
 
-To set up your local development environment, please use a fresh virtual environment, then run
+To set up your local development environment, please make sure that [poetry](https://python-poetry.org/) is installed and updated
 
-    pip install -r requirements.txt -r requirements-dev.txt
+    pip install --user --upgrade poetry
 
-This project is intended to be used as library, so there is no command line interface or stuff like that.
+Then install the package with
+
+    poetry install
+
+This will create a new virtualenv in the `.venv` folder, install all dependencies and then personio-py. This project is intended to be used as library, so there is no command line interface. All configuration for this project can be found in [`pyproject.toml`](./pyproject.toml).
 
 We use `pytest` as test framework. To execute the tests, please run
 
-    python setup.py test
+    pytest
 
 To build a distribution package (wheel), please use
 
-    python setup.py dist
-
-this will clean up the build folder and then run the `bdist_wheel` command.
+    poetry build
 
 Before contributing code, please set up the pre-commit hooks to reduce errors and ensure consistency
 
-    pip install -U pre-commit && pre-commit install
+    pre-commit install
 
 ### PyPI Release
 
 This project is released on [PyPI](https://pypi.org/project/personio-py/). Most of the tedious steps that are required to test & publish your release are automated by [CI pipelines](https://github.com/at-gmbh/personio-py/actions). All you have to do is to write your code and when the time comes to make a release, please follow these steps:
 
-* update the program version in [`src/personio_py/version.py`](./src/personio_py/version.py)
+* update the program version in [`pyproject.toml`](./pyproject.toml)
 * write a summary of your changes in [`CHANGELOG.md`](./CHANGELOG.md)
 * add a tag on the master branch with the new version number preceded by the letter `v`, e.g. for version 1.0.0 the tag would be `v1.0.0`. To tag the head of the current branch, use `git tag v1.0.0`
-* push your changes to github and don't forget to push the tag with `git push origin v1.0.0`
+* push your changes to GitHub and don't forget to push the tag with `git push origin v1.0.0`
 * now have a look at the [release pipeline](https://github.com/at-gmbh/personio-py/actions?query=workflow%3Arelease) on GitHub. If it finishes without errors, you can find your release on [TestPyPI](https://test.pypi.org/project/personio-py). Please verify that your release works as expected.
-* Now for the live deployment on PyPI. To avoid mistakes, this is only triggered, when a release is published on GitHub first. Please have a look at the [Releases](https://github.com/at-gmbh/personio-py/releases) now; there should be a draft release with your version number (this was created by the CI pipeline which also made the TestPyPI release). Edit the draft release, copy the text you added to [`CHANGELOG.md`](./CHANGELOG.md) into the description field and publish it.
-* After you publish the release, the [deploy pipeline](https://github.com/at-gmbh/personio-py/actions?query=workflow%3Adeploy) is triggered on GitHub. It will publish the release directly to [PyPI](https://pypi.org/project/personio-py/) where everyone can enjoy your latest features.
+* now for the live deployment on PyPI: To avoid mistakes, this is only triggered, when a release is published on GitHub first. Please have a look at the [Releases](https://github.com/at-gmbh/personio-py/releases); there should be a draft release with your version number (this was created by the CI pipeline which also made the TestPyPI release). Edit the draft release, copy the text you added to [`CHANGELOG.md`](./CHANGELOG.md) into the description field and publish it.
+* after you publish the release, the [deploy pipeline](https://github.com/at-gmbh/personio-py/actions?query=workflow%3Adeploy) is triggered on GitHub. It will publish the release directly to [PyPI](https://pypi.org/project/personio-py/) where everyone can enjoy your latest features.
 
 ## API Functions
 
@@ -130,23 +132,26 @@ Absences
 * [`GET /company/absence-periods`](https://developer.personio.de/reference/get_company-absence-periods)
 * [`POST /company/absence-periods`](https://developer.personio.de/reference/post_company-absence-periods)
 * [`DELETE /company/absence-periods/{id}`](https://developer.personio.de/reference/delete_company-absence-periods-id)
-
 * [`GET /company/document-categories`](https://developer.personio.de/reference/get_company-document-categories): this endpoint is responsible for fetching all document categories of the company
 * [`POST /company/documents`](https://developer.personio.de/reference/post_company-documents): this endpoint is responsible for uploading documents for the company employees
 * [`GET /company/custom-reports/reports`](https://developer.personio.de/reference/listreports): this endpoint provides you with metadata about existing custom reports in your Personio account, such as report name, report type, report date / timeframe
 * [`GET /company/custom-reports/reports/{report_id}`](https://developer.personio.de/reference/listreportitems): this endpoint provides you with the data of an existing Custom Report
 * [`GET /company/custom-reports/columns`](https://developer.personio.de/reference/listcolumns): this endpoint provides human-readable labels for report table columns
 * all of the [recruiting API](https://developer.personio.de/reference/introduction-1)
+* [`POST /company/attendances`](https://developer.personio.de/reference#post_company-attendances): add attendance data for the company employees
+* [`DELETE /company/attendances/{id}`](https://developer.personio.de/reference#delete_company-attendances-id): delete the attendance entry with the specified ID
+* [`PATCH /company/attendances/{id}`](https://developer.personio.de/reference#patch_company-attendances-id): update the attendance entry with the specified ID
 
 ## Contact
 
-Sebastian Straub (sebastian.straub [at] alexanderthamm.com)
+* Sebastian Straub (sebastian.straub [at] alexanderthamm.com)
+* Fateme Tardasti (fateme.tardasti [at] alexanderthamm.com)
 
 Developed with ❤ at [Alexander Thamm GmbH](https://www.alexanderthamm.com/)
 
 ## License
 
-    Copyright 2020 Alexander Thamm GmbH
+    Copyright 2020-2023 Alexander Thamm GmbH
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.

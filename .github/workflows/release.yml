@@ -3,52 +3,52 @@ name: release
 on:
   push:
     tags:
-    # Push events to matching 'v*', i.e. 'v1.0', 'v20.15.10b5'
-    - 'v*'
+      # Push events to matching 'v*', i.e. 'v1.0', 'v20.15.10b5'
+      - 'v*'
 
 jobs:
   release:
     name: Create Release & Deploy on TestPyPI
     runs-on: ubuntu-latest
     steps:
-      # checkout & build
-    - uses: actions/checkout@v2
-    - uses: actions/setup-python@v2
-      with:
-        python-version: 3.7
-    - name: Build Wheel
-      run: |
-        python -m pip install --upgrade pip
-        pip install wheel
-        pip install -r requirements.txt
-        python setup.py sdist bdist_wheel
-        cd dist
-        echo "WHEEL=`ls *.whl`" >> $GITHUB_ENV
+      # make use of python & poetry
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.8'
+      - name: Install Poetry
+        run: pip install poetry
+      # build wheel and sdist
+      - name: Build Wheel
+        run: |
+          poetry build
+          cd dist
+          echo "WHEEL=`ls *.whl`" >> $GITHUB_ENV
       # create a new draft release (so we only trigger the deployment pipeline after the draft has been published)
-    - name: Create Release
-      id: create_release
-      uses: actions/create-release@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        tag_name: ${{ github.ref }}
-        release_name: Release ${{ github.ref }}
-        draft: true
-        prerelease: false
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ github.ref }}
+          draft: true
+          prerelease: false
       # upload the wheel to the draft release
-    - name: Upload Release Asset
-      id: upload-release-asset
-      uses: actions/upload-release-asset@v1.0.2
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./dist/${{ env.WHEEL }}
-        asset_name: ${{ env.WHEEL }}
-        asset_content_type: application/zip
+      - name: Upload Release Asset
+        id: upload-release-asset
+        uses: actions/upload-release-asset@v1.0.2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./dist/${{ env.WHEEL }}
+          asset_name: ${{ env.WHEEL }}
+          asset_content_type: application/zip
       # release on TestPyPI (for release on regular PyPI, see deploy.yml)
-    - name: Publish Package to TestPyPI
-      uses: pypa/gh-action-pypi-publish@master
-      with:
-        password: ${{ secrets.PYPI_TEST_API_TOKEN }}
-        repository_url: https://test.pypi.org/legacy/
+      - name: Publish Package to TestPyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          password: ${{ secrets.PYPI_TEST_API_TOKEN }}
+          repository_url: https://test.pypi.org/legacy/

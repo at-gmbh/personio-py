@@ -12,13 +12,13 @@ This user guide should help you to get started with personio-py, which includes 
 
 ### Requirements
 
-**personio-py** works with Python 3.7 or higher. Python 2 is not supported, as well as Python 3.6 or lower. Using a recent version of Python allows us to write modern Python code without ugly compatibility layers. Also, we can avoid some dependencies that used to be mandatory, like `python-dateutil`, now that Python comes with more useful date & time handling out of the box.
+**personio-py** works with Python 3.8 or higher. Python 2 is not supported, as well as Python 3.6 or lower. Using a recent version of Python allows us to write modern Python code without ugly compatibility layers. Also, we can avoid some dependencies that used to be mandatory, like `python-dateutil`, now that Python comes with more useful date & time handling out of the box.
 
 The only dependency of personio-py is the [`requests`](https://pypi.org/project/requests/) library, which handles all API calls.
 
 ### Pip
 
-The easiest way to install personio-py is using [pip](https://pip.pypa.io/en/stable/), which should be already installed when you're using Python 3.7 or higher (which is required to use personio-py).
+The easiest way to install personio-py is using [pip](https://pip.pypa.io/en/stable/), which should be already installed when you're using Python 3.8 or higher (which is required to use personio-py).
 
 The package is available on [PyPI](https://pypi.org/project/personio-py/) and can be installed with
 
