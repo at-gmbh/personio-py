@@ -95,6 +95,7 @@ class PersonioResource(BaseModel):
             raise PersonioError(f"required field {field} has no value")
 
     @field_validator('*', mode="before")
+    @classmethod
     def _empty_str_to_none(cls, v):
         """custom validator for Personio API objects that converts empty strings to None"""
         return None if v == '' else v
@@ -440,7 +441,7 @@ class CustomAttribute(BaseModel):
     universal_id: Optional[str] = None
 
     @property
-    def py_type(self) -> Type:
+    def py_type(self) -> Union[Type, Annotated]:
         type_str = str(self.type).lower()
         if type_str in self._type_mapping:
             return self._type_mapping[type_str]
