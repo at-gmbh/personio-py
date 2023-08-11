@@ -15,4 +15,5 @@ def get_client() -> 'Personio':
     else:
         raise PersonioError(
             "No Personio client has been configured so far. Please create a Personio client "
-            "instance to make API requests")
+            "instance to make API requests"
+        )

@@ -26,8 +26,14 @@ class PersonioApiError(PersonioError):
     :param response: the HTTP response
     """
 
-    def __init__(self, status_code: int, message: str, error_code: int = None,
-                 errors: Dict[str, Any] = None, response: Response = None):
+    def __init__(
+        self,
+        status_code: int,
+        message: str,
+        error_code: int = None,
+        errors: Dict[str, Any] = None,
+        response: Response = None
+    ):
         super().__init__()
         self.status_code = status_code
         self.message = message
@@ -54,12 +60,14 @@ class PersonioApiError(PersonioError):
                 message=message,
                 error_code=code,
                 errors=error_dict,
-                response=response)
+                response=response
+            )
         except ValueError:
             return PersonioApiError(
                 status_code=response.status_code,
                 message=response.text,
-                response=response)
+                response=response
+            )
 
     def __str__(self):
         message = f"request failed with HTTP status code {self.status_code}: {self.message}"

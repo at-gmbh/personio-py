@@ -55,7 +55,11 @@ class SearchIndex:
     DEFAULT_INDEX_TIMEOUT = 6 * 60 * 60
     """the default timeout for the search index (6 hours)"""
 
-    def __init__(self, client: 'Personio', index_timeout: int = DEFAULT_INDEX_TIMEOUT):
+    def __init__(
+        self,
+        client: 'Personio',
+        index_timeout: int = DEFAULT_INDEX_TIMEOUT
+    ):
         super().__init__()
         self.client = client
         self.index_timeout = index_timeout

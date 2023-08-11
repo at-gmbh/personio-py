@@ -31,12 +31,14 @@ PersonioResourceType = TypeVar('PersonioResourceType', bound='PersonioResource',
 
 class PersonioResource(BaseModel):
     # for class vars & private attributes, see
-    # https://pydantic-docs.helpmanual.io/usage/models/#private-model-attributes
-
+    # https://docs.pydantic.dev/latest/usage/models/#private-model-attributes
     _api_type_name: ClassVar[str] = None
     """the name of this resource type in the Personio API"""
     _flat_dict: ClassVar[bool] = True
     """Indicates if this class has a flat dictionary representation in the Personio API"""
+
+    # Model Config https://docs.pydantic.dev/latest/usage/model_config/
+    model_config = ConfigDict(extra=Extra.ignore, str_strip_whitespace=True, populate_by_name=True)
 
     def __init__(self, **kwargs):
         if self._is_api_dict(kwargs):
@@ -110,9 +112,6 @@ class PersonioResource(BaseModel):
         else:
             field_tuple = tuple(self.__dict__.values())
         return hash((type(self),) + field_tuple)
-
-    model_config = ConfigDict(extra=Extra.ignore, str_strip_whitespace=True,
-                              populate_by_name=True)
 
 
 class AbsenceEntitlement(PersonioResource):
@@ -692,8 +691,10 @@ class BaseEmployee(PersonioResource):
             key = attribute.key
             alias = cls._custom_attribute_aliases[key]
             if hasattr(employee_cls, alias):
-                logger.warning(f"cannot add alias '{alias}' for '{key}' to the Employee "
-                               f"class, because that attribute already exists.")
+                logger.warning(
+                    f"cannot add alias '{alias}' for '{key}' to the Employee class, because "
+                    f"there is already an attribute with this name."
+                )
             else:
                 cls.__set_alias_property(employee_cls, key, alias, attribute.label)
         return employee_cls
