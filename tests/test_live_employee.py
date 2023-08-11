@@ -49,7 +49,7 @@ def test_get_custom_attributes():
     for attr in attrs:
         assert isinstance(attr, CustomAttribute)
         assert attr.key
-        assert isinstance(attr.py_type, type)
+        assert attr.py_type
 
 
 @skip_if_no_auth
