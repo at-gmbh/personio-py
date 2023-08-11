@@ -122,6 +122,10 @@ def compare_serialized_values(expected: Any, actual: Any):
                 # match timedelta strings
                 expected_timedelta = parse_duration(f'{expected}:00')
                 assert actual == expected_timedelta
+            elif expected.startswith('[') and expected.endswith(']'):
+                # match json lists that have been stored as string for some reason
+                expected_list = json.loads(expected)
+                assert actual == expected_list
             else:
                 # match the entire string
                 assert actual == expected

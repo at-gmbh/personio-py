@@ -32,7 +32,7 @@ def test_get_employees():
     # validate serialization
     source_dict = load_mock_data('get-employees.json')
     ada_source_dict = source_dict['data'][2]
-    ada_target_dict = ada.dict()
+    ada_target_dict = ada.model_dump()
     compare_labeled_attributes(ada_source_dict, ada_target_dict)
 
 
@@ -121,7 +121,7 @@ def test_custom_fields():
     assert employee.geburtsland == 'England'
     assert employee.dynamic_1146702 == 'England'
     assert employee._custom_fields['dynamic_1146702'] == 'England'
-    assert len([v for v in employee._custom_fields.values() if v]) == 2
+    assert len([v for v in employee._custom_fields.values() if v]) == 3
     # write to custom fields and validate
     employee.geburtsland = 'UK'
     assert employee.dynamic_1146702 == 'UK'
