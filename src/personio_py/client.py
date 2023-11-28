@@ -40,7 +40,8 @@ class Personio:
     PROJECT_URL = 'company/attendances/projects'
 
     def __init__(self, base_url: str = None, client_id: str = None, client_secret: str = None,
-                 dynamic_fields: List[DynamicMapping] = None):
+                 dynamic_fields: List[DynamicMapping] = None,
+                 session: Optional[requests.Session] = None):
         self.base_url = base_url or self.BASE_URL
         self.client_id = client_id or os.getenv('CLIENT_ID')
         self.client_secret = client_secret or os.getenv('CLIENT_SECRET')
@@ -48,6 +49,7 @@ class Personio:
         self.authenticated = False
         self.dynamic_fields = dynamic_fields
         self.search_index = SearchIndex(self)
+        self.session = session or requests.Session()
 
     def authenticate(self):
         """
@@ -68,7 +70,7 @@ class Personio:
         url = urljoin(self.base_url, 'auth')
         logger.debug(f"authenticating to {url} with client_id {self.client_id}")
         params = {"client_id": self.client_id, "client_secret": self.client_secret}
-        response = requests.request("POST", url, headers=self.headers, params=params)
+        response = self.session.request("POST", url, headers=self.headers, params=params)
         if response.ok:
             token = response.json()['data']['token']
             self.headers['Authorization'] = f"Bearer {token}"
@@ -107,7 +109,7 @@ class Personio:
             _headers.update(headers)
         # make the request
         url = urljoin(self.base_url, path)
-        response = requests.request(method, url, headers=_headers, params=params, json=data)
+        response = self.session.request(method, url, headers=_headers, params=params, json=data)
         # re-new the authorization header
         authorization = response.headers.get('Authorization')
         if authorization:
