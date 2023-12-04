@@ -332,7 +332,7 @@ class Personio:
         response = self.request_json(
             path=self.ATTENDANCE_URL,
             method='POST',
-            data={"attendances": data_to_send}
+            data={"attendances": data_to_send, "skip_approval": False}
         )
         if response['success']:
             for attendance, response_id in zip(attendances, response['data']['id']):

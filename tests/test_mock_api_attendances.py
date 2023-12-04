@@ -1,5 +1,5 @@
 import re
-from datetime import timedelta, date
+from datetime import date, datetime, time
 
 import responses
 
@@ -26,7 +26,10 @@ def test_create_attendance():
         date=date(2020, 1, 10),
         start_time="09:00",
         end_time="17:00",
-        break_duration=0
+        break_duration=0,
+        updated_at=datetime.strptime("2023-05-30T16:24:36", "%Y-%m-%dT%H:%M:%S"),
+        status="confirmed",
+        project=1
         )
     attendance.create()
     assert attendance.id_
@@ -44,8 +47,8 @@ def test_get_attendance():
     release = selection[0]
     assert "free software" in release.comment
     assert release.date == date(1985, 3, 20)
-    assert release.start_time == timedelta(seconds=11*60*60)
-    assert release.end_time == timedelta(seconds=12.5*60*60)
+    assert release.start_time == time(11,0)
+    assert release.end_time == time(17,0)
     assert release.break_duration == 60
     assert release.employee_id == 2116366
     # validate serialization

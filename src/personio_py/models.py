@@ -12,7 +12,7 @@ from personio_py import PersonioError, UnsupportedMethodError
 from personio_py.mapping import (
     BooleanFieldMapping, DateFieldMapping, DateTimeFieldMapping,
     DurationFieldMapping, DynamicMapping, FieldMapping, ListFieldMapping, NumericFieldMapping,
-    ObjectFieldMapping
+    ObjectFieldMapping, TimeFieldMapping
 )
 
 if TYPE_CHECKING:
@@ -677,12 +677,15 @@ class Attendance(WritablePersonioResource):
         NumericFieldMapping('id', 'id_', int),
         NumericFieldMapping('employee', 'employee_id', int),
         DateFieldMapping('date', 'date'),
-        DurationFieldMapping('start_time', 'start_time'),
-        DurationFieldMapping('end_time', 'end_time'),
+        TimeFieldMapping('start_time', 'start_time'),
+        TimeFieldMapping('end_time', 'end_time'),
         NumericFieldMapping('break', 'break_duration', int),
         FieldMapping('comment', 'comment', str),
         BooleanFieldMapping('is_holiday', 'is_holiday'),
         BooleanFieldMapping('is_on_time_off', 'is_on_time_off'),
+        DateTimeFieldMapping('updated_at', 'updated_at'),
+        FieldMapping('status', 'status', str),
+        NumericFieldMapping('project', 'project', int)
     ]
 
     def __init__(self,
@@ -698,6 +701,9 @@ class Attendance(WritablePersonioResource):
                  comment: str = None,
                  is_holiday: bool = None,
                  is_on_time_off: bool = None,
+                 updated_at: datetime = None,
+                 status: str = None,
+                 project: int = None,
                  **kwargs):
         super().__init__(client=client, dynamic=dynamic, dynamic_raw=dynamic_raw, **kwargs)
         self.id_ = id_
@@ -709,6 +715,9 @@ class Attendance(WritablePersonioResource):
         self.comment = comment
         self.is_holiday = is_holiday
         self.is_on_time_off = is_on_time_off
+        self.updated_at = updated_at
+        self.status = status
+        self.project = project
 
     def to_dict(self, nested=False) -> Dict[str, Any]:
         # yes, this is weird an unnecessary, but that's how the api works

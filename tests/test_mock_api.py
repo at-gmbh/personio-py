@@ -1,5 +1,5 @@
 import re
-from datetime import date, timedelta
+from datetime import date, time
 from typing import Any, Dict
 
 import pytest
@@ -109,8 +109,8 @@ def test_get_attendance():
     release = selection[0]
     assert "free software" in release.comment
     assert release.date == date(1985, 3, 20)
-    assert release.start_time == timedelta(seconds=11*60*60)
-    assert release.end_time == timedelta(seconds=12.5*60*60)
+    assert release.start_time == time(11,0)
+    assert release.end_time == time(12,30)
     assert release.break_duration == 60
     assert release.employee_id == 2116366
     # validate serialization

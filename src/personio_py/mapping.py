@@ -3,7 +3,7 @@ mappings from Personio API fields to Python data types and vice versa are define
 """
 import logging
 import re
-from datetime import date, datetime, timedelta
+from datetime import date, datetime, timedelta, time
 from decimal import Decimal
 from typing import Any, Dict, List, NamedTuple, Optional, TYPE_CHECKING, Type, TypeVar, Union
 
@@ -104,6 +104,18 @@ class DateFieldMapping(FieldMapping):
         return date.fromisoformat(value[:10])
 
 
+class TimeFieldMapping(FieldMapping):
+    def __init__(self, api_field: str, class_field: str):
+        super().__init__(api_field, class_field, field_type=time)
+
+    def serialize(self, value: time) -> str:
+        return value.isoformat()
+
+    def deserialize(self, value: str, **kwargs) -> time:
+        if value == "24:00":
+            value = "23:59"
+        return time.fromisoformat(value)
+
 class DurationFieldMapping(FieldMapping):
 
     pattern = re.compile(r"\d\d?:\d\d")
@@ -167,8 +179,13 @@ class ObjectFieldMapping(FieldMapping):
             -> Optional['PersonioResourceType']:
         if value and isinstance(value, dict):
             if not self.field_type._flat_dict:
-                value = value['attributes']
-            return self.field_type.from_dict(value, client=client)
+
+                attributes = value['attributes']
+                if hasattr(value, 'id') and value['id']:
+                    attributes['id'] = value['id']
+            else:
+                attributes = value
+            return self.field_type.from_dict(attributes, client=client)
         else:
             return None
 
