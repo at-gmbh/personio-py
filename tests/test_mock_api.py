@@ -3,12 +3,25 @@ from datetime import date, timedelta
 from typing import Any, Dict
 
 import pytest
+import requests
 import responses
 
 from personio_py import DynamicMapping, Employee, Personio, PersonioApiError, PersonioError
 from tests.mock_data import *
 
 iso_date_match = re.compile(r'\d\d\d\d-\d\d-\d\d')
+
+@responses.activate
+def test_authenticate_ok_with_custom_requests_session():
+    # mock a successful authentication response
+    resp_json = {'success': True, 'data': {'token': 'dummy_token'}}
+    responses.add(responses.POST, 'https://api.personio.de/v1/auth', json=resp_json, status=200)
+    # authenticate
+    personio = Personio(client_id='test', client_secret='test', session=requests.Session())
+    personio.authenticate()
+    # validate
+    assert personio.authenticated is True
+    assert personio.headers['Authorization'] == "Bearer dummy_token"
 
 
 @responses.activate
