@@ -10,14 +10,23 @@ from urllib.parse import urljoin
 import requests
 from requests import Response
 
-from personio_py import Absence, AbsenceType, Attendance, DynamicMapping, Employee, Project
+from personio_py import (
+    Absence,
+    AbsenceType,
+    Attendance,
+    DynamicMapping,
+    Employee,
+    Project,
+)
 from personio_py.errors import MissingCredentialsError, PersonioApiError, PersonioError
 from personio_py.models import PersonioResource
 from personio_py.search import SearchIndex
 
-logger = logging.getLogger('personio_py')
+logger = logging.getLogger("personio_py")
 
-PersonioResourceType = TypeVar('PersonioResourceType', bound=PersonioResource, covariant=True)
+PersonioResourceType = TypeVar(
+    "PersonioResourceType", bound=PersonioResource, covariant=True
+)
 
 
 class Personio:
@@ -35,16 +44,21 @@ class Personio:
 
     BASE_URL = "https://api.personio.de/v1/"
     """base URL of the Personio HTTP API"""
-    ATTENDANCE_URL = 'company/attendances'
-    ABSENCE_URL = 'company/time-offs'
-    PROJECT_URL = 'company/attendances/projects'
+    ATTENDANCE_URL = "company/attendances"
+    ABSENCE_URL = "company/time-offs"
+    PROJECT_URL = "company/attendances/projects"
 
-    def __init__(self, base_url: str = None, client_id: str = None, client_secret: str = None,
-                 dynamic_fields: List[DynamicMapping] = None):
+    def __init__(
+        self,
+        base_url: str = None,
+        client_id: str = None,
+        client_secret: str = None,
+        dynamic_fields: List[DynamicMapping] = None,
+    ):
         self.base_url = base_url or self.BASE_URL
-        self.client_id = client_id or os.getenv('CLIENT_ID')
-        self.client_secret = client_secret or os.getenv('CLIENT_SECRET')
-        self.headers = {'accept': 'application/json'}
+        self.client_id = client_id or os.getenv("CLIENT_ID")
+        self.client_secret = client_secret or os.getenv("CLIENT_SECRET")
+        self.headers = {"accept": "application/json"}
         self.authenticated = False
         self.dynamic_fields = dynamic_fields
         self.search_index = SearchIndex(self)
@@ -64,21 +78,28 @@ class Personio:
         """
         if not (self.client_id and self.client_secret):
             raise MissingCredentialsError(
-                "both client_id and client_secret must be provided in order to authenticate")
-        url = urljoin(self.base_url, 'auth')
+                "both client_id and client_secret must be provided in order to authenticate"
+            )
+        url = urljoin(self.base_url, "auth")
         logger.debug(f"authenticating to {url} with client_id {self.client_id}")
         params = {"client_id": self.client_id, "client_secret": self.client_secret}
         response = requests.request("POST", url, headers=self.headers, params=params)
         if response.ok:
-            token = response.json()['data']['token']
-            self.headers['Authorization'] = f"Bearer {token}"
+            token = response.json()["data"]["token"]
+            self.headers["Authorization"] = f"Bearer {token}"
             self.authenticated = True
         else:
             raise PersonioApiError.from_response(response)
 
-    def request(self, path: str, method='GET', params: Dict[str, Any] = None,
-                data: Dict[str, Any] = None, headers: Dict[str, str] = None,
-                auth_rotation=True) -> Response:
+    def request(
+        self,
+        path: str,
+        method="GET",
+        params: Dict[str, Any] = None,
+        data: Dict[str, Any] = None,
+        headers: Dict[str, str] = None,
+        auth_rotation=True,
+    ) -> Response:
         """
         Make a request against the Personio API.
         Returns the HTTP response, which might be successful or not.
@@ -107,18 +128,26 @@ class Personio:
             _headers.update(headers)
         # make the request
         url = urljoin(self.base_url, path)
-        response = requests.request(method, url, headers=_headers, params=params, json=data)
+        response = requests.request(
+            method, url, headers=_headers, params=params, json=data
+        )
         # re-new the authorization header
-        authorization = response.headers.get('Authorization')
+        authorization = response.headers.get("Authorization")
         if authorization:
-            self.headers['Authorization'] = authorization
+            self.headers["Authorization"] = authorization
         elif auth_rotation:
             raise PersonioError("Missing Authorization Header in response")
         # return the response, let the caller handle any issues
         return response
 
-    def request_json(self, path: str, method='GET', params: Dict[str, Any] = None,
-                     data: Dict[str, Any] = None, auth_rotation=True) -> Dict[str, Any]:
+    def request_json(
+        self,
+        path: str,
+        method="GET",
+        params: Dict[str, Any] = None,
+        data: Dict[str, Any] = None,
+        auth_rotation=True,
+    ) -> Dict[str, Any]:
         """
         Make a request against the Personio API, expecting a json response.
         Returns the parsed json response as dictionary. Will raise a PersonioApiError if the
@@ -137,13 +166,21 @@ class Personio:
             try:
                 return response.json()
             except ValueError:
-                raise PersonioError(f"Failed to parse response as json: {response.text}")
+                raise PersonioError(
+                    f"Failed to parse response as json: {response.text}"
+                )
         else:
             raise PersonioApiError.from_response(response)
 
-    def request_paginated(self, path: str, method='GET', params: Dict[str, Any] = None,
-                          data: Dict[str, Any] = None, auth_rotation=True, limit=200
-                          ) -> Dict[str, Any]:
+    def request_paginated(
+        self,
+        path: str,
+        method="GET",
+        params: Dict[str, Any] = None,
+        data: Dict[str, Any] = None,
+        auth_rotation=True,
+        limit=200,
+    ) -> Dict[str, Any]:
         """
         Make a request against the Personio API, expecting a json response that may be paginated,
         i.e. not all results might have been returned after the first request. Will continue
@@ -164,42 +201,52 @@ class Personio:
         """
         if self.ABSENCE_URL == path:
             offset = 1
-            url_type = 'absence'
+            url_type = "absence"
         elif self.ATTENDANCE_URL == path:
             offset = 0
-            url_type = 'attendance'
+            url_type = "attendance"
         else:
             raise ValueError(f"Invalid path: {path}")
 
         if params is None:
             params = {}
-        params['limit'] = limit
-        params['offset'] = offset
+        params["limit"] = limit
+        params["offset"] = offset
         data_acc = []
         while True:
-            response = self.request_json(path, method, params, data, auth_rotation=auth_rotation)
-            resp_data = response.get('data')
+            response = self.request_json(
+                path, method, params, data, auth_rotation=auth_rotation
+            )
+            resp_data = response.get("data")
             if resp_data:
-                if url_type == 'absence':
+                if url_type == "absence":
                     data_acc.extend(resp_data)
-                    if response['metadata']['current_page'] == response['metadata']['total_pages']:
+                    if (
+                        response["metadata"]["current_page"]
+                        == response["metadata"]["total_pages"]
+                    ):
                         break
                     else:
-                        params['offset'] += 1
-                elif url_type == 'attendance':
-                    if params['offset'] >= response['metadata']['total_elements']:
+                        params["offset"] += 1
+                elif url_type == "attendance":
+                    if params["offset"] >= response["metadata"]["total_elements"]:
                         break
                     else:
                         data_acc.extend(resp_data)
-                        params['offset'] += limit
+                        params["offset"] += limit
             else:
                 break
         # return the accumulated data
-        response['data'] = data_acc
+        response["data"] = data_acc
         return response
 
-    def request_image(self, path: str, method='GET', params: Dict[str, Any] = None,
-                      auth_rotation=False) -> Optional[bytes]:
+    def request_image(
+        self,
+        path: str,
+        method="GET",
+        params: Dict[str, Any] = None,
+        auth_rotation=False,
+    ) -> Optional[bytes]:
         """
         Request an image file (as png or jpg) from the Personio API.
         Returns the image as byte array, or None, if no image is available for this resource
@@ -213,8 +260,10 @@ class Personio:
                during this request (default: False for image requests)
         :return: the image (bytes) or None, if no image is available
         """
-        headers = {'accept': 'image/png, image/jpeg'}
-        response = self.request(path, method, params, headers=headers, auth_rotation=auth_rotation)
+        headers = {"accept": "image/png, image/jpeg"}
+        response = self.request(
+            path, method, params, headers=headers, auth_rotation=auth_rotation
+        )
         if response.ok:
             # great, we have our image as png or jpg
             return response.content
@@ -232,8 +281,8 @@ class Personio:
 
         :return: list of ``Employee`` instances
         """
-        response = self.request_json('company/employees')
-        employees = [Employee.from_dict(d, self) for d in response['data']]
+        response = self.request_json("company/employees")
+        employees = [Employee.from_dict(d, self) for d in response["data"]]
         return employees
 
     def get_employee(self, employee_id: int) -> Employee:
@@ -244,12 +293,13 @@ class Personio:
         :param employee_id: the Personio ID of the employee to fetch
         :return: an ``Employee`` instance or a PersonioApiError, if the employee does not exist
         """
-        response = self.request_json(f'company/employees/{employee_id}')
-        employee = Employee.from_dict(response['data'], self)
+        response = self.request_json(f"company/employees/{employee_id}")
+        employee = Employee.from_dict(response["data"], self)
         return employee
 
-    def get_employee_picture(self, employee: Union[int, Employee], width: int = None) \
-            -> Optional[bytes]:
+    def get_employee_picture(
+        self, employee: Union[int, Employee], width: int = None
+    ) -> Optional[bytes]:
         """
         Get the profile picture of the specified employee as image file
         (usually png or jpg).
@@ -261,9 +311,9 @@ class Personio:
         :return: the profile picture as png or jpg file (bytes)
         """
         employee_id = employee.id_ if isinstance(employee, Employee) else int(employee)
-        path = f'company/employees/{employee_id}/profile-picture'
+        path = f"company/employees/{employee_id}/profile-picture"
         if width:
-            path += f'/{width}'
+            path += f"/{width}"
         return self.request_image(path, auth_rotation=False)
 
     def create_employee(self, employee: Employee, refresh=True) -> Employee:
@@ -272,17 +322,17 @@ class Personio:
         """
         # TODO warn about limited selection of fields
         data = {
-            'employee[email]': employee.email,
-            'employee[first_name]': employee.first_name,
-            'employee[last_name]': employee.last_name,
-            'employee[gender]': employee.gender,
-            'employee[position]': employee.position,
-            'employee[department]': employee.department.name,
-            'employee[hire_date]': employee.hire_date.isoformat()[:10],
-            'employee[weekly_hours]': employee.weekly_working_hours,
+            "employee[email]": employee.email,
+            "employee[first_name]": employee.first_name,
+            "employee[last_name]": employee.last_name,
+            "employee[gender]": employee.gender,
+            "employee[position]": employee.position,
+            "employee[department]": employee.department.name,
+            "employee[hire_date]": employee.hire_date.isoformat()[:10],
+            "employee[weekly_hours]": employee.weekly_working_hours,
         }
-        response = self.request_json('company/employees', method='POST', data=data)
-        employee.id_ = response['data']['id']
+        response = self.request_json("company/employees", method="POST", data=data)
+        employee.id_ = response["data"]["id"]
         if refresh:
             return self.get_employee(employee.id_)
         else:
@@ -295,8 +345,12 @@ class Personio:
         raise NotImplementedError()
 
     def get_attendances(
-            self, employees: Union[int, List[int], Employee, List[Employee]],
-            start_date: datetime = None, end_date: datetime = None) -> List[Attendance]:
+        self,
+        employees: Union[int, List[int], Employee, List[Employee]],
+        start_date: datetime = None,
+        end_date: datetime = None,
+        include_pending: bool = False,
+    ) -> List[Attendance]:
         """
         Get a list of all attendance records for the employees with the specified IDs
 
@@ -312,7 +366,13 @@ class Personio:
         :return: list of ``Attendance`` records for the specified employees
         """
         attendances = self._get_employee_metadata(
-            self.ATTENDANCE_URL, Attendance, employees, start_date, end_date)
+            self.ATTENDANCE_URL,
+            Attendance,
+            employees,
+            start_date,
+            end_date,
+            include_pending,
+        )
         for attendance in attendances:
             attendance._client = self
         return attendances
@@ -327,15 +387,16 @@ class Personio:
         :param attendances: A list of attendance records to be created.
         """
         data_to_send = [
-            attendance.to_body_params(patch_existing_attendance=False) for attendance in attendances
+            attendance.to_body_params(patch_existing_attendance=False)
+            for attendance in attendances
         ]
         response = self.request_json(
             path=self.ATTENDANCE_URL,
-            method='POST',
-            data={"attendances": data_to_send, "skip_approval": False}
+            method="POST",
+            data={"attendances": data_to_send, "skip_approval": False},
         )
-        if response['success']:
-            for attendance, response_id in zip(attendances, response['data']['id']):
+        if response["success"]:
+            for attendance, response_id in zip(attendances, response["data"]["id"]):
                 attendance.id_ = response_id
                 attendance.client = self
             return True
@@ -357,9 +418,9 @@ class Personio:
         if attendance.id_ is not None:
             # remote query not necessary
             response = self.request_json(
-                path=f'{self.ATTENDANCE_URL}/{attendance.id_}',
-                method='PATCH',
-                data=attendance.to_body_params(patch_existing_attendance=True)
+                path=f"{self.ATTENDANCE_URL}/{attendance.id_}",
+                method="PATCH",
+                data=attendance.to_body_params(patch_existing_attendance=True),
             )
             return response
         else:
@@ -380,8 +441,9 @@ class Personio:
             exactly one result.
         """
         if isinstance(attendance, int):
-            response = self.request_json(path=f'{self.ATTENDANCE_URL}/{attendance}',
-                                         method='DELETE')
+            response = self.request_json(
+                path=f"{self.ATTENDANCE_URL}/{attendance}", method="DELETE"
+            )
             return response
         elif isinstance(attendance, Attendance):
             if attendance.id_ is not None:
@@ -400,13 +462,16 @@ class Personio:
         Each ``Absence`` also contains the ``AbsenceType`` for this instance; the purpose
         of this function is to provide you with a list of all possible options that can show up.
         """
-        response = self.request_json('company/time-off-types')
-        absence_types = [AbsenceType.from_dict(d, self) for d in response['data']]
+        response = self.request_json("company/time-off-types")
+        absence_types = [AbsenceType.from_dict(d, self) for d in response["data"]]
         return absence_types
 
     def get_absences(
-            self, employees: Union[int, List[int], Employee, List[Employee]],
-            start_date: datetime = None, end_date: datetime = None) -> List[Absence]:
+        self,
+        employees: Union[int, List[int], Employee, List[Employee]],
+        start_date: datetime = None,
+        end_date: datetime = None,
+    ) -> List[Absence]:
         """
         Get a list of all absence records for the employees with the specified IDs.
 
@@ -422,7 +487,8 @@ class Personio:
         :return: list of ``Absence`` records for the specified employees
         """
         return self._get_employee_metadata(
-            self.ABSENCE_URL, Absence, employees, start_date, end_date)
+            self.ABSENCE_URL, Absence, employees, start_date, end_date
+        )
 
     def get_absence(self, absence: Union[Absence, int]) -> Absence:
         """
@@ -431,8 +497,8 @@ class Personio:
         :param absence: The absence id to fetch.
         """
         if isinstance(absence, int):
-            response = self.request_json(f'{self.ABSENCE_URL}/{absence}')
-            return Absence.from_dict(response['data'], self)
+            response = self.request_json(f"{self.ABSENCE_URL}/{absence}")
+            return Absence.from_dict(response["data"], self)
         else:
             if absence.id_:
                 return self.get_absence(absence.id_)
@@ -448,9 +514,9 @@ class Personio:
         :raises PersonioError: If the absence could not be created on the Personio servers
         """
         data = absence.to_body_params()
-        response = self.request_json(self.ABSENCE_URL, method='POST', data=data)
-        if response['success']:
-            absence.id_ = response['data']['attributes']['id']
+        response = self.request_json(self.ABSENCE_URL, method="POST", data=data)
+        if response["success"]:
+            absence.id_ = response["data"]["attributes"]["id"]
             return absence
         raise PersonioError("Could not create absence")
 
@@ -466,8 +532,10 @@ class Personio:
                 or the query does not provide exactly one result.
         """
         if isinstance(absence, int):
-            response = self.request_json(path=f'{self.ABSENCE_URL}/{absence}', method='DELETE')
-            return response['success']
+            response = self.request_json(
+                path=f"{self.ABSENCE_URL}/{absence}", method="DELETE"
+            )
+            return response["success"]
         elif isinstance(absence, Absence):
             if absence.id_ is not None:
                 return self.delete_absence(absence.id_)
@@ -522,7 +590,7 @@ class Personio:
         :return: list of ``Project`` records
         """
         response = self.request_json(self.PROJECT_URL)
-        projects = [Project.from_dict(d, self) for d in response['data']]
+        projects = [Project.from_dict(d, self) for d in response["data"]]
         return projects
 
     def create_project(self, project: Project) -> Project:
@@ -533,9 +601,9 @@ class Personio:
         :raises PersonioError: If the project could not be created on the Personio servers
         """
         data = project.to_body_params()
-        response = self.request_json(self.PROJECT_URL, method='POST', data=data)
-        if response['success']:
-            project.id_ = response['data']['id']
+        response = self.request_json(self.PROJECT_URL, method="POST", data=data)
+        if response["success"]:
+            project.id_ = response["data"]["id"]
             return project
         raise PersonioError("Could not create project")
 
@@ -547,8 +615,10 @@ class Personio:
         :raises PersonioErrror: If the project could not be created on the Personio servers
         """
         data = project.to_body_params()
-        response = self.request_json(f'{self.PROJECT_URL}/{project.id_}', method='PATCH', data=data)
-        if response['success']:
+        response = self.request_json(
+            f"{self.PROJECT_URL}/{project.id_}", method="PATCH", data=data
+        )
+        if response["success"]:
             return project
         raise PersonioError("Could not update project")
 
@@ -561,7 +631,7 @@ class Personio:
             or the query does not provide exactly one result.
         """
         if isinstance(project, int):
-            response = self.request(f'{self.PROJECT_URL}/{project}', method='DELETE')
+            response = self.request(f"{self.PROJECT_URL}/{project}", method="DELETE")
             return response
         elif isinstance(project, Project):
             if project.id_ is not None:
@@ -572,31 +642,40 @@ class Personio:
             raise ValueError("project must be a Project object or an integer")
 
     def _get_employee_metadata(
-            self, path: str, resource_cls: Type[PersonioResourceType],
-            employees: Union[int, List[int], Employee, List[Employee]], start_date: datetime = None,
-            end_date: datetime = None) -> List[PersonioResourceType]:
+        self,
+        path: str,
+        resource_cls: Type[PersonioResourceType],
+        employees: Union[int, List[int], Employee, List[Employee]],
+        start_date: datetime = None,
+        end_date: datetime = None,
+        include_pending=False,
+    ) -> List[PersonioResourceType]:
         # resolve params to match API requirements
         employees, start_date, end_date = self._normalize_timeframe_params(
-            employees, start_date, end_date)
+            employees, start_date, end_date
+        )
         params = {
             "start_date": start_date.isoformat()[:10],
             "end_date": end_date.isoformat()[:10],
+            "includePending": include_pending,
         }
         # request in batches of up to 50 employees (keeps URL length well below 2000 chars)
         data_acc = []
         for i in range(0, len(employees), 50):
-            params["employees[]"] = employees[i:i + 50]
+            params["employees[]"] = employees[i : i + 50]
             response = self.request_paginated(path, params=params)
-            data_acc.extend(response['data'])
+            data_acc.extend(response["data"])
         # create objects from accumulated API responses
         parsed_data = [resource_cls.from_dict(d, self) for d in data_acc]
         return parsed_data
 
     @classmethod
     def _normalize_timeframe_params(
-            cls, employees: Union[int, List[int], Employee, List[Employee]],
-            start_date: datetime = None, end_date: datetime = None) \
-            -> Tuple[List[int], datetime, datetime]:
+        cls,
+        employees: Union[int, List[int], Employee, List[Employee]],
+        start_date: datetime = None,
+        end_date: datetime = None,
+    ) -> Tuple[List[int], datetime, datetime]:
         """
         Whenever we need a list of employee IDs, a start date and an end date, this function comes
         in handy:
@@ -635,9 +714,11 @@ class Personio:
             raise ValueError("For a remote query a start date is required")
         if absence.end_date is None:
             raise ValueError("For a remote query an end date is required")
-        matching_remote_absences = self.get_absences(employees=[absence.employee.id_],
-                                                     start_date=absence.start_date,
-                                                     end_date=absence.end_date)
+        matching_remote_absences = self.get_absences(
+            employees=[absence.employee.id_],
+            start_date=absence.start_date,
+            end_date=absence.end_date,
+        )
         if len(matching_remote_absences) == 0:
             raise PersonioError("The absence to patch was not found")
         elif len(matching_remote_absences) > 1:
