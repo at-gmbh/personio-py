@@ -657,8 +657,9 @@ class Personio:
         params = {
             "start_date": start_date.isoformat()[:10],
             "end_date": end_date.isoformat()[:10],
-            "includePending": include_pending,
         }
+        if include_pending:
+            params["include_pending"] = "true"
         # request in batches of up to 50 employees (keeps URL length well below 2000 chars)
         data_acc = []
         for i in range(0, len(employees), 50):
