@@ -717,7 +717,10 @@ class Attendance(WritablePersonioResource):
         self.is_on_time_off = is_on_time_off
         self.updated_at = updated_at
         self.status = status
-        self.project = project
+        self.project = None
+        if isinstance(project, dict):
+            if isinstance(project["id"], int):
+                self.project = project["id"]
 
     def to_dict(self, nested=False) -> Dict[str, Any]:
         # yes, this is weird an unnecessary, but that's how the api works
