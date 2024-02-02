@@ -703,7 +703,7 @@ class Attendance(WritablePersonioResource):
                  is_on_time_off: bool = None,
                  updated_at: datetime = None,
                  status: str = None,
-                 project: dict = None,
+                 project: int = None,
                  **kwargs):
         super().__init__(client=client, dynamic=dynamic, dynamic_raw=dynamic_raw, **kwargs)
         self.id_ = id_
