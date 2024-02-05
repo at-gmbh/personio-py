@@ -1,25 +1,43 @@
 """
 Definition of ORMs for objects that are available in the Personio API
 """
+
 import json
 import logging
 from collections import namedtuple
 from datetime import datetime, timedelta
 from functools import total_ordering
-from typing import Any, Dict, List, NamedTuple, Optional, TYPE_CHECKING, Tuple, Type, TypeVar
+from typing import (
+    Any,
+    Dict,
+    List,
+    NamedTuple,
+    Optional,
+    TYPE_CHECKING,
+    Tuple,
+    Type,
+    TypeVar,
+)
 
 from personio_py import PersonioError, UnsupportedMethodError
 from personio_py.mapping import (
-    BooleanFieldMapping, DateFieldMapping, DateTimeFieldMapping,
-    DurationFieldMapping, DynamicMapping, FieldMapping, ListFieldMapping, NumericFieldMapping,
-    ObjectFieldMapping, TimeFieldMapping
+    BooleanFieldMapping,
+    DateFieldMapping,
+    DateTimeFieldMapping,
+    DurationFieldMapping,
+    DynamicMapping,
+    FieldMapping,
+    ListFieldMapping,
+    NumericFieldMapping,
+    ObjectFieldMapping,
+    TimeFieldMapping,
 )
 
 if TYPE_CHECKING:
     # only type checkers may import Personio, otherwise we get an evil circular import error
     from personio_py import Personio
 
-logger = logging.getLogger('personio_py')
+logger = logging.getLogger("personio_py")
 
 
 class DynamicAttr(NamedTuple):
@@ -28,27 +46,38 @@ class DynamicAttr(NamedTuple):
     value: Any
 
     @classmethod
-    def from_attributes(cls, d: Dict[str, Dict[str, Any]]) -> List['DynamicAttr']:
-        return [DynamicAttr.from_dict(k, v) for k, v in d.items() if k.startswith('dynamic_')]
+    def from_attributes(cls, d: Dict[str, Dict[str, Any]]) -> List["DynamicAttr"]:
+        return [
+            DynamicAttr.from_dict(k, v)
+            for k, v in d.items()
+            if k.startswith("dynamic_")
+        ]
 
     @classmethod
-    def to_attributes(cls, dyn_attrs: List['DynamicAttr']) -> Dict[str, Dict[str, Any]]:
-        return {f'dynamic_{d.field_id}': d.to_dict() for d in dyn_attrs}
+    def to_attributes(cls, dyn_attrs: List["DynamicAttr"]) -> Dict[str, Dict[str, Any]]:
+        return {f"dynamic_{d.field_id}": d.to_dict() for d in dyn_attrs}
 
     @classmethod
-    def from_dict(cls, key: str, d: Dict[str, Any]) -> 'DynamicAttr':
-        if key.startswith('dynamic_'):
-            _, field_id = key.split('_', maxsplit=1)
-            return DynamicAttr(field_id=int(field_id), label=d['label'], value=d['value'])
+    def from_dict(cls, key: str, d: Dict[str, Any]) -> "DynamicAttr":
+        if key.startswith("dynamic_"):
+            _, field_id = key.split("_", maxsplit=1)
+            return DynamicAttr(
+                field_id=int(field_id), label=d["label"], value=d["value"]
+            )
         else:
-            raise ValueError(f"dynamic attribute '{key}' does not start with 'dynamic_'")
+            raise ValueError(
+                f"dynamic attribute '{key}' does not start with 'dynamic_'"
+            )
 
     def to_dict(self) -> Dict[str, Any]:
-        return {'label': self.label, 'value': self.value}
+        return {"label": self.label, "value": self.value}
 
     def clone(self, new_value: Optional[Any] = None):
-        return DynamicAttr(field_id=self.field_id, label=self.label,
-                           value=self.value if new_value is None else new_value)
+        return DynamicAttr(
+            field_id=self.field_id,
+            label=self.label,
+            value=self.value if new_value is None else new_value,
+        )
 
 
 @total_ordering
@@ -67,7 +96,7 @@ class PersonioResource:
     _flat_dict = False
     """set this to True, if this class has a flat dictionary representation in the Personio API"""
 
-    def __init__(self, client: 'Personio' = None, **kwargs):
+    def __init__(self, client: "Personio" = None, **kwargs):
         super().__init__()
         self._client = client
 
@@ -86,7 +115,7 @@ class PersonioResource:
         return cls.__label_mapping
 
     @classmethod
-    def from_dict(cls, d: Dict[str, Any], client: 'Personio' = None) -> '__class__':
+    def from_dict(cls, d: Dict[str, Any], client: "Personio" = None) -> "__class__":
         """
         Create an instance of this PersonioResource from the specified dictionary data,
         which is parsed version of the json data from the Personio API.
@@ -98,9 +127,9 @@ class PersonioResource:
         :return: a new instance of this class based on the provided data
         """
         # handle 'type' & 'attributes', if available
-        if 'type' in d and 'attributes' in d:
+        if "type" in d and "attributes" in d:
             cls._check_api_type(d)
-            d = d['attributes']
+            d = d["attributes"]
         # map the dictionary contents to the constructor's parameter names
         kwargs = cls._map_fields(d, client)
         return cls(client=client, **kwargs)
@@ -124,27 +153,35 @@ class PersonioResource:
 
     @classmethod
     def _check_api_type(cls, d: Dict[str, Any]):
-        api_type_name = d['type']
+        api_type_name = d["type"]
         if api_type_name != cls._api_type_name:
             log_once(
                 logging.WARNING,
                 f"Unexpected API type '{api_type_name}' for class {cls.__name__}, "
-                f"expected '{cls._api_type_name}' instead")
+                f"expected '{cls._api_type_name}' instead",
+            )
 
     @classmethod
     def _namedtuple(cls) -> Type[Tuple]:
         if cls.__namedtuple is None:
-            fields = [m.class_field for m in cls._field_mapping_list] + ['dynamic', 'class_name']
-            cls.__namedtuple = namedtuple(f'{cls.__name__}Tuple', fields)
+            fields = [m.class_field for m in cls._field_mapping_list] + [
+                "dynamic",
+                "class_name",
+            ]
+            cls.__namedtuple = namedtuple(f"{cls.__name__}Tuple", fields)
         return cls.__namedtuple
 
     def to_tuple(self) -> Tuple:
-        values = ([getattr(self, m.class_field) for m in self._field_mapping_list] +
-                  [getattr(self, 'dynamic'), str(self.__class__)])
+        values = [getattr(self, m.class_field) for m in self._field_mapping_list] + [
+            getattr(self, "dynamic"),
+            str(self.__class__),
+        ]
         return self._namedtuple()(*values)
 
     @classmethod
-    def _map_fields(cls, d: Dict[str, Dict[str, Any]], client: 'Personio' = None) -> Dict[str, Any]:
+    def _map_fields(
+        cls, d: Dict[str, Dict[str, Any]], client: "Personio" = None
+    ) -> Dict[str, Any]:
         kwargs = {}
         field_mapping_dict = cls._field_mapping()
         for key, value in d.items():
@@ -154,7 +191,9 @@ class PersonioResource:
                     value = field_mapping.deserialize(value, client=client)
                 kwargs[field_mapping.class_field] = value
             else:
-                log_once(logging.WARNING, f"unexpected field '{key}' in class {cls.__name__}")
+                log_once(
+                    logging.WARNING, f"unexpected field '{key}' in class {cls.__name__}"
+                )
         return kwargs
 
     @classmethod
@@ -183,11 +222,13 @@ class PersonioResource:
         return f"{self.__class__.__name__} {self.__dict__}"
 
     def __str__(self) -> str:
-        fields = ', '.join(f'{k}={v}' for k, v in self.__dict__.items() if not k.startswith('_'))
+        fields = ", ".join(
+            f"{k}={v}" for k, v in self.__dict__.items() if not k.startswith("_")
+        )
         return f"{self.__class__.__name__}({fields})"
 
 
-PersonioResourceType = TypeVar('PersonioResourceType', bound=PersonioResource)
+PersonioResourceType = TypeVar("PersonioResourceType", bound=PersonioResource)
 
 
 class WritablePersonioResource(PersonioResource):
@@ -196,17 +237,27 @@ class WritablePersonioResource(PersonioResource):
     _can_update = True
     _can_delete = True
 
-    def __init__(self, client: 'Personio' = None, dynamic: List['DynamicAttr'] = None,
-                 dynamic_fields: List[DynamicMapping] = None, **kwargs):
+    def __init__(
+        self,
+        client: "Personio" = None,
+        dynamic: List["DynamicAttr"] = None,
+        dynamic_fields: List[DynamicMapping] = None,
+        **kwargs,
+    ):
         super().__init__(client, **kwargs)
         self.dynamic_fields = dynamic_fields
-        self.dynamic_raw: Dict[int, DynamicAttr] = {d.field_id: d for d in dynamic or []}
+        self.dynamic_raw: Dict[int, DynamicAttr] = {
+            d.field_id: d for d in dynamic or []
+        }
         self.dynamic = self._map_dynamic_values(dynamic, dynamic_fields, client)
 
     @classmethod
     def _map_dynamic_values(
-            cls, dynamic_raw: List['DynamicAttr'], dynamic_fields: List[DynamicMapping] = None,
-            client: 'Personio' = None) -> Dict[str, Any]:
+        cls,
+        dynamic_raw: List["DynamicAttr"],
+        dynamic_fields: List[DynamicMapping] = None,
+        client: "Personio" = None,
+    ) -> Dict[str, Any]:
         dynamic = {}
         if not dynamic_raw or not dynamic_fields:
             return dynamic
@@ -223,12 +274,16 @@ class WritablePersonioResource(PersonioResource):
         return dynamic
 
     @classmethod
-    def from_dict(cls, d: Dict[str, Any], client: 'Personio' = None,
-                  dynamic_fields: List[DynamicMapping] = None) -> '__class__':
+    def from_dict(
+        cls,
+        d: Dict[str, Any],
+        client: "Personio" = None,
+        dynamic_fields: List[DynamicMapping] = None,
+    ) -> "__class__":
         cls._check_api_type(d)
-        kwargs = cls._map_fields(d['attributes'], client)
-        if 'id' in d:
-            kwargs['id_'] = d['id']
+        kwargs = cls._map_fields(d["attributes"], client)
+        if "id" in d:
+            kwargs["id_"] = d["id"]
         dynamic_fields = dynamic_fields or (client.dynamic_fields if client else None)
         return cls(client=client, dynamic_fields=dynamic_fields, **kwargs)
 
@@ -247,43 +302,43 @@ class WritablePersonioResource(PersonioResource):
                     serialized = field_mapping.serialize(rich_value)
                     if raw_value != serialized:
                         dyn = dyn.clone(new_value=serialized)
-            attr[f'dynamic_{dyn.field_id}'] = dyn.to_dict()
+            attr[f"dynamic_{dyn.field_id}"] = dyn.to_dict()
         return {
-            'type': self._api_type_name,
-            'attributes': attr,
+            "type": self._api_type_name,
+            "attributes": attr,
         }
 
-    def create(self, client: 'Personio' = None):
+    def create(self, client: "Personio" = None):
         if self._can_create:
             client = self._check_client(client)
             return self._create(client)
         else:
-            raise UnsupportedMethodError('create', self.__class__)
+            raise UnsupportedMethodError("create", self.__class__)
 
-    def _create(self, client: 'Personio'):
-        raise UnsupportedMethodError('create', self.__class__)
+    def _create(self, client: "Personio"):
+        raise UnsupportedMethodError("create", self.__class__)
 
-    def update(self, client: 'Personio' = None):
+    def update(self, client: "Personio" = None):
         if self._can_update:
             client = self._check_client(client)
             return self._update(client)
         else:
-            raise UnsupportedMethodError('update', self.__class__)
+            raise UnsupportedMethodError("update", self.__class__)
 
-    def _update(self, client: 'Personio'):
-        UnsupportedMethodError('update', self.__class__)
+    def _update(self, client: "Personio"):
+        UnsupportedMethodError("update", self.__class__)
 
-    def delete(self, client: 'Personio' = None):
+    def delete(self, client: "Personio" = None):
         if self._can_delete:
             client = self._check_client(client)
             return self._delete(client)
         else:
-            raise UnsupportedMethodError('delete', self.__class__)
+            raise UnsupportedMethodError("delete", self.__class__)
 
-    def _delete(self, client: 'Personio'):
-        UnsupportedMethodError('delete', self.__class__)
+    def _delete(self, client: "Personio"):
+        UnsupportedMethodError("delete", self.__class__)
 
-    def _check_client(self, client: 'Personio' = None) -> 'Personio':
+    def _check_client(self, client: "Personio" = None) -> "Personio":
         client = client or self._client
         if not client:
             raise PersonioError()
@@ -319,30 +374,37 @@ class LabeledAttributesMixin(PersonioResource):
             value = getattr(self, mapping.class_field)
             if value is not None:
                 label = label_mapping.get(mapping.api_field)
-                d[mapping.api_field] = {'label': label, 'value': mapping.serialize(value)}
+                d[mapping.api_field] = {
+                    "label": label,
+                    "value": mapping.serialize(value),
+                }
         return d
 
     @classmethod
-    def _map_fields(cls, d: Dict[str, Dict[str, Any]], client: 'Personio' = None) -> Dict[str, Any]:
+    def _map_fields(
+        cls, d: Dict[str, Dict[str, Any]], client: "Personio" = None
+    ) -> Dict[str, Any]:
         kwargs = {}
         dynamic = []
         field_mapping_dict = cls._field_mapping()
         label_mapping = cls._label_mapping()
         for key, data in d.items():
-            label_mapping[key] = data['label']
+            label_mapping[key] = data["label"]
             if key in field_mapping_dict:
                 field_mapping = field_mapping_dict[key]
-                value = data['value']
+                value = data["value"]
                 if not cls._is_empty(value):
                     value = field_mapping.deserialize(value, client=client)
                 kwargs[field_mapping.class_field] = value
-            elif key.startswith('dynamic_'):
+            elif key.startswith("dynamic_"):
                 dyn = DynamicAttr.from_dict(key, data)
                 dynamic.append(dyn)
             else:
-                log_once(logging.WARNING, f"unexpected field '{key}' in class {cls.__name__}")
+                log_once(
+                    logging.WARNING, f"unexpected field '{key}' in class {cls.__name__}"
+                )
         if dynamic:
-            kwargs['dynamic'] = dynamic
+            kwargs["dynamic"] = dynamic
         return kwargs
 
 
@@ -350,12 +412,14 @@ class AbsenceEntitlement(PersonioResource):
 
     _api_type_name = "TimeOffType"
     _field_mapping_list = [
-        NumericFieldMapping('id', 'id_', int),
-        FieldMapping('name', 'name', str),
-        NumericFieldMapping('entitlement', 'entitlement', float),
+        NumericFieldMapping("id", "id_", int),
+        FieldMapping("name", "name", str),
+        NumericFieldMapping("entitlement", "entitlement", float),
     ]
 
-    def __init__(self, id_: int = None, name: str = None, entitlement: float = None, **kwargs):
+    def __init__(
+        self, id_: int = None, name: str = None, entitlement: float = None, **kwargs
+    ):
         super().__init__(**kwargs)
         self.id_ = id_
         self.name = name
@@ -366,12 +430,14 @@ class AbsenceType(PersonioResource):
 
     _api_type_name = "TimeOffType"
     _field_mapping_list = [
-        NumericFieldMapping('id', 'id_', int),
-        FieldMapping('name', 'name', str),
-        FieldMapping('category', 'category', str)
+        NumericFieldMapping("id", "id_", int),
+        FieldMapping("name", "name", str),
+        FieldMapping("category", "category", str),
     ]
 
-    def __init__(self, id_: int = None, name: str = None, category: str = None, **kwargs):
+    def __init__(
+        self, id_: int = None, name: str = None, category: str = None, **kwargs
+    ):
         super().__init__(**kwargs)
         self.id_ = id_
         self.name = name
@@ -382,15 +448,15 @@ class AbsenceType(PersonioResource):
             return super().to_dict()
         else:
             return {
-                'type': self._api_type_name,
-                'attributes': super().to_dict(),
+                "type": self._api_type_name,
+                "attributes": super().to_dict(),
             }
 
 
 class Certificate(PersonioResource):
 
     _field_mapping_list = [
-        FieldMapping('status', 'status', str),
+        FieldMapping("status", "status", str),
     ]
     _flat_dict = True
 
@@ -401,14 +467,16 @@ class Certificate(PersonioResource):
 
 class CostCenter(PersonioResource):
 
-    _api_type_name = 'CostCenter'
+    _api_type_name = "CostCenter"
     _field_mapping_list = [
-        NumericFieldMapping('id', 'id_', int),
-        FieldMapping('name', 'name', str),
-        NumericFieldMapping('percentage', 'percentage', float),
+        NumericFieldMapping("id", "id_", int),
+        FieldMapping("name", "name", str),
+        NumericFieldMapping("percentage", "percentage", float),
     ]
 
-    def __init__(self, id_: int = None, name: str = None, percentage: float = None, **kwargs):
+    def __init__(
+        self, id_: int = None, name: str = None, percentage: float = None, **kwargs
+    ):
         super().__init__(**kwargs)
         self.id_ = id_
         self.name = name
@@ -417,10 +485,10 @@ class CostCenter(PersonioResource):
 
 class Department(PersonioResource):
 
-    _api_type_name = 'Department'
+    _api_type_name = "Department"
     _field_mapping_list = [
-        NumericFieldMapping('id', 'id_', int),
-        FieldMapping('name', 'name', str),
+        NumericFieldMapping("id", "id_", int),
+        FieldMapping("name", "name", str),
     ]
 
     def __init__(self, id_: int = None, name: str = None, **kwargs):
@@ -431,16 +499,22 @@ class Department(PersonioResource):
 
 class HolidayCalendar(PersonioResource):
 
-    _api_type_name = 'HolidayCalendar'
+    _api_type_name = "HolidayCalendar"
     _field_mapping_list = [
-        NumericFieldMapping('id', 'id_', int),
-        FieldMapping('name', 'name', str),
-        FieldMapping('country', 'country', str),
-        FieldMapping('state', 'state', str),
+        NumericFieldMapping("id", "id_", int),
+        FieldMapping("name", "name", str),
+        FieldMapping("country", "country", str),
+        FieldMapping("state", "state", str),
     ]
 
-    def __init__(self, id_: int = None, name: str = None, country: str = None,
-                 state: str = None, **kwargs):
+    def __init__(
+        self,
+        id_: int = None,
+        name: str = None,
+        country: str = None,
+        state: str = None,
+        **kwargs,
+    ):
         super().__init__(**kwargs)
         self.id_ = id_
         self.name = name
@@ -450,10 +524,10 @@ class HolidayCalendar(PersonioResource):
 
 class Office(PersonioResource):
 
-    _api_type_name = 'Office'
+    _api_type_name = "Office"
     _field_mapping_list = [
-        NumericFieldMapping('id', 'id_', int),
-        FieldMapping('name', 'name', str),
+        NumericFieldMapping("id", "id_", int),
+        FieldMapping("name", "name", str),
     ]
 
     def __init__(self, id_: int = None, name: str = None, **kwargs):
@@ -466,14 +540,21 @@ class ShortEmployee(LabeledAttributesMixin):
 
     _api_type_name = "Employee"
     _field_mapping_list = [
-        NumericFieldMapping('id', 'id_', int),
-        FieldMapping('first_name', 'first_name', str),
-        FieldMapping('last_name', 'last_name', str),
-        FieldMapping('email', 'email', str),
+        NumericFieldMapping("id", "id_", int),
+        FieldMapping("first_name", "first_name", str),
+        FieldMapping("last_name", "last_name", str),
+        FieldMapping("email", "email", str),
     ]
 
-    def __init__(self, client: 'Personio' = None, id_: int = None, first_name: str = None,
-                 last_name: str = None, email: str = None, **kwargs):
+    def __init__(
+        self,
+        client: "Personio" = None,
+        id_: int = None,
+        first_name: str = None,
+        last_name: str = None,
+        email: str = None,
+        **kwargs,
+    ):
         super().__init__(**kwargs)
         self._client = client
         self.id_ = id_
@@ -481,7 +562,7 @@ class ShortEmployee(LabeledAttributesMixin):
         self.last_name = last_name
         self.email = email
 
-    def resolve(self, client: 'Personio' = None) -> 'Employee':
+    def resolve(self, client: "Personio" = None) -> "Employee":
         client = client or self._client
         if client:
             return client.get_employee(self.id_)
@@ -489,15 +570,16 @@ class ShortEmployee(LabeledAttributesMixin):
             raise PersonioError(
                 f"no Personio client is is available in this {self.__class__.__name__} instance "
                 f"to make a request for the full employee profile of "
-                f"{self.first_name} {self.last_name} ({self.id_})")
+                f"{self.first_name} {self.last_name} ({self.id_})"
+            )
 
 
 class Team(PersonioResource):
 
-    _api_type_name = 'Team'
+    _api_type_name = "Team"
     _field_mapping_list = [
-        NumericFieldMapping('id', 'id_', int),
-        FieldMapping('name', 'name', str),
+        NumericFieldMapping("id", "id_", int),
+        FieldMapping("name", "name", str),
     ]
 
     def __init__(self, id_: int = None, name: str = None, **kwargs):
@@ -508,32 +590,34 @@ class Team(PersonioResource):
 
 class WorkSchedule(PersonioResource):
 
-    _api_type_name = 'WorkSchedule'
+    _api_type_name = "WorkSchedule"
     _field_mapping_list = [
-        NumericFieldMapping('id', 'id_', int),
-        FieldMapping('name', 'name', str),
-        DateFieldMapping('valid_from', 'valid_from'),
-        DurationFieldMapping('monday', 'monday'),
-        DurationFieldMapping('tuesday', 'tuesday'),
-        DurationFieldMapping('wednesday', 'wednesday'),
-        DurationFieldMapping('thursday', 'thursday'),
-        DurationFieldMapping('friday', 'friday'),
-        DurationFieldMapping('saturday', 'saturday'),
-        DurationFieldMapping('sunday', 'sunday'),
+        NumericFieldMapping("id", "id_", int),
+        FieldMapping("name", "name", str),
+        DateFieldMapping("valid_from", "valid_from"),
+        DurationFieldMapping("monday", "monday"),
+        DurationFieldMapping("tuesday", "tuesday"),
+        DurationFieldMapping("wednesday", "wednesday"),
+        DurationFieldMapping("thursday", "thursday"),
+        DurationFieldMapping("friday", "friday"),
+        DurationFieldMapping("saturday", "saturday"),
+        DurationFieldMapping("sunday", "sunday"),
     ]
 
-    def __init__(self,
-                 id_: int = None,
-                 name: str = None,
-                 valid_from: datetime = None,
-                 monday: timedelta = None,
-                 tuesday: timedelta = None,
-                 wednesday: timedelta = None,
-                 thursday: timedelta = None,
-                 friday: timedelta = None,
-                 saturday: timedelta = None,
-                 sunday: timedelta = None,
-                 **kwargs):
+    def __init__(
+        self,
+        id_: int = None,
+        name: str = None,
+        valid_from: datetime = None,
+        monday: timedelta = None,
+        tuesday: timedelta = None,
+        wednesday: timedelta = None,
+        thursday: timedelta = None,
+        friday: timedelta = None,
+        saturday: timedelta = None,
+        sunday: timedelta = None,
+        **kwargs,
+    ):
         super().__init__(**kwargs)
         self.id_ = id_
         self.name = name
@@ -552,42 +636,46 @@ class Absence(WritablePersonioResource):
     _api_type_name = "TimeOffPeriod"
     _can_update = False
     _field_mapping_list = [
-        NumericFieldMapping('id', 'id_', int),
-        FieldMapping('status', 'status', str),
-        FieldMapping('comment', 'comment', str),
-        DateFieldMapping('start_date', 'start_date'),
-        DateFieldMapping('end_date', 'end_date'),
-        NumericFieldMapping('days_count', 'days_count', float),
-        NumericFieldMapping('half_day_start', 'half_day_start', int),
-        NumericFieldMapping('half_day_end', 'half_day_end', int),
-        ObjectFieldMapping('time_off_type', 'time_off_type', AbsenceType),
-        ObjectFieldMapping('employee', 'employee', ShortEmployee),
-        FieldMapping('created_by', 'created_by', str),
-        ObjectFieldMapping('certificate', 'certificate', Certificate),
-        DateTimeFieldMapping('created_at', 'created_at'),
-        DateTimeFieldMapping('updated_at', 'updated_at'),
+        NumericFieldMapping("id", "id_", int),
+        FieldMapping("status", "status", str),
+        FieldMapping("comment", "comment", str),
+        DateFieldMapping("start_date", "start_date"),
+        DateFieldMapping("end_date", "end_date"),
+        NumericFieldMapping("days_count", "days_count", float),
+        NumericFieldMapping("half_day_start", "half_day_start", int),
+        NumericFieldMapping("half_day_end", "half_day_end", int),
+        ObjectFieldMapping("time_off_type", "time_off_type", AbsenceType),
+        ObjectFieldMapping("employee", "employee", ShortEmployee),
+        FieldMapping("created_by", "created_by", str),
+        ObjectFieldMapping("certificate", "certificate", Certificate),
+        DateTimeFieldMapping("created_at", "created_at"),
+        DateTimeFieldMapping("updated_at", "updated_at"),
     ]
 
-    def __init__(self,
-                 client: 'Personio' = None,
-                 dynamic: Dict[str, Any] = None,
-                 dynamic_raw: List['DynamicAttr'] = None,
-                 id_: int = None,
-                 status: str = None,
-                 comment: str = None,
-                 start_date: datetime = None,
-                 end_date: datetime = None,
-                 days_count: float = None,
-                 half_day_start: bool = False,
-                 half_day_end: bool = False,
-                 time_off_type: AbsenceType = None,
-                 employee: ShortEmployee = None,
-                 created_by: str = None,
-                 certificate: Certificate = None,
-                 created_at: datetime = None,
-                 updated_at: datetime = None,
-                 **kwargs):
-        super().__init__(client=client, dynamic=dynamic, dynamic_raw=dynamic_raw, **kwargs)
+    def __init__(
+        self,
+        client: "Personio" = None,
+        dynamic: Dict[str, Any] = None,
+        dynamic_raw: List["DynamicAttr"] = None,
+        id_: int = None,
+        status: str = None,
+        comment: str = None,
+        start_date: datetime = None,
+        end_date: datetime = None,
+        days_count: float = None,
+        half_day_start: bool = False,
+        half_day_end: bool = False,
+        time_off_type: AbsenceType = None,
+        employee: ShortEmployee = None,
+        created_by: str = None,
+        certificate: Certificate = None,
+        created_at: datetime = None,
+        updated_at: datetime = None,
+        **kwargs,
+    ):
+        super().__init__(
+            client=client, dynamic=dynamic, dynamic_raw=dynamic_raw, **kwargs
+        )
         self.id_ = id_
         self.status = status
         self.comment = comment
@@ -603,23 +691,23 @@ class Absence(WritablePersonioResource):
         self.created_at = created_at
         self.updated_at = updated_at
 
-    def _create(self, client: 'Personio' = None):
+    def _create(self, client: "Personio" = None):
         return get_client(self, client).create_absence(self)
 
-    def _delete(self, client: 'Personio' = None):
+    def _delete(self, client: "Personio" = None):
         return get_client(self, client).delete_absence(self)
 
     def to_body_params(self):
         data = {
-            'employee_id': self.employee.id_,
-            'time_off_type_id': self.time_off_type.id_,
-            'start_date': self.start_date.strftime("%Y-%m-%d"),
-            'end_date': self.end_date.strftime("%Y-%m-%d"),
-            'half_day_start': self.half_day_start,
-            'half_day_end': self.half_day_end
+            "employee_id": self.employee.id_,
+            "time_off_type_id": self.time_off_type.id_,
+            "start_date": self.start_date.strftime("%Y-%m-%d"),
+            "end_date": self.end_date.strftime("%Y-%m-%d"),
+            "half_day_start": self.half_day_start,
+            "half_day_end": self.half_day_end,
         }
         if self.comment is not None:
-            data['comment'] = self.comment
+            data["comment"] = self.comment
         return data
 
 
@@ -628,44 +716,52 @@ class Project(WritablePersonioResource):
     _api_type_name = "Project"
     _field_mapping_list = [
         # note: the id is actually not in the attributes dict, but one level higher
-        NumericFieldMapping('id', 'id_', int),
-        FieldMapping('name', 'name', str),
-        BooleanFieldMapping('active', 'active'),
-        DateTimeFieldMapping('created_at', 'created_at'),
-        DateTimeFieldMapping('updated_at', 'updated_at')
+        NumericFieldMapping("id", "id_", int),
+        FieldMapping("name", "name", str),
+        BooleanFieldMapping("active", "active"),
+        DateTimeFieldMapping("created_at", "created_at"),
+        DateTimeFieldMapping("updated_at", "updated_at"),
     ]
 
-    def __init__(self, client: 'Personio' = None, dynamic: Dict[str, Any] = None,
-                 dynamic_raw: List['DynamicAttr'] = None, id_: int = None, name: str = None,
-                 active: bool = None, created_at: datetime = None, updated_at: datetime = None,
-                 **kwargs):
-        super().__init__(client=client, dynamic=dynamic, dynamic_raw=dynamic_raw, **kwargs)
+    def __init__(
+        self,
+        client: "Personio" = None,
+        dynamic: Dict[str, Any] = None,
+        dynamic_raw: List["DynamicAttr"] = None,
+        id_: int = None,
+        name: str = None,
+        active: bool = None,
+        created_at: datetime = None,
+        updated_at: datetime = None,
+        **kwargs,
+    ):
+        super().__init__(
+            client=client, dynamic=dynamic, dynamic_raw=dynamic_raw, **kwargs
+        )
         self.id_ = id_
         self.name = name
         self.active = active
         self.created_at = created_at
         self.updated_at = updated_at
 
-    def _create(self, client: 'Personio' = None):
+    def _create(self, client: "Personio" = None):
         return get_client(self, client).create_project(self)
 
-    def _delete(self, client: 'Personio' = None):
+    def _delete(self, client: "Personio" = None):
         return get_client(self, client).delete_project(self)
 
-    def _update(self, client: 'Personio' = None):
+    def _update(self, client: "Personio" = None):
         return get_client(self, client).update_project(self)
 
     def to_dict(self, nested=False) -> Dict[str, Any]:
         # yes, this is weird an unnecessary, but that's how the api works
         d = super().to_dict()
-        d['id'] = self.id_
-        del d['attributes']['id']
+        d["id"] = self.id_
+        del d["attributes"]["id"]
         return d
 
     def to_body_params(self):
-        data = {
-            'name': self.name,
-            'active': self.active}
+        data = {"name": self.name, "active": self.active}
         return data
 
 
@@ -674,38 +770,42 @@ class Attendance(WritablePersonioResource):
     _api_type_name = "AttendancePeriod"
     _field_mapping_list = [
         # note: the id is actually not in the attributes dict, but one level higher
-        NumericFieldMapping('id', 'id_', int),
-        NumericFieldMapping('employee', 'employee_id', int),
-        DateFieldMapping('date', 'date'),
-        TimeFieldMapping('start_time', 'start_time'),
-        TimeFieldMapping('end_time', 'end_time'),
-        NumericFieldMapping('break', 'break_duration', int),
-        FieldMapping('comment', 'comment', str),
-        BooleanFieldMapping('is_holiday', 'is_holiday'),
-        BooleanFieldMapping('is_on_time_off', 'is_on_time_off'),
-        DateTimeFieldMapping('updated_at', 'updated_at'),
-        FieldMapping('status', 'status', str),
-        NumericFieldMapping('project', 'project', int)
+        NumericFieldMapping("id", "id_", int),
+        NumericFieldMapping("employee", "employee_id", int),
+        DateFieldMapping("date", "date"),
+        TimeFieldMapping("start_time", "start_time"),
+        TimeFieldMapping("end_time", "end_time"),
+        NumericFieldMapping("break", "break_duration", int),
+        FieldMapping("comment", "comment", str),
+        BooleanFieldMapping("is_holiday", "is_holiday"),
+        BooleanFieldMapping("is_on_time_off", "is_on_time_off"),
+        DateTimeFieldMapping("updated_at", "updated_at"),
+        FieldMapping("status", "status", str),
+        NumericFieldMapping("project", "project", int),
     ]
 
-    def __init__(self,
-                 client: 'Personio' = None,
-                 dynamic: Dict[str, Any] = None,
-                 dynamic_raw: List['DynamicAttr'] = None,
-                 id_: int = None,
-                 employee_id: int = None,
-                 date: datetime = None,
-                 start_time: str = None,
-                 end_time: str = None,
-                 break_duration: int = None,
-                 comment: str = None,
-                 is_holiday: bool = None,
-                 is_on_time_off: bool = None,
-                 updated_at: datetime = None,
-                 status: str = None,
-                 project: int = None,
-                 **kwargs):
-        super().__init__(client=client, dynamic=dynamic, dynamic_raw=dynamic_raw, **kwargs)
+    def __init__(
+        self,
+        client: "Personio" = None,
+        dynamic: Dict[str, Any] = None,
+        dynamic_raw: List["DynamicAttr"] = None,
+        id_: int = None,
+        employee_id: int = None,
+        date: datetime = None,
+        start_time: str = None,
+        end_time: str = None,
+        break_duration: int = None,
+        comment: str = None,
+        is_holiday: bool = None,
+        is_on_time_off: bool = None,
+        updated_at: datetime = None,
+        status: str = None,
+        project: int = None,
+        **kwargs,
+    ):
+        super().__init__(
+            client=client, dynamic=dynamic, dynamic_raw=dynamic_raw, **kwargs
+        )
         self.id_ = id_
         self.employee_id = employee_id
         self.date = date
@@ -725,17 +825,17 @@ class Attendance(WritablePersonioResource):
     def to_dict(self, nested=False) -> Dict[str, Any]:
         # yes, this is weird an unnecessary, but that's how the api works
         d = super().to_dict()
-        d['id'] = self.id_
-        del d['attributes']['id']
+        d["id"] = self.id_
+        del d["attributes"]["id"]
         return d
 
-    def _create(self, client: 'Personio'):
+    def _create(self, client: "Personio"):
         get_client(self, client).create_attendances([self])
 
-    def _update(self, client: 'Personio'):
+    def _update(self, client: "Personio"):
         get_client(self, client).update_attendance(self)
 
-    def _delete(self, client: 'Personio'):
+    def _delete(self, client: "Personio"):
         get_client(self, client).delete_attendance(self)
 
     def to_body_params(self, patch_existing_attendance=False):
@@ -753,23 +853,28 @@ class Attendance(WritablePersonioResource):
                 raise ValueError("An attendance id is required")
             body_dict = {}
             if self.date is not None:
-                body_dict['date'] = self.date.strftime("%Y-%m-%d")
+                body_dict["date"] = self.date.strftime("%Y-%m-%d")
             if self.start_time is not None:
-                body_dict['start_time'] = str(self.start_time)
+                body_dict["start_time"] = str(self.start_time)
             if self.end_time is not None:
-                body_dict['end_time'] = str(self.end_time)
+                body_dict["end_time"] = str(self.end_time)
             if self.break_duration is not None:
-                body_dict['break'] = self.break_duration
+                body_dict["break"] = self.break_duration
             if self.comment is not None:
-                body_dict['comment'] = self.comment
+                body_dict["comment"] = self.comment
+            if self.project is not None:
+                body_dict["project_id"] = self.project
             return body_dict
         else:
-            return {"employee": self.employee_id,
-                    "date": self.date.strftime("%Y-%m-%d"),
-                    "start_time": self.start_time,
-                    "end_time": self.end_time,
-                    "break": self.break_duration or 0,
-                    "comment": self.comment or ""}
+            return {
+                "employee": self.employee_id,
+                "date": self.date.strftime("%Y-%m-%d"),
+                "start_time": self.start_time,
+                "end_time": self.end_time,
+                "project_id": self.project or None,
+                "break": self.break_duration or 0,
+                "comment": self.comment or "",
+            }
 
 
 class Employee(WritablePersonioResource, LabeledAttributesMixin):
@@ -777,80 +882,88 @@ class Employee(WritablePersonioResource, LabeledAttributesMixin):
     _api_type_name = "Employee"
     _can_delete = False
     _field_mapping_list = [
-        NumericFieldMapping('id', 'id_', int),
-        FieldMapping('first_name', 'first_name', str),
-        FieldMapping('last_name', 'last_name', str),
-        FieldMapping('email', 'email', str),
-        FieldMapping('gender', 'gender', str),
-        FieldMapping('status', 'status', str),
-        FieldMapping('position', 'position', str),
-        ObjectFieldMapping('supervisor', 'supervisor', ShortEmployee),
-        FieldMapping('employment_type', 'employment_type', str),
-        FieldMapping('weekly_working_hours', 'weekly_working_hours', str),
-        DateFieldMapping('hire_date', 'hire_date'),
-        DateFieldMapping('contract_end_date', 'contract_end_date'),
-        DateFieldMapping('termination_date', 'termination_date'),
-        FieldMapping('termination_type', 'termination_type', str),
-        FieldMapping('termination_reason', 'termination_reason', str),
-        DateFieldMapping('probation_period_end', 'probation_period_end'),
-        DateTimeFieldMapping('created_at', 'created_at'),
-        DateTimeFieldMapping('last_modified_at', 'last_modified_at'),
-        FieldMapping('subcompany', 'subcompany', str),
-        ObjectFieldMapping('office', 'office', Office),
-        ObjectFieldMapping('department', 'department', Department),
-        ListFieldMapping(ObjectFieldMapping(
-            'cost_centers', 'cost_centers', CostCenter)),
-        NumericFieldMapping('fix_salary', 'fix_salary', float),
-        FieldMapping('fix_salary_interval', 'fix_salary_interval', str),
-        NumericFieldMapping('hourly_salary', 'hourly_salary', float),
-        NumericFieldMapping('vacation_day_balance', 'vacation_day_balance', float),
-        DateFieldMapping('last_working_day', 'last_working_day'),
-        ObjectFieldMapping('holiday_calendar', 'holiday_calendar', HolidayCalendar),
-        ObjectFieldMapping('work_schedule', 'work_schedule', WorkSchedule),
-        ListFieldMapping(ObjectFieldMapping(
-            'absence_entitlement', 'absence_entitlement', AbsenceEntitlement)),
-        FieldMapping('profile_picture', 'profile_picture', str),
-        ObjectFieldMapping('team', 'team', Team),
+        NumericFieldMapping("id", "id_", int),
+        FieldMapping("first_name", "first_name", str),
+        FieldMapping("last_name", "last_name", str),
+        FieldMapping("email", "email", str),
+        FieldMapping("gender", "gender", str),
+        FieldMapping("status", "status", str),
+        FieldMapping("position", "position", str),
+        ObjectFieldMapping("supervisor", "supervisor", ShortEmployee),
+        FieldMapping("employment_type", "employment_type", str),
+        FieldMapping("weekly_working_hours", "weekly_working_hours", str),
+        DateFieldMapping("hire_date", "hire_date"),
+        DateFieldMapping("contract_end_date", "contract_end_date"),
+        DateFieldMapping("termination_date", "termination_date"),
+        FieldMapping("termination_type", "termination_type", str),
+        FieldMapping("termination_reason", "termination_reason", str),
+        DateFieldMapping("probation_period_end", "probation_period_end"),
+        DateTimeFieldMapping("created_at", "created_at"),
+        DateTimeFieldMapping("last_modified_at", "last_modified_at"),
+        FieldMapping("subcompany", "subcompany", str),
+        ObjectFieldMapping("office", "office", Office),
+        ObjectFieldMapping("department", "department", Department),
+        ListFieldMapping(
+            ObjectFieldMapping("cost_centers", "cost_centers", CostCenter)
+        ),
+        NumericFieldMapping("fix_salary", "fix_salary", float),
+        FieldMapping("fix_salary_interval", "fix_salary_interval", str),
+        NumericFieldMapping("hourly_salary", "hourly_salary", float),
+        NumericFieldMapping("vacation_day_balance", "vacation_day_balance", float),
+        DateFieldMapping("last_working_day", "last_working_day"),
+        ObjectFieldMapping("holiday_calendar", "holiday_calendar", HolidayCalendar),
+        ObjectFieldMapping("work_schedule", "work_schedule", WorkSchedule),
+        ListFieldMapping(
+            ObjectFieldMapping(
+                "absence_entitlement", "absence_entitlement", AbsenceEntitlement
+            )
+        ),
+        FieldMapping("profile_picture", "profile_picture", str),
+        ObjectFieldMapping("team", "team", Team),
     ]
 
-    def __init__(self,
-                 client: 'Personio' = None,
-                 dynamic: Dict[str, Any] = None,
-                 dynamic_raw: List['DynamicAttr'] = None,
-                 id_: int = None,
-                 first_name: str = None,
-                 last_name: str = None,
-                 email: str = None,
-                 gender: str = None,
-                 status: str = None,
-                 position: str = None,
-                 supervisor: ShortEmployee = None,
-                 employment_type: str = None,
-                 weekly_working_hours: str = None,
-                 hire_date: datetime = None,
-                 contract_end_date: datetime = None,
-                 termination_date: datetime = None,
-                 termination_type: str = None,
-                 termination_reason: str = None,
-                 probation_period_end: datetime = None,
-                 created_at: datetime = None,
-                 last_modified_at: datetime = None,
-                 subcompany: str = None,
-                 office: Office = None,
-                 department: Department = None,
-                 cost_centers: List[CostCenter] = None,
-                 holiday_calendar: HolidayCalendar = None,
-                 absence_entitlement: List[AbsenceEntitlement] = None,
-                 work_schedule: WorkSchedule = None,
-                 fix_salary: float = None,
-                 fix_salary_interval: str = None,
-                 hourly_salary: float = None,
-                 vacation_day_balance: float = None,
-                 last_working_day: datetime = None,
-                 profile_picture: str = None,
-                 team: Team = None,
-                 **kwargs):
-        super().__init__(client=client, dynamic=dynamic, dynamic_raw=dynamic_raw, **kwargs)
+    def __init__(
+        self,
+        client: "Personio" = None,
+        dynamic: Dict[str, Any] = None,
+        dynamic_raw: List["DynamicAttr"] = None,
+        id_: int = None,
+        first_name: str = None,
+        last_name: str = None,
+        email: str = None,
+        gender: str = None,
+        status: str = None,
+        position: str = None,
+        supervisor: ShortEmployee = None,
+        employment_type: str = None,
+        weekly_working_hours: str = None,
+        hire_date: datetime = None,
+        contract_end_date: datetime = None,
+        termination_date: datetime = None,
+        termination_type: str = None,
+        termination_reason: str = None,
+        probation_period_end: datetime = None,
+        created_at: datetime = None,
+        last_modified_at: datetime = None,
+        subcompany: str = None,
+        office: Office = None,
+        department: Department = None,
+        cost_centers: List[CostCenter] = None,
+        holiday_calendar: HolidayCalendar = None,
+        absence_entitlement: List[AbsenceEntitlement] = None,
+        work_schedule: WorkSchedule = None,
+        fix_salary: float = None,
+        fix_salary_interval: str = None,
+        hourly_salary: float = None,
+        vacation_day_balance: float = None,
+        last_working_day: datetime = None,
+        profile_picture: str = None,
+        team: Team = None,
+        **kwargs,
+    ):
+        super().__init__(
+            client=client, dynamic=dynamic, dynamic_raw=dynamic_raw, **kwargs
+        )
         self.id_ = id_
         self.first_name = first_name
         self.last_name = last_name
@@ -885,21 +998,23 @@ class Employee(WritablePersonioResource, LabeledAttributesMixin):
         self.team = team
         self._picture = None
 
-    def _create(self, client: 'Personio' = None):
+    def _create(self, client: "Personio" = None):
         pass
 
-    def _update(self, client: 'Personio' = None):
+    def _update(self, client: "Personio" = None):
         pass
 
-    def picture(self, client: 'Personio' = None, width: int = None) -> bytes:
+    def picture(self, client: "Personio" = None, width: int = None) -> bytes:
         if self._picture is None:
             client = get_client(self, client)
             self._picture = client.get_employee_picture(self, width=width)
         return self._picture
 
     def __str__(self):
-        return f"{self.__class__.__name__}: {self.first_name} {self.last_name}, " \
-               f"{self.position or 'position undefined'} ({self.id_})"
+        return (
+            f"{self.__class__.__name__}: {self.first_name} {self.last_name}, "
+            f"{self.position or 'position undefined'} ({self.id_})"
+        )
 
 
 _unique_logs = set()
@@ -911,8 +1026,10 @@ def log_once(level: int, message: str):
         _unique_logs.add(message)
 
 
-def get_client(resource: PersonioResource, client: 'Personio' = None):
+def get_client(resource: PersonioResource, client: "Personio" = None):
     if resource._client or client:
         return resource._client or client
-    raise PersonioError(f"no Personio client reference is available, please provide it to "
-                        f"your {type(resource).__name__} or as function parameter")
+    raise PersonioError(
+        f"no Personio client reference is available, please provide it to "
+        f"your {type(resource).__name__} or as function parameter"
+    )
