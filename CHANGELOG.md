@@ -9,6 +9,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 * add support for providing a custom `requests.Session` in client
   ([#39](https://github.com/at-gmbh/personio-py/pull/39)
 
+* add pagination to get employees method
+  ([#42](https://github.com/at-gmbh/personio-py/pull/42))
+
 ## [0.2.3](https://github.com/at-gmbh/personio-py/tree/v0.2.3) - 2023-05-05
 
 * add support for Projects ([#36](https://github.com/at-gmbh/personio-py/pull/36))

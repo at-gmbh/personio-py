@@ -38,6 +38,7 @@ class Personio:
     ATTENDANCE_URL = 'company/attendances'
     ABSENCE_URL = 'company/time-offs'
     PROJECT_URL = 'company/attendances/projects'
+    EMPLOYEES_URL = 'company/employees'
 
     def __init__(self, base_url: str = None, client_id: str = None, client_secret: str = None,
                  dynamic_fields: List[DynamicMapping] = None,
@@ -170,6 +171,9 @@ class Personio:
         elif self.ATTENDANCE_URL == path:
             offset = 0
             url_type = 'attendance'
+        elif self.EMPLOYEES_URL == path:
+            offset = 0
+            url_type = 'employees'
         else:
             raise ValueError(f"Invalid path: {path}")
 
@@ -182,23 +186,50 @@ class Personio:
             response = self.request_json(path, method, params, data, auth_rotation=auth_rotation)
             resp_data = response.get('data')
             if resp_data:
-                if url_type == 'absence':
-                    data_acc.extend(resp_data)
-                    if response['metadata']['current_page'] == response['metadata']['total_pages']:
-                        break
-                    else:
-                        params['offset'] += 1
-                elif url_type == 'attendance':
-                    if params['offset'] >= response['metadata']['total_elements']:
-                        break
-                    else:
-                        data_acc.extend(resp_data)
-                        params['offset'] += limit
+                if url_type == 'absence' and self._handle_absence_pagination(
+                    data_acc, resp_data, response, params
+                ):
+                    break
+                elif url_type == 'attendance' and self._handle_attendance_pagination(
+                    data_acc, resp_data, response, params
+                ):
+                    break
+                elif url_type == 'employees' and self._handle_employees_pagination(
+                    data_acc, resp_data, response, params
+                ):
+                    break
             else:
                 break
         # return the accumulated data
         response['data'] = data_acc
         return response
+
+    def _handle_absence_pagination(self, data_acc, resp_data, response, params) -> bool:
+        """Handle pagination logic for absences."""
+        data_acc.extend(resp_data)
+        if response['metadata']['current_page'] == response['metadata']['total_pages']:
+            return True
+        params['offset'] += 1
+        return False
+
+    def _handle_attendance_pagination(self, data_acc, resp_data, response, params) -> bool:
+        """Handle pagination logic for attendance."""
+        if params['offset'] >= response['metadata']['total_elements']:
+            return True
+        data_acc.extend(resp_data)
+        params['offset'] += params['limit']
+        return False
+
+    def _handle_employees_pagination(self, data_acc, resp_data, response, params):
+        """Handle pagination logic for employees."""
+        data_acc.extend(resp_data)
+        total_pages = response['metadata']['total_pages']
+        current_page = response['metadata']['current_page']
+        if current_page + 1 == total_pages:
+            return True
+        else:
+            params['offset'] += 1
+            return False
 
     def request_image(self, path: str, method='GET', params: Dict[str, Any] = None,
                       auth_rotation=False) -> Optional[bytes]:
@@ -230,11 +261,11 @@ class Personio:
     def get_employees(self) -> List[Employee]:
         """
         Get a list of all employee records in your account.
-        Does not involve pagination.
+        Requires pagination. Max page size is 100.
 
         :return: list of ``Employee`` instances
         """
-        response = self.request_json('company/employees')
+        response = self.request_paginated(path='company/employees', limit=100)
         employees = [Employee.from_dict(d, self) for d in response['data']]
         return employees
 

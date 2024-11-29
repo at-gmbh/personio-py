@@ -146,6 +146,35 @@ def mock_employees():
         json=json_dict_employees, adding_headers={'Authorization': 'Bearer rotated_dummy_token'})
 
 
+@responses.activate
+def test_get_employees_with_pagination():
+    # Mock the paginated responses
+    responses.add(
+        responses.GET, 
+        'https://api.personio.de/v1/company/employees',
+        json=json_dict_employees_page1,
+        match=[responses.matchers.query_param_matcher({'limit': '100', 'offset': '0'})],
+        adding_headers={'Authorization': 'Bearer rotated_dummy_token'},
+        status=200
+    )
+    responses.add(
+        responses.GET, 
+        'https://api.personio.de/v1/company/employees',
+        json=json_dict_employees_page2,
+        match=[responses.matchers.query_param_matcher({'limit': '100', 'offset': '1'})],
+        adding_headers={'Authorization': 'Bearer rotated_dummy_token'},
+        status=200
+    )
+    # mock personio
+    personio = mock_personio()
+    employees = personio.get_employees()
+
+    # Validate the number of calls made
+    assert len(responses.calls) == 3 # one for initializing client, two for employee pages
+    # Validate the combined response
+    assert len(employees) == len(json_dict_employees_page2["data"]) + len(json_dict_employees_page2["data"])
+
+
 def compare_labeled_attributes(expected: Dict, actual: Dict):
     if actual == expected:
         # fast lane - exact match
