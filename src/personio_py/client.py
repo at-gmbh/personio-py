@@ -82,8 +82,8 @@ class Personio:
             )
         url = urljoin(self.base_url, "auth")
         logger.debug(f"authenticating to {url} with client_id {self.client_id}")
-        params = {"client_id": self.client_id, "client_secret": self.client_secret}
-        response = requests.request("POST", url, headers=self.headers, params=params)
+        data = {"client_id": self.client_id, "client_secret": self.client_secret}
+        response = requests.request("POST", url, headers=self.headers, json=data)
         if response.ok:
             token = response.json()["data"]["token"]
             self.headers["Authorization"] = f"Bearer {token}"
