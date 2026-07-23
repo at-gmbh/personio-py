@@ -1,7 +1,7 @@
 """
 Types of Errors specified by personio-py
 """
-from typing import Any, Dict, Type
+from typing import Any
 
 from requests import Response
 
@@ -27,7 +27,7 @@ class PersonioApiError(PersonioError):
     """
 
     def __init__(self, status_code: int, message: str, error_code: int = None,
-                 errors: Dict[str, Any] = None, response: Response = None):
+                 errors: dict[str, Any] = None, response: Response = None):
         super().__init__()
         self.status_code = status_code
         self.message = message
@@ -44,11 +44,11 @@ class PersonioApiError(PersonioError):
         :return: a PersonioApiError that matches the HTTP error
         """
         try:
-            data: Dict = response.json()
+            data: dict = response.json()
             error = data.get('error', {})
             code = error.get('code')
             message = error.get('message')
-            error_dict: Dict = error.get('errors')
+            error_dict: dict = error.get('errors')
             return PersonioApiError(
                 status_code=response.status_code,
                 message=message,
@@ -75,7 +75,7 @@ class PersonioApiError(PersonioError):
 class UnsupportedMethodError(PersonioError):
     """this method is not supported by this class (but it might be by a similar one)"""
 
-    def __init__(self, method: str, clazz: Type):
+    def __init__(self, method: str, clazz: type):
         super().__init__()
         self.method = method
         self.clazz = clazz

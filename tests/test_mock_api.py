@@ -63,7 +63,7 @@ def test_get_employees():
     employees = personio.get_employees()
     # validate
     assert len(employees) == 3
-    employee_dict: Dict[str, Employee] = {e.first_name: e for e in employees}
+    employee_dict: dict[str, Employee] = {e.first_name: e for e in employees}
     ada = employee_dict['Ada']
     alan = employee_dict['Alan']
     rms = employee_dict['Richard']
@@ -146,7 +146,7 @@ def mock_employees():
         json=json_dict_employees, adding_headers={'Authorization': 'Bearer rotated_dummy_token'})
 
 
-def compare_labeled_attributes(expected: Dict, actual: Dict):
+def compare_labeled_attributes(expected: dict, actual: dict):
     if actual == expected:
         # fast lane - exact match
         return
@@ -183,7 +183,7 @@ def compare_serialized_values(expected: Any, actual: Any):
         assert actual == expected
 
 
-def get_serialized_value(d: Dict, key: str):
+def get_serialized_value(d: dict, key: str):
     # two possible structures here: d[key]['value'] or just d['key']
     val = d[key]
     if isinstance(val, dict) and 'value' in val:

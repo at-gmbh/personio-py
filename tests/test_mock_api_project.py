@@ -85,6 +85,7 @@ def mock_update_project():
         status=200, json=json_dict_project_update, adding_headers={'Authorization': 'Bearer bar'})
 
 def mock_delete_project():
+    # HTTP 204 (No Content) must not carry a body, so no json is attached here
     responses.add(
         responses.DELETE,  'https://api.personio.de/v1/company/attendances/projects/238751',
-        status=204, json=json_dict_project_delete, adding_headers={'Authorization': 'Bearer bar'})
+        status=204, adding_headers={'Authorization': 'Bearer bar'})

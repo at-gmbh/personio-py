@@ -6,7 +6,7 @@ import logging
 from collections import namedtuple
 from datetime import datetime, timedelta
 from functools import total_ordering
-from typing import Any, Dict, List, NamedTuple, Optional, TYPE_CHECKING, Tuple, Type, TypeVar
+from typing import Any, NamedTuple, TYPE_CHECKING, TypeVar
 
 from personio_py import PersonioError, UnsupportedMethodError
 from personio_py.mapping import (
@@ -28,25 +28,25 @@ class DynamicAttr(NamedTuple):
     value: Any
 
     @classmethod
-    def from_attributes(cls, d: Dict[str, Dict[str, Any]]) -> List['DynamicAttr']:
+    def from_attributes(cls, d: dict[str, dict[str, Any]]) -> list['DynamicAttr']:
         return [DynamicAttr.from_dict(k, v) for k, v in d.items() if k.startswith('dynamic_')]
 
     @classmethod
-    def to_attributes(cls, dyn_attrs: List['DynamicAttr']) -> Dict[str, Dict[str, Any]]:
+    def to_attributes(cls, dyn_attrs: list['DynamicAttr']) -> dict[str, dict[str, Any]]:
         return {f'dynamic_{d.field_id}': d.to_dict() for d in dyn_attrs}
 
     @classmethod
-    def from_dict(cls, key: str, d: Dict[str, Any]) -> 'DynamicAttr':
+    def from_dict(cls, key: str, d: dict[str, Any]) -> 'DynamicAttr':
         if key.startswith('dynamic_'):
             _, field_id = key.split('_', maxsplit=1)
             return DynamicAttr(field_id=int(field_id), label=d['label'], value=d['value'])
         else:
             raise ValueError(f"dynamic attribute '{key}' does not start with 'dynamic_'")
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         return {'label': self.label, 'value': self.value}
 
-    def clone(self, new_value: Optional[Any] = None):
+    def clone(self, new_value: Any | None = None):
         return DynamicAttr(field_id=self.field_id, label=self.label,
                            value=self.value if new_value is None else new_value)
 
@@ -56,13 +56,13 @@ class PersonioResource:
 
     _api_type_name: str = None
     """the name of this resource type in the Personio API"""
-    _field_mapping_list: List[FieldMapping] = []
+    _field_mapping_list: list[FieldMapping] = []
     """all known API fields and their type definitions that are mapped to this PersonioResource"""
-    __field_mapping: Dict[str, FieldMapping] = None
+    __field_mapping: dict[str, FieldMapping] = None
     """see ``_field_mapping()``"""
-    __label_mapping: Dict[str, str] = None
+    __label_mapping: dict[str, str] = None
     """see ``_label_mapping()``"""
-    __namedtuple: Type[tuple] = None
+    __namedtuple: type[tuple] = None
     """see ``_namedtuple()``"""
     _flat_dict = False
     """set this to True, if this class has a flat dictionary representation in the Personio API"""
@@ -72,21 +72,21 @@ class PersonioResource:
         self._client = client
 
     @classmethod
-    def _field_mapping(cls) -> Dict[str, FieldMapping]:
+    def _field_mapping(cls) -> dict[str, FieldMapping]:
         # the field mapping as dictionary
         if cls.__field_mapping is None:
             cls.__field_mapping = {fm.api_field: fm for fm in cls._field_mapping_list}
         return cls.__field_mapping
 
     @classmethod
-    def _label_mapping(cls) -> Dict[str, str]:
+    def _label_mapping(cls) -> dict[str, str]:
         # mapping from api field name to pretty label name
         if cls.__label_mapping is None:
             cls.__label_mapping = {}
         return cls.__label_mapping
 
     @classmethod
-    def from_dict(cls, d: Dict[str, Any], client: 'Personio' = None) -> '__class__':
+    def from_dict(cls, d: dict[str, Any], client: 'Personio' = None) -> '__class__':
         """
         Create an instance of this PersonioResource from the specified dictionary data,
         which is parsed version of the json data from the Personio API.
@@ -105,7 +105,7 @@ class PersonioResource:
         kwargs = cls._map_fields(d, client)
         return cls(client=client, **kwargs)
 
-    def to_dict(self, nested=False) -> Dict[str, Any]:
+    def to_dict(self, nested=False) -> dict[str, Any]:
         """
         Convert this PersonioResource to a dictionary that has the same structure as the
         json data from the Personio API.
@@ -123,7 +123,7 @@ class PersonioResource:
         return d
 
     @classmethod
-    def _check_api_type(cls, d: Dict[str, Any]):
+    def _check_api_type(cls, d: dict[str, Any]):
         api_type_name = d['type']
         if api_type_name != cls._api_type_name:
             log_once(
@@ -132,19 +132,19 @@ class PersonioResource:
                 f"expected '{cls._api_type_name}' instead")
 
     @classmethod
-    def _namedtuple(cls) -> Type[Tuple]:
+    def _namedtuple(cls) -> type[tuple]:
         if cls.__namedtuple is None:
             fields = [m.class_field for m in cls._field_mapping_list] + ['dynamic', 'class_name']
             cls.__namedtuple = namedtuple(f'{cls.__name__}Tuple', fields)
         return cls.__namedtuple
 
-    def to_tuple(self) -> Tuple:
+    def to_tuple(self) -> tuple:
         values = ([getattr(self, m.class_field) for m in self._field_mapping_list] +
                   [getattr(self, 'dynamic'), str(self.__class__)])
         return self._namedtuple()(*values)
 
     @classmethod
-    def _map_fields(cls, d: Dict[str, Dict[str, Any]], client: 'Personio' = None) -> Dict[str, Any]:
+    def _map_fields(cls, d: dict[str, dict[str, Any]], client: 'Personio' = None) -> dict[str, Any]:
         kwargs = {}
         field_mapping_dict = cls._field_mapping()
         for key, value in d.items():
@@ -196,17 +196,17 @@ class WritablePersonioResource(PersonioResource):
     _can_update = True
     _can_delete = True
 
-    def __init__(self, client: 'Personio' = None, dynamic: List['DynamicAttr'] = None,
-                 dynamic_fields: List[DynamicMapping] = None, **kwargs):
+    def __init__(self, client: 'Personio' = None, dynamic: list['DynamicAttr'] = None,
+                 dynamic_fields: list[DynamicMapping] = None, **kwargs):
         super().__init__(client, **kwargs)
         self.dynamic_fields = dynamic_fields
-        self.dynamic_raw: Dict[int, DynamicAttr] = {d.field_id: d for d in dynamic or []}
+        self.dynamic_raw: dict[int, DynamicAttr] = {d.field_id: d for d in dynamic or []}
         self.dynamic = self._map_dynamic_values(dynamic, dynamic_fields, client)
 
     @classmethod
     def _map_dynamic_values(
-            cls, dynamic_raw: List['DynamicAttr'], dynamic_fields: List[DynamicMapping] = None,
-            client: 'Personio' = None) -> Dict[str, Any]:
+            cls, dynamic_raw: list['DynamicAttr'], dynamic_fields: list[DynamicMapping] = None,
+            client: 'Personio' = None) -> dict[str, Any]:
         dynamic = {}
         if not dynamic_raw or not dynamic_fields:
             return dynamic
@@ -223,8 +223,8 @@ class WritablePersonioResource(PersonioResource):
         return dynamic
 
     @classmethod
-    def from_dict(cls, d: Dict[str, Any], client: 'Personio' = None,
-                  dynamic_fields: List[DynamicMapping] = None) -> '__class__':
+    def from_dict(cls, d: dict[str, Any], client: 'Personio' = None,
+                  dynamic_fields: list[DynamicMapping] = None) -> '__class__':
         cls._check_api_type(d)
         kwargs = cls._map_fields(d['attributes'], client)
         if 'id' in d:
@@ -232,7 +232,7 @@ class WritablePersonioResource(PersonioResource):
         dynamic_fields = dynamic_fields or (client.dynamic_fields if client else None)
         return cls(client=client, dynamic_fields=dynamic_fields, **kwargs)
 
-    def to_dict(self, nested=False) -> Dict[str, Any]:
+    def to_dict(self, nested=False) -> dict[str, Any]:
         # we prefer typed values from the dynamic dict over the raw values
         # (because they might have been changed by the user)
         attr = super().to_dict(nested)
@@ -312,7 +312,7 @@ class LabeledAttributesMixin(PersonioResource):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-    def to_dict(self, nested=False) -> Dict[str, Any]:
+    def to_dict(self, nested=False) -> dict[str, Any]:
         d = {}
         label_mapping = self._label_mapping()
         for mapping in self._field_mapping_list:
@@ -323,7 +323,7 @@ class LabeledAttributesMixin(PersonioResource):
         return d
 
     @classmethod
-    def _map_fields(cls, d: Dict[str, Dict[str, Any]], client: 'Personio' = None) -> Dict[str, Any]:
+    def _map_fields(cls, d: dict[str, dict[str, Any]], client: 'Personio' = None) -> dict[str, Any]:
         kwargs = {}
         dynamic = []
         field_mapping_dict = cls._field_mapping()
@@ -377,7 +377,7 @@ class AbsenceType(PersonioResource):
         self.name = name
         self.category = category
 
-    def to_dict(self, nested=False) -> Dict[str, Any]:
+    def to_dict(self, nested=False) -> dict[str, Any]:
         if nested:
             return super().to_dict()
         else:
@@ -570,8 +570,8 @@ class Absence(WritablePersonioResource):
 
     def __init__(self,
                  client: 'Personio' = None,
-                 dynamic: Dict[str, Any] = None,
-                 dynamic_raw: List['DynamicAttr'] = None,
+                 dynamic: dict[str, Any] = None,
+                 dynamic_raw: list['DynamicAttr'] = None,
                  id_: int = None,
                  status: str = None,
                  comment: str = None,
@@ -635,8 +635,8 @@ class Project(WritablePersonioResource):
         DateTimeFieldMapping('updated_at', 'updated_at')
     ]
 
-    def __init__(self, client: 'Personio' = None, dynamic: Dict[str, Any] = None,
-                 dynamic_raw: List['DynamicAttr'] = None, id_: int = None, name: str = None,
+    def __init__(self, client: 'Personio' = None, dynamic: dict[str, Any] = None,
+                 dynamic_raw: list['DynamicAttr'] = None, id_: int = None, name: str = None,
                  active: bool = None, created_at: datetime = None, updated_at: datetime = None,
                  **kwargs):
         super().__init__(client=client, dynamic=dynamic, dynamic_raw=dynamic_raw, **kwargs)
@@ -655,7 +655,7 @@ class Project(WritablePersonioResource):
     def _update(self, client: 'Personio' = None):
         return get_client(self, client).update_project(self)
 
-    def to_dict(self, nested=False) -> Dict[str, Any]:
+    def to_dict(self, nested=False) -> dict[str, Any]:
         # yes, this is weird an unnecessary, but that's how the api works
         d = super().to_dict()
         d['id'] = self.id_
@@ -687,8 +687,8 @@ class Attendance(WritablePersonioResource):
 
     def __init__(self,
                  client: 'Personio' = None,
-                 dynamic: Dict[str, Any] = None,
-                 dynamic_raw: List['DynamicAttr'] = None,
+                 dynamic: dict[str, Any] = None,
+                 dynamic_raw: list['DynamicAttr'] = None,
                  id_: int = None,
                  employee_id: int = None,
                  date: datetime = None,
@@ -710,7 +710,7 @@ class Attendance(WritablePersonioResource):
         self.is_holiday = is_holiday
         self.is_on_time_off = is_on_time_off
 
-    def to_dict(self, nested=False) -> Dict[str, Any]:
+    def to_dict(self, nested=False) -> dict[str, Any]:
         # yes, this is weird an unnecessary, but that's how the api works
         d = super().to_dict()
         d['id'] = self.id_
@@ -803,8 +803,8 @@ class Employee(WritablePersonioResource, LabeledAttributesMixin):
 
     def __init__(self,
                  client: 'Personio' = None,
-                 dynamic: Dict[str, Any] = None,
-                 dynamic_raw: List['DynamicAttr'] = None,
+                 dynamic: dict[str, Any] = None,
+                 dynamic_raw: list['DynamicAttr'] = None,
                  id_: int = None,
                  first_name: str = None,
                  last_name: str = None,
@@ -826,9 +826,9 @@ class Employee(WritablePersonioResource, LabeledAttributesMixin):
                  subcompany: str = None,
                  office: Office = None,
                  department: Department = None,
-                 cost_centers: List[CostCenter] = None,
+                 cost_centers: list[CostCenter] = None,
                  holiday_calendar: HolidayCalendar = None,
-                 absence_entitlement: List[AbsenceEntitlement] = None,
+                 absence_entitlement: list[AbsenceEntitlement] = None,
                  work_schedule: WorkSchedule = None,
                  fix_salary: float = None,
                  fix_salary_interval: str = None,
