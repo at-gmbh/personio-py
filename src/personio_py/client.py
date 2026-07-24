@@ -334,7 +334,8 @@ class Personio:
         response = self.request_json(
             path=self.ATTENDANCE_URL,
             method='POST',
-            data={"attendances": data_to_send}
+            data={"attendances": data_to_send},
+            auth_rotation=False
         )
         if response['success']:
             for attendance, response_id in zip(attendances, response['data']['id']):
@@ -361,7 +362,8 @@ class Personio:
             response = self.request_json(
                 path=f'{self.ATTENDANCE_URL}/{attendance.id_}',
                 method='PATCH',
-                data=attendance.to_body_params(patch_existing_attendance=True)
+                data=attendance.to_body_params(patch_existing_attendance=True),
+                auth_rotation=False
             )
             return response
         else:
@@ -383,7 +385,7 @@ class Personio:
         """
         if isinstance(attendance, int):
             response = self.request_json(path=f'{self.ATTENDANCE_URL}/{attendance}',
-                                         method='DELETE')
+                                         method='DELETE', auth_rotation=False)
             return response
         elif isinstance(attendance, Attendance):
             if attendance.id_ is not None:
@@ -523,7 +525,7 @@ class Personio:
 
         :return: list of ``Project`` records
         """
-        response = self.request_json(self.PROJECT_URL)
+        response = self.request_json(self.PROJECT_URL, auth_rotation=False)
         projects = [Project.from_dict(d, self) for d in response['data']]
         return projects
 
@@ -535,7 +537,8 @@ class Personio:
         :raises PersonioError: If the project could not be created on the Personio servers
         """
         data = project.to_body_params()
-        response = self.request_json(self.PROJECT_URL, method='POST', data=data)
+        response = self.request_json(self.PROJECT_URL, method='POST', data=data,
+                                     auth_rotation=False)
         if response['success']:
             project.id_ = response['data']['id']
             return project
@@ -549,7 +552,8 @@ class Personio:
         :raises PersonioErrror: If the project could not be created on the Personio servers
         """
         data = project.to_body_params()
-        response = self.request_json(f'{self.PROJECT_URL}/{project.id_}', method='PATCH', data=data)
+        response = self.request_json(f'{self.PROJECT_URL}/{project.id_}', method='PATCH', data=data,
+                                     auth_rotation=False)
         if response['success']:
             return project
         raise PersonioError("Could not update project")
@@ -563,7 +567,8 @@ class Personio:
             or the query does not provide exactly one result.
         """
         if isinstance(project, int):
-            response = self.request(f'{self.PROJECT_URL}/{project}', method='DELETE')
+            response = self.request(f'{self.PROJECT_URL}/{project}', method='DELETE',
+                                    auth_rotation=False)
             return response
         elif isinstance(project, Project):
             if project.id_ is not None:

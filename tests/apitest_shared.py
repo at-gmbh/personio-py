@@ -31,4 +31,4 @@ def get_test_employee():
 
 @lru_cache(maxsize=1)
 def get_test_employee_for_attendances():
-    return personio.get_employee(13603465)
+    return personio.get_employee(16400788)

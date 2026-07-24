@@ -13,6 +13,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 * send auth credentials in the request body instead of the query string, as required by
   the Personio API security update effective 2025-12-01 (query-string credentials return
   a 403 Forbidden from that date on) ([#45](https://github.com/at-gmbh/personio-py/pull/45)
+* fix `PersonioError: Missing Authorization Header in response` for the attendances and
+  projects endpoints, which do not return a rotating auth token (disable auth rotation for
+  those requests, consistent with the existing image endpoints)
 * add support for providing a custom `requests.Session` in client
   ([#39](https://github.com/at-gmbh/personio-py/pull/39)
 

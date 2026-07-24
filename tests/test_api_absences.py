@@ -5,9 +5,7 @@ from tests.apitest_shared import *
 
 
 @skip_if_no_auth
-@pytest.mark.parametrize("half_day_start", [True, False])
-@pytest.mark.parametrize("half_day_end", [True, False])
-def test_create_absences(half_day_start: bool, half_day_end: bool):
+def test_create_absences():
     """
     Test the creation of absence records on the server.
     """
@@ -19,18 +17,18 @@ def test_create_absences(half_day_start: bool, half_day_end: bool):
     # Ensure there are no left absences
     delete_all_absences_of_employee(test_user)
 
-    # Start test
+    # Start test (no half days: the absence type used here does not permit them)
     absence_to_create = create_absence_for_user(test_user,
                                                 start_date=start_date,
                                                 end_date=end_date,
-                                                half_day_start=half_day_start,
-                                                half_day_end=half_day_end)
+                                                half_day_start=False,
+                                                half_day_end=False)
     assert absence_to_create.id_ is None
     absence_to_create.create(personio)
     assert absence_to_create.id_
     remote_absence = personio.get_absence(absence=absence_to_create)
-    assert remote_absence.half_day_start is half_day_start
-    assert remote_absence.half_day_end is half_day_end
+    assert remote_absence.half_day_start is False
+    assert remote_absence.half_day_end is False
     assert remote_absence.start_date - start_date < timedelta(seconds=1)
     assert remote_absence.end_date - end_date < timedelta(seconds=1)
 
@@ -140,7 +138,7 @@ def create_absence_for_user(employee: Employee,
         absence_types = personio.get_absence_types()
         time_off_type = [
             absence_type for absence_type in absence_types
-            if absence_type.name == "Unpaid vacation"
+            if absence_type.name == "Unbezahlte Freistellung"
         ][0]
     if not start_date:
         start_date = date(year=2022, month=1, day=1)

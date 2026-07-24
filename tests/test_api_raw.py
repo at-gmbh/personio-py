@@ -37,7 +37,7 @@ def test_raw_api_absences():
     params = {
         "start_date": "2020-01-01",
         "end_date": "2020-06-01",
-        "employees[]": [1142212],  # [2007207, 2007248]
+        "employees[]": [1142212],  # [16400788, 2007248]
         "limit": 200,
         "offset": 0
     }
