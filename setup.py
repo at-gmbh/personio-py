@@ -2,10 +2,9 @@ import os
 import shutil
 import subprocess
 import sys
-from distutils.cmd import Command
 from runpy import run_path
 
-from setuptools import find_packages, setup
+from setuptools import Command, find_packages, setup
 
 # read the program version from version.py (without loading the module)
 __version__ = run_path('src/personio_py/version.py')['__version__']
