@@ -122,6 +122,20 @@ def test_resource_ordering():
     assert employee_2 < employee_1
 
 
+def test_empty_object_field_deserializes_to_none():
+    # Personio sometimes returns "" or [] (instead of null) for an empty object field such as
+    # work_schedule. Such empty values must become None, otherwise to_dict() crashes when it tries
+    # to serialize the raw str/list as if it were a WorkSchedule object.
+    for empty_value in ('', []):
+        d = deepcopy(employee_dict)
+        d['attributes']['work_schedule'] = {'label': 'Work schedule', 'value': empty_value}
+        employee = Employee.from_dict(d)
+        assert employee.work_schedule is None
+        # to_dict() must not raise and must omit the empty work_schedule field
+        serialized = employee.to_dict()
+        assert 'work_schedule' not in serialized['attributes']
+
+
 def get_employee_dict_mod(**overrides):
     employee_dict_mod = deepcopy(employee_dict)
     attrs = employee_dict_mod['attributes']
