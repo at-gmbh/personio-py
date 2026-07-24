@@ -3,8 +3,6 @@
 # This file only contains a selection of the most common options. For a full
 # list see the documentation:
 # https://www.sphinx-doc.org/en/master/usage/configuration.html
-from recommonmark.transform import AutoStructify
-from m2r import MdInclude
 
 # -- Path setup --------------------------------------------------------------
 
@@ -34,7 +32,7 @@ extensions = [
     'sphinx.ext.doctest',
     'sphinx.ext.duration',
     'sphinx.ext.viewcode',
-    'recommonmark',
+    'myst_parser',
 ]
 
 # extension config
@@ -60,10 +58,10 @@ exclude_patterns = []
 #
 html_theme = 'sphinx_rtd_theme'
 
+# base URL of the published docs (replaces the removed `canonical_url` theme option)
+html_baseurl = 'https://at-gmbh.github.io/personio-py/'
+
 html_theme_options = {
-    'canonical_url': 'https://at-gmbh.github.io/personio-py/',
-    'logo_only': False,
-    'display_version': True,
     'prev_next_buttons_location': 'bottom',
     'style_external_links': True,
     # Toc options
@@ -81,20 +79,3 @@ html_context = {
     "github_version": "master",
     "conf_py_path": "/docs/source/",
 }
-
-
-def setup(app):
-    # recommonmark & autostructify (enables fancy stuff like `eval_rst`)
-    app.add_config_value('recommonmark_config', {
-        'enable_eval_rst': True,
-        'enable_auto_toc_tree': True,
-    }, True)
-    app.add_transform(AutoStructify)
-
-    # m2r and mdinclude, allow us to reference markdown files in the root folder
-    # all those settings are necessary because m2r has not been updated in a while...
-    app.add_config_value('no_underscore_emphasis', False, 'env')
-    app.add_config_value('m2r_parse_relative_links', False, 'env')
-    app.add_config_value('m2r_anonymous_references', False, 'env')
-    app.add_config_value('m2r_disable_inline_math', False, 'env')
-    app.add_directive('mdinclude', MdInclude)

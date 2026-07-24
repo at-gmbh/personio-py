@@ -1,3 +1,3 @@
-```eval_rst
-.. mdinclude:: ../../CONTRIBUTING.md
+```{include} ../../CONTRIBUTING.md
+:parser: myst
 ```

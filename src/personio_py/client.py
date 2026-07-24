@@ -4,7 +4,7 @@ Implementation of the Personio API functions
 import logging
 import os
 from datetime import datetime
-from typing import Any, Dict, List, Optional, Tuple, Type, TypeVar, Union
+from typing import Any, TypeVar
 from urllib.parse import urljoin
 
 import requests
@@ -40,8 +40,8 @@ class Personio:
     PROJECT_URL = 'company/attendances/projects'
 
     def __init__(self, base_url: str = None, client_id: str = None, client_secret: str = None,
-                 dynamic_fields: List[DynamicMapping] = None,
-                 session: Optional[requests.Session] = None):
+                 dynamic_fields: list[DynamicMapping] = None,
+                 session: requests.Session | None = None):
         self.base_url = base_url or self.BASE_URL
         self.client_id = client_id or os.getenv('CLIENT_ID')
         self.client_secret = client_secret or os.getenv('CLIENT_SECRET')
@@ -78,8 +78,8 @@ class Personio:
         else:
             raise PersonioApiError.from_response(response)
 
-    def request(self, path: str, method='GET', params: Dict[str, Any] = None,
-                data: Dict[str, Any] = None, headers: Dict[str, str] = None,
+    def request(self, path: str, method='GET', params: dict[str, Any] = None,
+                data: dict[str, Any] = None, headers: dict[str, str] = None,
                 auth_rotation=True) -> Response:
         """
         Make a request against the Personio API.
@@ -119,8 +119,8 @@ class Personio:
         # return the response, let the caller handle any issues
         return response
 
-    def request_json(self, path: str, method='GET', params: Dict[str, Any] = None,
-                     data: Dict[str, Any] = None, auth_rotation=True) -> Dict[str, Any]:
+    def request_json(self, path: str, method='GET', params: dict[str, Any] = None,
+                     data: dict[str, Any] = None, auth_rotation=True) -> dict[str, Any]:
         """
         Make a request against the Personio API, expecting a json response.
         Returns the parsed json response as dictionary. Will raise a PersonioApiError if the
@@ -143,9 +143,9 @@ class Personio:
         else:
             raise PersonioApiError.from_response(response)
 
-    def request_paginated(self, path: str, method='GET', params: Dict[str, Any] = None,
-                          data: Dict[str, Any] = None, auth_rotation=True, limit=200
-                          ) -> Dict[str, Any]:
+    def request_paginated(self, path: str, method='GET', params: dict[str, Any] = None,
+                          data: dict[str, Any] = None, auth_rotation=True, limit=200
+                          ) -> dict[str, Any]:
         """
         Make a request against the Personio API, expecting a json response that may be paginated,
         i.e. not all results might have been returned after the first request. Will continue
@@ -200,8 +200,8 @@ class Personio:
         response['data'] = data_acc
         return response
 
-    def request_image(self, path: str, method='GET', params: Dict[str, Any] = None,
-                      auth_rotation=False) -> Optional[bytes]:
+    def request_image(self, path: str, method='GET', params: dict[str, Any] = None,
+                      auth_rotation=False) -> bytes | None:
         """
         Request an image file (as png or jpg) from the Personio API.
         Returns the image as byte array, or None, if no image is available for this resource
@@ -227,7 +227,7 @@ class Personio:
             # oh noes, something went terribly wrong!
             raise PersonioApiError.from_response(response)
 
-    def get_employees(self) -> List[Employee]:
+    def get_employees(self) -> list[Employee]:
         """
         Get a list of all employee records in your account.
         Does not involve pagination.
@@ -250,8 +250,8 @@ class Personio:
         employee = Employee.from_dict(response['data'], self)
         return employee
 
-    def get_employee_picture(self, employee: Union[int, Employee], width: int = None) \
-            -> Optional[bytes]:
+    def get_employee_picture(self, employee: int | Employee, width: int = None) \
+            -> bytes | None:
         """
         Get the profile picture of the specified employee as image file
         (usually png or jpg).
@@ -297,8 +297,8 @@ class Personio:
         raise NotImplementedError()
 
     def get_attendances(
-            self, employees: Union[int, List[int], Employee, List[Employee]],
-            start_date: datetime = None, end_date: datetime = None) -> List[Attendance]:
+            self, employees: int | list[int] | Employee | list[Employee],
+            start_date: datetime = None, end_date: datetime = None) -> list[Attendance]:
         """
         Get a list of all attendance records for the employees with the specified IDs
 
@@ -319,7 +319,7 @@ class Personio:
             attendance._client = self
         return attendances
 
-    def create_attendances(self, attendances: List[Attendance]) -> bool:
+    def create_attendances(self, attendances: list[Attendance]) -> bool:
         """
         Create all given attendance records.
 
@@ -393,7 +393,7 @@ class Personio:
         else:
             raise ValueError("attendance must be an Attendance object or an integer")
 
-    def get_absence_types(self) -> List[AbsenceType]:
+    def get_absence_types(self) -> list[AbsenceType]:
         """
         Get a list of all available absence types, e.g. "paid vacation" or "parental leave".
 
@@ -407,8 +407,8 @@ class Personio:
         return absence_types
 
     def get_absences(
-            self, employees: Union[int, List[int], Employee, List[Employee]],
-            start_date: datetime = None, end_date: datetime = None) -> List[Absence]:
+            self, employees: int | list[int] | Employee | list[Employee],
+            start_date: datetime = None, end_date: datetime = None) -> list[Absence]:
         """
         Get a list of all absence records for the employees with the specified IDs.
 
@@ -426,7 +426,7 @@ class Personio:
         return self._get_employee_metadata(
             self.ABSENCE_URL, Absence, employees, start_date, end_date)
 
-    def get_absence(self, absence: Union[Absence, int]) -> Absence:
+    def get_absence(self, absence: Absence | int) -> Absence:
         """
         Get an absence record from a given id.
 
@@ -456,7 +456,7 @@ class Personio:
             return absence
         raise PersonioError("Could not create absence")
 
-    def delete_absence(self, absence: Union[Absence, int]):
+    def delete_absence(self, absence: Absence | int):
         """
         Delete an existing record
 
@@ -478,7 +478,7 @@ class Personio:
         else:
             raise ValueError("absence must be an Absence object or an integer")
 
-    def search(self, query: str, active_only=True) -> List[Employee]:
+    def search(self, query: str, active_only=True) -> list[Employee]:
         """
         Execute a search on the search index.
 
@@ -498,7 +498,7 @@ class Personio:
         """
         return self.search_index.search(query, active_only=active_only)
 
-    def search_first(self, query: str, active_only=True) -> Optional[Employee]:
+    def search_first(self, query: str, active_only=True) -> Employee | None:
         """
         Execute a search on the search index and return the first result (if there is one) or None.
 
@@ -517,7 +517,7 @@ class Personio:
         """
         self.search_index.invalidate()
 
-    def get_projects(self) -> List[Project]:
+    def get_projects(self) -> list[Project]:
         """
         Get a list of all company projects.
 
@@ -554,7 +554,7 @@ class Personio:
             return project
         raise PersonioError("Could not update project")
 
-    def delete_project(self, project: Union[Project, int]) -> None:
+    def delete_project(self, project: Project | int) -> None:
         """
         Deletes a project record on the Personio servers.
 
@@ -574,9 +574,9 @@ class Personio:
             raise ValueError("project must be a Project object or an integer")
 
     def _get_employee_metadata(
-            self, path: str, resource_cls: Type[PersonioResourceType],
-            employees: Union[int, List[int], Employee, List[Employee]], start_date: datetime = None,
-            end_date: datetime = None) -> List[PersonioResourceType]:
+            self, path: str, resource_cls: type[PersonioResourceType],
+            employees: int | list[int] | Employee | list[Employee], start_date: datetime = None,
+            end_date: datetime = None) -> list[PersonioResourceType]:
         # resolve params to match API requirements
         employees, start_date, end_date = self._normalize_timeframe_params(
             employees, start_date, end_date)
@@ -596,9 +596,9 @@ class Personio:
 
     @classmethod
     def _normalize_timeframe_params(
-            cls, employees: Union[int, List[int], Employee, List[Employee]],
+            cls, employees: int | list[int] | Employee | list[Employee],
             start_date: datetime = None, end_date: datetime = None) \
-            -> Tuple[List[int], datetime, datetime]:
+            -> tuple[list[int], datetime, datetime]:
         """
         Whenever we need a list of employee IDs, a start date and an end date, this function comes
         in handy:

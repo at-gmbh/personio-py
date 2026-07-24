@@ -1,22 +1,37 @@
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v2.5.0
+    rev: v6.0.0
     hooks:
       - id: check-added-large-files
       - id: check-ast
       - id: check-builtin-literals
       - id: check-merge-conflict
+      - id: check-toml
       - id: check-yaml
       - id: end-of-file-fixer
       - id: mixed-line-ending
       - id: trailing-whitespace
   - repo: https://github.com/asottile/pyupgrade
-    rev: v2.7.2
+    rev: v3.21.2
     hooks:
       - id: pyupgrade
-        args: [ --py37-plus ]
-  - repo: https://github.com/pycqa/flake8
-    rev: '6.0.0'
+        args: [ --py310-plus ]
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.15.22
     hooks:
-      - id: flake8
-        args: [ '--max-complexity=10', '--max-line-length=100', '--ignore=F401,W504', '--exclude=tests/*,setup.py' ]
+      - id: ruff
+  - repo: https://github.com/PyCQA/bandit
+    rev: 1.9.4
+    hooks:
+      - id: bandit
+        pass_filenames: false
+        args: [ "-r", "src" ]
+  - repo: local
+    hooks:
+      - id: pip-audit
+        name: pip-audit
+        entry: pip-audit
+        language: python
+        additional_dependencies: [ "pip-audit" ]
+        pass_filenames: false
+        args: [ "-r", "requirements.txt", "-r", "requirements-dev.txt" ]
