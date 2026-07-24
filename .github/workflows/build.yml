@@ -49,7 +49,7 @@ jobs:
       run: |
         # upgrade pip, install pytest (for testing), responses (test mocks), wheel (for packaging) and the personio-py package
         python -m pip install --upgrade pip
-        pip install pytest responses wheel
+        pip install setuptools wheel pytest responses
         pip install -r requirements.txt
         pip install .
     - name: Test with pytest
