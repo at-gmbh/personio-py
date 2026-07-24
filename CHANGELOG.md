@@ -16,6 +16,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 * fix `PersonioError: Missing Authorization Header in response` for the attendances and
   projects endpoints, which do not return a rotating auth token (disable auth rotation for
   those requests, consistent with the existing image endpoints)
+* fix `AttributeError` in `to_dict()` when an object field is returned
+  empty (`""` or `[]`) instead of `null` by the Personio API; such empty object fields are now
+  deserialized to `None`
 * add support for providing a custom `requests.Session` in client
   ([#39](https://github.com/at-gmbh/personio-py/pull/39)
 

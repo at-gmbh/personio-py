@@ -152,6 +152,9 @@ class PersonioResource:
                 field_mapping = field_mapping_dict[key]
                 if not cls._is_empty(value):
                     value = field_mapping.deserialize(value, client=client)
+                elif isinstance(field_mapping, ObjectFieldMapping):
+                    # empty object fields ("" or []) are not valid objects -> None
+                    value = None
                 kwargs[field_mapping.class_field] = value
             else:
                 log_once(logging.WARNING, f"unexpected field '{key}' in class {cls.__name__}")
@@ -335,6 +338,9 @@ class LabeledAttributesMixin(PersonioResource):
                 value = data['value']
                 if not cls._is_empty(value):
                     value = field_mapping.deserialize(value, client=client)
+                elif isinstance(field_mapping, ObjectFieldMapping):
+                    # empty object fields ("" or []) are not valid objects -> None
+                    value = None
                 kwargs[field_mapping.class_field] = value
             elif key.startswith('dynamic_'):
                 dyn = DynamicAttr.from_dict(key, data)
