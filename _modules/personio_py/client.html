@@ -1,20 +1,21 @@
+
+
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<html class="writer-html5" lang="en" data-content_root="../../">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>personio_py.client &mdash; personio-py  documentation</title>
-      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
-    <link rel="canonical" href="https://at-gmbh.github.io/personio-py/_modules/personio_py/client.html"/>
-  <!--[if lt IE 9]>
-    <script src="../../_static/js/html5shiv.min.js"></script>
-  <![endif]-->
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
+
   
-        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
-        <script src="../../_static/jquery.js"></script>
-        <script src="../../_static/underscore.js"></script>
-        <script src="../../_static/doctools.js"></script>
+    <link rel="canonical" href="https://at-gmbh.github.io/personio-py/_modules/personio_py/client.html" />
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" /> 
@@ -25,11 +26,15 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-            <a href="../../index.html" class="icon icon-home"> personio-py
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            personio-py
           </a>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
@@ -40,7 +45,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../examples.html">Examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../contributing.html">Contributing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../changelog.html">Changelog</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../api.html">API Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api.html">API</a></li>
 </ul>
 
         </div>
@@ -56,9 +61,9 @@
         <div class="rst-content style-external-links">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
-          <li><a href="../index.html">Module code</a> &raquo;</li>
-      <li>personio_py.client</li>
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">personio_py.client</li>
       <li class="wy-breadcrumbs-aside">
       </li>
   </ul>
@@ -71,26 +76,28 @@
 <span></span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">Implementation of the Personio API functions</span>
 <span class="sd">&quot;&quot;&quot;</span>
-<span class="kn">import</span> <span class="nn">logging</span>
-<span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Type</span><span class="p">,</span> <span class="n">TypeVar</span><span class="p">,</span> <span class="n">Union</span>
-<span class="kn">from</span> <span class="nn">urllib.parse</span> <span class="kn">import</span> <span class="n">urljoin</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">TypeVar</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">urllib.parse</span><span class="w"> </span><span class="kn">import</span> <span class="n">urljoin</span>
 
-<span class="kn">import</span> <span class="nn">requests</span>
-<span class="kn">from</span> <span class="nn">requests</span> <span class="kn">import</span> <span class="n">Response</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">requests</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">requests</span><span class="w"> </span><span class="kn">import</span> <span class="n">Response</span>
 
-<span class="kn">from</span> <span class="nn">personio_py</span> <span class="kn">import</span> <span class="n">Absence</span><span class="p">,</span> <span class="n">AbsenceType</span><span class="p">,</span> <span class="n">Attendance</span><span class="p">,</span> <span class="n">DynamicMapping</span><span class="p">,</span> <span class="n">Employee</span><span class="p">,</span> <span class="n">Project</span>
-<span class="kn">from</span> <span class="nn">personio_py.errors</span> <span class="kn">import</span> <span class="n">MissingCredentialsError</span><span class="p">,</span> <span class="n">PersonioApiError</span><span class="p">,</span> <span class="n">PersonioError</span>
-<span class="kn">from</span> <span class="nn">personio_py.models</span> <span class="kn">import</span> <span class="n">PersonioResource</span>
-<span class="kn">from</span> <span class="nn">personio_py.search</span> <span class="kn">import</span> <span class="n">SearchIndex</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">personio_py</span><span class="w"> </span><span class="kn">import</span> <span class="n">Absence</span><span class="p">,</span> <span class="n">AbsenceType</span><span class="p">,</span> <span class="n">Attendance</span><span class="p">,</span> <span class="n">DynamicMapping</span><span class="p">,</span> <span class="n">Employee</span><span class="p">,</span> <span class="n">Project</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">personio_py.errors</span><span class="w"> </span><span class="kn">import</span> <span class="n">MissingCredentialsError</span><span class="p">,</span> <span class="n">PersonioApiError</span><span class="p">,</span> <span class="n">PersonioError</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">personio_py.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">PersonioResource</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">personio_py.search</span><span class="w"> </span><span class="kn">import</span> <span class="n">SearchIndex</span>
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s1">&#39;personio_py&#39;</span><span class="p">)</span>
 
 <span class="n">PersonioResourceType</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s1">&#39;PersonioResourceType&#39;</span><span class="p">,</span> <span class="n">bound</span><span class="o">=</span><span class="n">PersonioResource</span><span class="p">,</span> <span class="n">covariant</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
 
-<div class="viewcode-block" id="Personio"><a class="viewcode-back" href="../../api.html#personio_py.Personio">[docs]</a><span class="k">class</span> <span class="nc">Personio</span><span class="p">:</span>
+<div class="viewcode-block" id="Personio">
+<a class="viewcode-back" href="../../api.html#personio_py.Personio">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">Personio</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    the Personio API client.</span>
 
@@ -109,9 +116,9 @@
     <span class="n">ABSENCE_URL</span> <span class="o">=</span> <span class="s1">&#39;company/time-offs&#39;</span>
     <span class="n">PROJECT_URL</span> <span class="o">=</span> <span class="s1">&#39;company/attendances/projects&#39;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">base_url</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">client_id</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">client_secret</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-                 <span class="n">dynamic_fields</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">DynamicMapping</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-                 <span class="n">session</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">requests</span><span class="o">.</span><span class="n">Session</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">base_url</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">client_id</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">client_secret</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                 <span class="n">dynamic_fields</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">DynamicMapping</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                 <span class="n">session</span><span class="p">:</span> <span class="n">requests</span><span class="o">.</span><span class="n">Session</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">base_url</span> <span class="o">=</span> <span class="n">base_url</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">BASE_URL</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">client_id</span> <span class="o">=</span> <span class="n">client_id</span> <span class="ow">or</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s1">&#39;CLIENT_ID&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">client_secret</span> <span class="o">=</span> <span class="n">client_secret</span> <span class="ow">or</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s1">&#39;CLIENT_SECRET&#39;</span><span class="p">)</span>
@@ -121,7 +128,9 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">search_index</span> <span class="o">=</span> <span class="n">SearchIndex</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">session</span> <span class="o">=</span> <span class="n">session</span> <span class="ow">or</span> <span class="n">requests</span><span class="o">.</span><span class="n">Session</span><span class="p">()</span>
 
-<div class="viewcode-block" id="Personio.authenticate"><a class="viewcode-back" href="../../api.html#personio_py.Personio.authenticate">[docs]</a>    <span class="k">def</span> <span class="nf">authenticate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Personio.authenticate">
+<a class="viewcode-back" href="../../api.html#personio_py.Personio.authenticate">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">authenticate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Try to authenticate (using Personio&#39;s ``/auth`` endpoint) with the credentials</span>
 <span class="sd">        (client ID and secret) that were provided to this instance.</span>
@@ -148,8 +157,11 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">PersonioApiError</span><span class="o">.</span><span class="n">from_response</span><span class="p">(</span><span class="n">response</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Personio.request"><a class="viewcode-back" href="../../api.html#personio_py.Personio.request">[docs]</a>    <span class="k">def</span> <span class="nf">request</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s1">&#39;GET&#39;</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-                <span class="n">data</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">headers</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+
+<div class="viewcode-block" id="Personio.request">
+<a class="viewcode-back" href="../../api.html#personio_py.Personio.request">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">request</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s1">&#39;GET&#39;</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                <span class="n">data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">headers</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
                 <span class="n">auth_rotation</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Response</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Make a request against the Personio API.</span>
@@ -189,8 +201,11 @@
         <span class="c1"># return the response, let the caller handle any issues</span>
         <span class="k">return</span> <span class="n">response</span></div>
 
-<div class="viewcode-block" id="Personio.request_json"><a class="viewcode-back" href="../../api.html#personio_py.Personio.request_json">[docs]</a>    <span class="k">def</span> <span class="nf">request_json</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s1">&#39;GET&#39;</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-                     <span class="n">data</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">auth_rotation</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+
+<div class="viewcode-block" id="Personio.request_json">
+<a class="viewcode-back" href="../../api.html#personio_py.Personio.request_json">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">request_json</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s1">&#39;GET&#39;</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                     <span class="n">data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">auth_rotation</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Make a request against the Personio API, expecting a json response.</span>
 <span class="sd">        Returns the parsed json response as dictionary. Will raise a PersonioApiError if the</span>
@@ -213,9 +228,12 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">PersonioApiError</span><span class="o">.</span><span class="n">from_response</span><span class="p">(</span><span class="n">response</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Personio.request_paginated"><a class="viewcode-back" href="../../api.html#personio_py.Personio.request_paginated">[docs]</a>    <span class="k">def</span> <span class="nf">request_paginated</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s1">&#39;GET&#39;</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-                          <span class="n">data</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">auth_rotation</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">limit</span><span class="o">=</span><span class="mi">200</span>
-                          <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+
+<div class="viewcode-block" id="Personio.request_paginated">
+<a class="viewcode-back" href="../../api.html#personio_py.Personio.request_paginated">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">request_paginated</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s1">&#39;GET&#39;</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                          <span class="n">data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">auth_rotation</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">limit</span><span class="o">=</span><span class="mi">200</span>
+                          <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Make a request against the Personio API, expecting a json response that may be paginated,</span>
 <span class="sd">        i.e. not all results might have been returned after the first request. Will continue</span>
@@ -270,8 +288,11 @@
         <span class="n">response</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">data_acc</span>
         <span class="k">return</span> <span class="n">response</span></div>
 
-<div class="viewcode-block" id="Personio.request_image"><a class="viewcode-back" href="../../api.html#personio_py.Personio.request_image">[docs]</a>    <span class="k">def</span> <span class="nf">request_image</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s1">&#39;GET&#39;</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-                      <span class="n">auth_rotation</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bytes</span><span class="p">]:</span>
+
+<div class="viewcode-block" id="Personio.request_image">
+<a class="viewcode-back" href="../../api.html#personio_py.Personio.request_image">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">request_image</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s1">&#39;GET&#39;</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                      <span class="n">auth_rotation</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bytes</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Request an image file (as png or jpg) from the Personio API.</span>
 <span class="sd">        Returns the image as byte array, or None, if no image is available for this resource</span>
@@ -297,7 +318,10 @@
             <span class="c1"># oh noes, something went terribly wrong!</span>
             <span class="k">raise</span> <span class="n">PersonioApiError</span><span class="o">.</span><span class="n">from_response</span><span class="p">(</span><span class="n">response</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Personio.get_employees"><a class="viewcode-back" href="../../api.html#personio_py.Personio.get_employees">[docs]</a>    <span class="k">def</span> <span class="nf">get_employees</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Employee</span><span class="p">]:</span>
+
+<div class="viewcode-block" id="Personio.get_employees">
+<a class="viewcode-back" href="../../api.html#personio_py.Personio.get_employees">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_employees</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">Employee</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get a list of all employee records in your account.</span>
 <span class="sd">        Does not involve pagination.</span>
@@ -308,7 +332,10 @@
         <span class="n">employees</span> <span class="o">=</span> <span class="p">[</span><span class="n">Employee</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">response</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">]]</span>
         <span class="k">return</span> <span class="n">employees</span></div>
 
-<div class="viewcode-block" id="Personio.get_employee"><a class="viewcode-back" href="../../api.html#personio_py.Personio.get_employee">[docs]</a>    <span class="k">def</span> <span class="nf">get_employee</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">employee_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Employee</span><span class="p">:</span>
+
+<div class="viewcode-block" id="Personio.get_employee">
+<a class="viewcode-back" href="../../api.html#personio_py.Personio.get_employee">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_employee</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">employee_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Employee</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get a single employee with the specified ID.</span>
 <span class="sd">        Does not involve pagination.</span>
@@ -320,8 +347,11 @@
         <span class="n">employee</span> <span class="o">=</span> <span class="n">Employee</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">response</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">],</span> <span class="bp">self</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">employee</span></div>
 
-<div class="viewcode-block" id="Personio.get_employee_picture"><a class="viewcode-back" href="../../api.html#personio_py.Personio.get_employee_picture">[docs]</a>    <span class="k">def</span> <span class="nf">get_employee_picture</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">employee</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">Employee</span><span class="p">],</span> <span class="n">width</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> \
-            <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bytes</span><span class="p">]:</span>
+
+<div class="viewcode-block" id="Personio.get_employee_picture">
+<a class="viewcode-back" href="../../api.html#personio_py.Personio.get_employee_picture">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_employee_picture</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">employee</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="n">Employee</span><span class="p">,</span> <span class="n">width</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> \
+            <span class="o">-&gt;</span> <span class="nb">bytes</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get the profile picture of the specified employee as image file</span>
 <span class="sd">        (usually png or jpg).</span>
@@ -338,7 +368,10 @@
             <span class="n">path</span> <span class="o">+=</span> <span class="sa">f</span><span class="s1">&#39;/</span><span class="si">{</span><span class="n">width</span><span class="si">}</span><span class="s1">&#39;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">request_image</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">auth_rotation</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Personio.create_employee"><a class="viewcode-back" href="../../api.html#personio_py.Personio.create_employee">[docs]</a>    <span class="k">def</span> <span class="nf">create_employee</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">employee</span><span class="p">:</span> <span class="n">Employee</span><span class="p">,</span> <span class="n">refresh</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Employee</span><span class="p">:</span>
+
+<div class="viewcode-block" id="Personio.create_employee">
+<a class="viewcode-back" href="../../api.html#personio_py.Personio.create_employee">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">create_employee</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">employee</span><span class="p">:</span> <span class="n">Employee</span><span class="p">,</span> <span class="n">refresh</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Employee</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        placeholder; not ready to be used</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -360,15 +393,21 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">employee</span></div>
 
-<div class="viewcode-block" id="Personio.update_employee"><a class="viewcode-back" href="../../api.html#personio_py.Personio.update_employee">[docs]</a>    <span class="k">def</span> <span class="nf">update_employee</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">employee</span><span class="p">:</span> <span class="n">Employee</span><span class="p">):</span>
+
+<div class="viewcode-block" id="Personio.update_employee">
+<a class="viewcode-back" href="../../api.html#personio_py.Personio.update_employee">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">update_employee</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">employee</span><span class="p">:</span> <span class="n">Employee</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        placeholder; not ready to be used</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="Personio.get_attendances"><a class="viewcode-back" href="../../api.html#personio_py.Personio.get_attendances">[docs]</a>    <span class="k">def</span> <span class="nf">get_attendances</span><span class="p">(</span>
-            <span class="bp">self</span><span class="p">,</span> <span class="n">employees</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">Employee</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="n">Employee</span><span class="p">]],</span>
-            <span class="n">start_date</span><span class="p">:</span> <span class="n">datetime</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">end_date</span><span class="p">:</span> <span class="n">datetime</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Attendance</span><span class="p">]:</span>
+
+<div class="viewcode-block" id="Personio.get_attendances">
+<a class="viewcode-back" href="../../api.html#personio_py.Personio.get_attendances">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_attendances</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span> <span class="n">employees</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">|</span> <span class="n">Employee</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="n">Employee</span><span class="p">],</span>
+            <span class="n">start_date</span><span class="p">:</span> <span class="n">datetime</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">end_date</span><span class="p">:</span> <span class="n">datetime</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">Attendance</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get a list of all attendance records for the employees with the specified IDs</span>
 
@@ -389,7 +428,10 @@
             <span class="n">attendance</span><span class="o">.</span><span class="n">_client</span> <span class="o">=</span> <span class="bp">self</span>
         <span class="k">return</span> <span class="n">attendances</span></div>
 
-<div class="viewcode-block" id="Personio.create_attendances"><a class="viewcode-back" href="../../api.html#personio_py.Personio.create_attendances">[docs]</a>    <span class="k">def</span> <span class="nf">create_attendances</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attendances</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Attendance</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+
+<div class="viewcode-block" id="Personio.create_attendances">
+<a class="viewcode-back" href="../../api.html#personio_py.Personio.create_attendances">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">create_attendances</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attendances</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Attendance</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Create all given attendance records.</span>
 
@@ -413,7 +455,10 @@
             <span class="k">return</span> <span class="kc">True</span>
         <span class="k">return</span> <span class="kc">False</span></div>
 
-<div class="viewcode-block" id="Personio.update_attendance"><a class="viewcode-back" href="../../api.html#personio_py.Personio.update_attendance">[docs]</a>    <span class="k">def</span> <span class="nf">update_attendance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attendance</span><span class="p">:</span> <span class="n">Attendance</span><span class="p">):</span>
+
+<div class="viewcode-block" id="Personio.update_attendance">
+<a class="viewcode-back" href="../../api.html#personio_py.Personio.update_attendance">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">update_attendance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attendance</span><span class="p">:</span> <span class="n">Attendance</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Update an existing attendance record</span>
 
@@ -437,7 +482,10 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;You need to provide the attendance id&quot;</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Personio.delete_attendance"><a class="viewcode-back" href="../../api.html#personio_py.Personio.delete_attendance">[docs]</a>    <span class="k">def</span> <span class="nf">delete_attendance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attendance</span><span class="p">:</span> <span class="n">Attendance</span> <span class="ow">or</span> <span class="nb">int</span><span class="p">):</span>
+
+<div class="viewcode-block" id="Personio.delete_attendance">
+<a class="viewcode-back" href="../../api.html#personio_py.Personio.delete_attendance">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">delete_attendance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attendance</span><span class="p">:</span> <span class="n">Attendance</span> <span class="ow">or</span> <span class="nb">int</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Delete an existing record</span>
 
@@ -463,7 +511,10 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;attendance must be an Attendance object or an integer&quot;</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Personio.get_absence_types"><a class="viewcode-back" href="../../api.html#personio_py.Personio.get_absence_types">[docs]</a>    <span class="k">def</span> <span class="nf">get_absence_types</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">AbsenceType</span><span class="p">]:</span>
+
+<div class="viewcode-block" id="Personio.get_absence_types">
+<a class="viewcode-back" href="../../api.html#personio_py.Personio.get_absence_types">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_absence_types</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">AbsenceType</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get a list of all available absence types, e.g. &quot;paid vacation&quot; or &quot;parental leave&quot;.</span>
 
@@ -476,9 +527,12 @@
         <span class="n">absence_types</span> <span class="o">=</span> <span class="p">[</span><span class="n">AbsenceType</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">response</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">]]</span>
         <span class="k">return</span> <span class="n">absence_types</span></div>
 
-<div class="viewcode-block" id="Personio.get_absences"><a class="viewcode-back" href="../../api.html#personio_py.Personio.get_absences">[docs]</a>    <span class="k">def</span> <span class="nf">get_absences</span><span class="p">(</span>
-            <span class="bp">self</span><span class="p">,</span> <span class="n">employees</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">Employee</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="n">Employee</span><span class="p">]],</span>
-            <span class="n">start_date</span><span class="p">:</span> <span class="n">datetime</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">end_date</span><span class="p">:</span> <span class="n">datetime</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Absence</span><span class="p">]:</span>
+
+<div class="viewcode-block" id="Personio.get_absences">
+<a class="viewcode-back" href="../../api.html#personio_py.Personio.get_absences">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_absences</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span> <span class="n">employees</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">|</span> <span class="n">Employee</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="n">Employee</span><span class="p">],</span>
+            <span class="n">start_date</span><span class="p">:</span> <span class="n">datetime</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">end_date</span><span class="p">:</span> <span class="n">datetime</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">Absence</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get a list of all absence records for the employees with the specified IDs.</span>
 
@@ -496,7 +550,10 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_employee_metadata</span><span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">ABSENCE_URL</span><span class="p">,</span> <span class="n">Absence</span><span class="p">,</span> <span class="n">employees</span><span class="p">,</span> <span class="n">start_date</span><span class="p">,</span> <span class="n">end_date</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Personio.get_absence"><a class="viewcode-back" href="../../api.html#personio_py.Personio.get_absence">[docs]</a>    <span class="k">def</span> <span class="nf">get_absence</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">absence</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Absence</span><span class="p">,</span> <span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Absence</span><span class="p">:</span>
+
+<div class="viewcode-block" id="Personio.get_absence">
+<a class="viewcode-back" href="../../api.html#personio_py.Personio.get_absence">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_absence</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">absence</span><span class="p">:</span> <span class="n">Absence</span> <span class="o">|</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Absence</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get an absence record from a given id.</span>
 
@@ -512,7 +569,10 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">__add_remote_absence_id</span><span class="p">(</span><span class="n">absence</span><span class="p">)</span>
                 <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_absence</span><span class="p">(</span><span class="n">absence</span><span class="o">.</span><span class="n">id_</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Personio.create_absence"><a class="viewcode-back" href="../../api.html#personio_py.Personio.create_absence">[docs]</a>    <span class="k">def</span> <span class="nf">create_absence</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">absence</span><span class="p">:</span> <span class="n">Absence</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Absence</span><span class="p">:</span>
+
+<div class="viewcode-block" id="Personio.create_absence">
+<a class="viewcode-back" href="../../api.html#personio_py.Personio.create_absence">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">create_absence</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">absence</span><span class="p">:</span> <span class="n">Absence</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Absence</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Creates an absence record on the Personio servers</span>
 
@@ -526,7 +586,10 @@
             <span class="k">return</span> <span class="n">absence</span>
         <span class="k">raise</span> <span class="n">PersonioError</span><span class="p">(</span><span class="s2">&quot;Could not create absence&quot;</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Personio.delete_absence"><a class="viewcode-back" href="../../api.html#personio_py.Personio.delete_absence">[docs]</a>    <span class="k">def</span> <span class="nf">delete_absence</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">absence</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Absence</span><span class="p">,</span> <span class="nb">int</span><span class="p">]):</span>
+
+<div class="viewcode-block" id="Personio.delete_absence">
+<a class="viewcode-back" href="../../api.html#personio_py.Personio.delete_absence">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">delete_absence</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">absence</span><span class="p">:</span> <span class="n">Absence</span> <span class="o">|</span> <span class="nb">int</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Delete an existing record</span>
 
@@ -548,7 +611,10 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;absence must be an Absence object or an integer&quot;</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Personio.search"><a class="viewcode-back" href="../../api.html#personio_py.Personio.search">[docs]</a>    <span class="k">def</span> <span class="nf">search</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">query</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">active_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Employee</span><span class="p">]:</span>
+
+<div class="viewcode-block" id="Personio.search">
+<a class="viewcode-back" href="../../api.html#personio_py.Personio.search">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">search</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">query</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">active_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">Employee</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Execute a search on the search index.</span>
 
@@ -568,7 +634,10 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">search_index</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="n">active_only</span><span class="o">=</span><span class="n">active_only</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Personio.search_first"><a class="viewcode-back" href="../../api.html#personio_py.Personio.search_first">[docs]</a>    <span class="k">def</span> <span class="nf">search_first</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">query</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">active_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Employee</span><span class="p">]:</span>
+
+<div class="viewcode-block" id="Personio.search_first">
+<a class="viewcode-back" href="../../api.html#personio_py.Personio.search_first">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">search_first</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">query</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">active_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Employee</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Execute a search on the search index and return the first result (if there is one) or None.</span>
 
@@ -581,13 +650,19 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">search_index</span><span class="o">.</span><span class="n">search_first</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="n">active_only</span><span class="o">=</span><span class="n">active_only</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Personio.invalidate_index"><a class="viewcode-back" href="../../api.html#personio_py.Personio.invalidate_index">[docs]</a>    <span class="k">def</span> <span class="nf">invalidate_index</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+<div class="viewcode-block" id="Personio.invalidate_index">
+<a class="viewcode-back" href="../../api.html#personio_py.Personio.invalidate_index">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">invalidate_index</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Invalidates the search index. New data will be requested on the next search.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">search_index</span><span class="o">.</span><span class="n">invalidate</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="Personio.get_projects"><a class="viewcode-back" href="../../api.html#personio_py.Personio.get_projects">[docs]</a>    <span class="k">def</span> <span class="nf">get_projects</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Project</span><span class="p">]:</span>
+
+<div class="viewcode-block" id="Personio.get_projects">
+<a class="viewcode-back" href="../../api.html#personio_py.Personio.get_projects">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_projects</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">Project</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get a list of all company projects.</span>
 
@@ -597,7 +672,10 @@
         <span class="n">projects</span> <span class="o">=</span> <span class="p">[</span><span class="n">Project</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">response</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">]]</span>
         <span class="k">return</span> <span class="n">projects</span></div>
 
-<div class="viewcode-block" id="Personio.create_project"><a class="viewcode-back" href="../../api.html#personio_py.Personio.create_project">[docs]</a>    <span class="k">def</span> <span class="nf">create_project</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">project</span><span class="p">:</span> <span class="n">Project</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Project</span><span class="p">:</span>
+
+<div class="viewcode-block" id="Personio.create_project">
+<a class="viewcode-back" href="../../api.html#personio_py.Personio.create_project">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">create_project</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">project</span><span class="p">:</span> <span class="n">Project</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Project</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Creates a project record on the Personio servers.</span>
 
@@ -611,7 +689,10 @@
             <span class="k">return</span> <span class="n">project</span>
         <span class="k">raise</span> <span class="n">PersonioError</span><span class="p">(</span><span class="s2">&quot;Could not create project&quot;</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Personio.update_project"><a class="viewcode-back" href="../../api.html#personio_py.Personio.update_project">[docs]</a>    <span class="k">def</span> <span class="nf">update_project</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">project</span><span class="p">:</span> <span class="n">Project</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Project</span><span class="p">:</span>
+
+<div class="viewcode-block" id="Personio.update_project">
+<a class="viewcode-back" href="../../api.html#personio_py.Personio.update_project">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">update_project</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">project</span><span class="p">:</span> <span class="n">Project</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Project</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Updates a project record on the Personio servers.</span>
 
@@ -624,7 +705,10 @@
             <span class="k">return</span> <span class="n">project</span>
         <span class="k">raise</span> <span class="n">PersonioError</span><span class="p">(</span><span class="s2">&quot;Could not update project&quot;</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Personio.delete_project"><a class="viewcode-back" href="../../api.html#personio_py.Personio.delete_project">[docs]</a>    <span class="k">def</span> <span class="nf">delete_project</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">project</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Project</span><span class="p">,</span> <span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+
+<div class="viewcode-block" id="Personio.delete_project">
+<a class="viewcode-back" href="../../api.html#personio_py.Personio.delete_project">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">delete_project</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">project</span><span class="p">:</span> <span class="n">Project</span> <span class="o">|</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Deletes a project record on the Personio servers.</span>
 
@@ -643,10 +727,11 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;project must be a Project object or an integer&quot;</span><span class="p">)</span></div>
 
-    <span class="k">def</span> <span class="nf">_get_employee_metadata</span><span class="p">(</span>
-            <span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">resource_cls</span><span class="p">:</span> <span class="n">Type</span><span class="p">[</span><span class="n">PersonioResourceType</span><span class="p">],</span>
-            <span class="n">employees</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">Employee</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="n">Employee</span><span class="p">]],</span> <span class="n">start_date</span><span class="p">:</span> <span class="n">datetime</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-            <span class="n">end_date</span><span class="p">:</span> <span class="n">datetime</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">PersonioResourceType</span><span class="p">]:</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_employee_metadata</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">resource_cls</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">PersonioResourceType</span><span class="p">],</span>
+            <span class="n">employees</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">|</span> <span class="n">Employee</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="n">Employee</span><span class="p">],</span> <span class="n">start_date</span><span class="p">:</span> <span class="n">datetime</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">end_date</span><span class="p">:</span> <span class="n">datetime</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">PersonioResourceType</span><span class="p">]:</span>
         <span class="c1"># resolve params to match API requirements</span>
         <span class="n">employees</span><span class="p">,</span> <span class="n">start_date</span><span class="p">,</span> <span class="n">end_date</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_normalize_timeframe_params</span><span class="p">(</span>
             <span class="n">employees</span><span class="p">,</span> <span class="n">start_date</span><span class="p">,</span> <span class="n">end_date</span><span class="p">)</span>
@@ -665,10 +750,10 @@
         <span class="k">return</span> <span class="n">parsed_data</span>
 
     <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">_normalize_timeframe_params</span><span class="p">(</span>
-            <span class="bp">cls</span><span class="p">,</span> <span class="n">employees</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">Employee</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="n">Employee</span><span class="p">]],</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_normalize_timeframe_params</span><span class="p">(</span>
+            <span class="bp">cls</span><span class="p">,</span> <span class="n">employees</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">|</span> <span class="n">Employee</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="n">Employee</span><span class="p">],</span>
             <span class="n">start_date</span><span class="p">:</span> <span class="n">datetime</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">end_date</span><span class="p">:</span> <span class="n">datetime</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> \
-            <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">datetime</span><span class="p">]:</span>
+            <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">datetime</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Whenever we need a list of employee IDs, a start date and an end date, this function comes</span>
 <span class="sd">        in handy:</span>
@@ -693,7 +778,7 @@
         <span class="n">employee_ids</span> <span class="o">=</span> <span class="p">[(</span><span class="n">e</span><span class="o">.</span><span class="n">id_</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="n">Employee</span><span class="p">)</span> <span class="k">else</span> <span class="n">e</span><span class="p">)</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">employees</span><span class="p">]</span>
         <span class="k">return</span> <span class="n">employee_ids</span><span class="p">,</span> <span class="n">start_date</span><span class="p">,</span> <span class="n">end_date</span>
 
-    <span class="k">def</span> <span class="nf">__add_remote_absence_id</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">absence</span><span class="p">:</span> <span class="n">Absence</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Absence</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">__add_remote_absence_id</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">absence</span><span class="p">:</span> <span class="n">Absence</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Absence</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Queries the API for an absence record matching</span>
 <span class="sd">        the given Absence object and adds the remote id.</span>
@@ -716,6 +801,7 @@
             <span class="k">raise</span> <span class="n">PersonioError</span><span class="p">(</span><span class="s2">&quot;More than one absence found.&quot;</span><span class="p">)</span>
         <span class="n">absence</span><span class="o">.</span><span class="n">id_</span> <span class="o">=</span> <span class="n">matching_remote_absences</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">id_</span>
         <span class="k">return</span> <span class="n">absence</span></div>
+
 </pre></div>
 
            </div>

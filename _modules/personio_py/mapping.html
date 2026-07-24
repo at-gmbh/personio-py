@@ -1,20 +1,21 @@
+
+
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<html class="writer-html5" lang="en" data-content_root="../../">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>personio_py.mapping &mdash; personio-py  documentation</title>
-      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
-    <link rel="canonical" href="https://at-gmbh.github.io/personio-py/_modules/personio_py/mapping.html"/>
-  <!--[if lt IE 9]>
-    <script src="../../_static/js/html5shiv.min.js"></script>
-  <![endif]-->
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
+
   
-        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
-        <script src="../../_static/jquery.js"></script>
-        <script src="../../_static/underscore.js"></script>
-        <script src="../../_static/doctools.js"></script>
+    <link rel="canonical" href="https://at-gmbh.github.io/personio-py/_modules/personio_py/mapping.html" />
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" /> 
@@ -25,11 +26,15 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-            <a href="../../index.html" class="icon icon-home"> personio-py
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            personio-py
           </a>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
@@ -40,7 +45,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../examples.html">Examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../contributing.html">Contributing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../changelog.html">Changelog</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../api.html">API Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api.html">API</a></li>
 </ul>
 
         </div>
@@ -56,9 +61,9 @@
         <div class="rst-content style-external-links">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
-          <li><a href="../index.html">Module code</a> &raquo;</li>
-      <li>personio_py.mapping</li>
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">personio_py.mapping</li>
       <li class="wy-breadcrumbs-aside">
       </li>
   </ul>
@@ -71,22 +76,25 @@
 <span></span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">mappings from Personio API fields to Python data types and vice versa are defined in this module</span>
 <span class="sd">&quot;&quot;&quot;</span>
-<span class="kn">import</span> <span class="nn">logging</span>
-<span class="kn">import</span> <span class="nn">re</span>
-<span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">date</span><span class="p">,</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">timedelta</span>
-<span class="kn">from</span> <span class="nn">decimal</span> <span class="kn">import</span> <span class="n">Decimal</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">NamedTuple</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Type</span><span class="p">,</span> <span class="n">TypeVar</span><span class="p">,</span> <span class="n">Union</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">date</span><span class="p">,</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">timedelta</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">decimal</span><span class="w"> </span><span class="kn">import</span> <span class="n">Decimal</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">NamedTuple</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">TypeVar</span>
 
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
-    <span class="kn">from</span> <span class="nn">personio_py</span> <span class="kn">import</span> <span class="n">Personio</span>
-    <span class="kn">from</span> <span class="nn">personio_py.models</span> <span class="kn">import</span> <span class="n">PersonioResourceType</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">personio_py</span><span class="w"> </span><span class="kn">import</span> <span class="n">Personio</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">personio_py.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">PersonioResourceType</span>
 
-<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s1">&#39;personio_py&#39;</span><span class="p">)</span>
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s2">&quot;personio_py&quot;</span><span class="p">)</span>
 
-<span class="n">T</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s1">&#39;T&#39;</span><span class="p">)</span>
+<span class="n">T</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;T&quot;</span><span class="p">)</span>
 
 
-<div class="viewcode-block" id="FieldMapping"><a class="viewcode-back" href="../../api.html#personio_py.mapping.FieldMapping">[docs]</a><span class="k">class</span> <span class="nc">FieldMapping</span><span class="p">:</span>
+<div class="viewcode-block" id="FieldMapping">
+<a class="viewcode-back" href="../../api.html#personio_py.mapping.FieldMapping">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">FieldMapping</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A generic mapping from a Personio API field to a Python object.</span>
 <span class="sd">    The default implementation works great for strings, but for more complex types,</span>
@@ -97,12 +105,14 @@
 <span class="sd">    :param field_type: data type of the field</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">api_field</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">class_field</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">field_type</span><span class="p">:</span> <span class="n">Type</span><span class="p">[</span><span class="n">T</span><span class="p">]):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">api_field</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">class_field</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">field_type</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">T</span><span class="p">]):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">api_field</span> <span class="o">=</span> <span class="n">api_field</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">class_field</span> <span class="o">=</span> <span class="n">class_field</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">field_type</span> <span class="o">=</span> <span class="n">field_type</span>
 
-<div class="viewcode-block" id="FieldMapping.serialize"><a class="viewcode-back" href="../../api.html#personio_py.mapping.FieldMapping.serialize">[docs]</a>    <span class="k">def</span> <span class="nf">serialize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">T</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Dict</span><span class="p">]:</span>
+<div class="viewcode-block" id="FieldMapping.serialize">
+<a class="viewcode-back" href="../../api.html#personio_py.mapping.FieldMapping.serialize">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">serialize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">T</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">dict</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Serialize the parsed value to the format that the Personio API expects.</span>
 
@@ -111,7 +121,10 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">value</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="FieldMapping.deserialize"><a class="viewcode-back" href="../../api.html#personio_py.mapping.FieldMapping.deserialize">[docs]</a>    <span class="k">def</span> <span class="nf">deserialize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Dict</span><span class="p">],</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">T</span><span class="p">:</span>
+
+<div class="viewcode-block" id="FieldMapping.deserialize">
+<a class="viewcode-back" href="../../api.html#personio_py.mapping.FieldMapping.deserialize">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">deserialize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">dict</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">T</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Deserialize the Personio API value to a more useful Python data type.</span>
 
@@ -121,161 +134,241 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">field_type</span><span class="p">(</span><span class="n">value</span><span class="p">)</span></div>
 
-    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="si">}</span><span class="s2">&quot;</span></div>
 
 
-<div class="viewcode-block" id="NumericFieldMapping"><a class="viewcode-back" href="../../api.html#personio_py.mapping.NumericFieldMapping">[docs]</a><span class="k">class</span> <span class="nc">NumericFieldMapping</span><span class="p">(</span><span class="n">FieldMapping</span><span class="p">):</span>
+
+<div class="viewcode-block" id="NumericFieldMapping">
+<a class="viewcode-back" href="../../api.html#personio_py.mapping.NumericFieldMapping">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">NumericFieldMapping</span><span class="p">(</span><span class="n">FieldMapping</span><span class="p">):</span>
     <span class="c1"># don&#39;t touch numeric types, unless they are strings...</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">api_field</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">class_field</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">field_type</span><span class="o">=</span><span class="nb">float</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">api_field</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">class_field</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">field_type</span><span class="o">=</span><span class="nb">float</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">api_field</span><span class="p">,</span> <span class="n">class_field</span><span class="p">,</span> <span class="n">field_type</span><span class="o">=</span><span class="n">field_type</span><span class="p">)</span>
 
-<div class="viewcode-block" id="NumericFieldMapping.serialize"><a class="viewcode-back" href="../../api.html#personio_py.mapping.NumericFieldMapping.serialize">[docs]</a>    <span class="k">def</span> <span class="nf">serialize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
+<div class="viewcode-block" id="NumericFieldMapping.serialize">
+<a class="viewcode-back" href="../../api.html#personio_py.mapping.NumericFieldMapping.serialize">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">serialize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">float</span> <span class="o">|</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">float</span> <span class="o">|</span> <span class="nb">str</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">value</span></div>
 
-<div class="viewcode-block" id="NumericFieldMapping.deserialize"><a class="viewcode-back" href="../../api.html#personio_py.mapping.NumericFieldMapping.deserialize">[docs]</a>    <span class="k">def</span> <span class="nf">deserialize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">field_type</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="k">else</span> <span class="n">value</span></div></div>
+
+<div class="viewcode-block" id="NumericFieldMapping.deserialize">
+<a class="viewcode-back" href="../../api.html#personio_py.mapping.NumericFieldMapping.deserialize">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">deserialize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">float</span> <span class="o">|</span> <span class="nb">str</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">float</span> <span class="o">|</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">field_type</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="k">else</span> <span class="n">value</span></div>
+</div>
 
 
-<div class="viewcode-block" id="BooleanFieldMapping"><a class="viewcode-back" href="../../api.html#personio_py.mapping.BooleanFieldMapping">[docs]</a><span class="k">class</span> <span class="nc">BooleanFieldMapping</span><span class="p">(</span><span class="n">FieldMapping</span><span class="p">):</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">api_field</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">class_field</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<div class="viewcode-block" id="BooleanFieldMapping">
+<a class="viewcode-back" href="../../api.html#personio_py.mapping.BooleanFieldMapping">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">BooleanFieldMapping</span><span class="p">(</span><span class="n">FieldMapping</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">api_field</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">class_field</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">api_field</span><span class="p">,</span> <span class="n">class_field</span><span class="p">,</span> <span class="n">field_type</span><span class="o">=</span><span class="nb">bool</span><span class="p">)</span>
 
-<div class="viewcode-block" id="BooleanFieldMapping.serialize"><a class="viewcode-back" href="../../api.html#personio_py.mapping.BooleanFieldMapping.serialize">[docs]</a>    <span class="k">def</span> <span class="nf">serialize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">bool</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<div class="viewcode-block" id="BooleanFieldMapping.serialize">
+<a class="viewcode-back" href="../../api.html#personio_py.mapping.BooleanFieldMapping.serialize">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">serialize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">bool</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">value</span></div>
 
-<div class="viewcode-block" id="BooleanFieldMapping.deserialize"><a class="viewcode-back" href="../../api.html#personio_py.mapping.BooleanFieldMapping.deserialize">[docs]</a>    <span class="k">def</span> <span class="nf">deserialize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-        <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="n">value</span><span class="p">)</span></div></div>
+
+<div class="viewcode-block" id="BooleanFieldMapping.deserialize">
+<a class="viewcode-back" href="../../api.html#personio_py.mapping.BooleanFieldMapping.deserialize">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">deserialize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="n">value</span><span class="p">)</span></div>
+</div>
 
 
-<div class="viewcode-block" id="DateTimeFieldMapping"><a class="viewcode-back" href="../../api.html#personio_py.mapping.DateTimeFieldMapping">[docs]</a><span class="k">class</span> <span class="nc">DateTimeFieldMapping</span><span class="p">(</span><span class="n">FieldMapping</span><span class="p">):</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">api_field</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">class_field</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<div class="viewcode-block" id="DateTimeFieldMapping">
+<a class="viewcode-back" href="../../api.html#personio_py.mapping.DateTimeFieldMapping">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">DateTimeFieldMapping</span><span class="p">(</span><span class="n">FieldMapping</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">api_field</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">class_field</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">api_field</span><span class="p">,</span> <span class="n">class_field</span><span class="p">,</span> <span class="n">field_type</span><span class="o">=</span><span class="n">datetime</span><span class="p">)</span>
 
-<div class="viewcode-block" id="DateTimeFieldMapping.serialize"><a class="viewcode-back" href="../../api.html#personio_py.mapping.DateTimeFieldMapping.serialize">[docs]</a>    <span class="k">def</span> <span class="nf">serialize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">datetime</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<div class="viewcode-block" id="DateTimeFieldMapping.serialize">
+<a class="viewcode-back" href="../../api.html#personio_py.mapping.DateTimeFieldMapping.serialize">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">serialize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">datetime</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">value</span><span class="o">.</span><span class="n">isoformat</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="DateTimeFieldMapping.deserialize"><a class="viewcode-back" href="../../api.html#personio_py.mapping.DateTimeFieldMapping.deserialize">[docs]</a>    <span class="k">def</span> <span class="nf">deserialize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">datetime</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">datetime</span><span class="o">.</span><span class="n">fromisoformat</span><span class="p">(</span><span class="n">value</span><span class="p">)</span></div></div>
+
+<div class="viewcode-block" id="DateTimeFieldMapping.deserialize">
+<a class="viewcode-back" href="../../api.html#personio_py.mapping.DateTimeFieldMapping.deserialize">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">deserialize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">datetime</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">datetime</span><span class="o">.</span><span class="n">fromisoformat</span><span class="p">(</span><span class="n">value</span><span class="p">)</span></div>
+</div>
 
 
-<div class="viewcode-block" id="DateFieldMapping"><a class="viewcode-back" href="../../api.html#personio_py.mapping.DateFieldMapping">[docs]</a><span class="k">class</span> <span class="nc">DateFieldMapping</span><span class="p">(</span><span class="n">FieldMapping</span><span class="p">):</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">api_field</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">class_field</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<div class="viewcode-block" id="DateFieldMapping">
+<a class="viewcode-back" href="../../api.html#personio_py.mapping.DateFieldMapping">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">DateFieldMapping</span><span class="p">(</span><span class="n">FieldMapping</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">api_field</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">class_field</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">api_field</span><span class="p">,</span> <span class="n">class_field</span><span class="p">,</span> <span class="n">field_type</span><span class="o">=</span><span class="n">date</span><span class="p">)</span>
 
-<div class="viewcode-block" id="DateFieldMapping.serialize"><a class="viewcode-back" href="../../api.html#personio_py.mapping.DateFieldMapping.serialize">[docs]</a>    <span class="k">def</span> <span class="nf">serialize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">datetime</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<div class="viewcode-block" id="DateFieldMapping.serialize">
+<a class="viewcode-back" href="../../api.html#personio_py.mapping.DateFieldMapping.serialize">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">serialize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">datetime</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">value</span><span class="o">.</span><span class="n">isoformat</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="DateFieldMapping.deserialize"><a class="viewcode-back" href="../../api.html#personio_py.mapping.DateFieldMapping.deserialize">[docs]</a>    <span class="k">def</span> <span class="nf">deserialize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">date</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">date</span><span class="o">.</span><span class="n">fromisoformat</span><span class="p">(</span><span class="n">value</span><span class="p">[:</span><span class="mi">10</span><span class="p">])</span></div></div>
+
+<div class="viewcode-block" id="DateFieldMapping.deserialize">
+<a class="viewcode-back" href="../../api.html#personio_py.mapping.DateFieldMapping.deserialize">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">deserialize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">date</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">date</span><span class="o">.</span><span class="n">fromisoformat</span><span class="p">(</span><span class="n">value</span><span class="p">[:</span><span class="mi">10</span><span class="p">])</span></div>
+</div>
 
 
-<div class="viewcode-block" id="DurationFieldMapping"><a class="viewcode-back" href="../../api.html#personio_py.mapping.DurationFieldMapping">[docs]</a><span class="k">class</span> <span class="nc">DurationFieldMapping</span><span class="p">(</span><span class="n">FieldMapping</span><span class="p">):</span>
 
+<div class="viewcode-block" id="DurationFieldMapping">
+<a class="viewcode-back" href="../../api.html#personio_py.mapping.DurationFieldMapping">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">DurationFieldMapping</span><span class="p">(</span><span class="n">FieldMapping</span><span class="p">):</span>
     <span class="n">pattern</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;\d\d?:\d\d&quot;</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">api_field</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">class_field</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">api_field</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">class_field</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">api_field</span><span class="p">,</span> <span class="n">class_field</span><span class="p">,</span> <span class="n">field_type</span><span class="o">=</span><span class="n">timedelta</span><span class="p">)</span>
 
-<div class="viewcode-block" id="DurationFieldMapping.serialize"><a class="viewcode-back" href="../../api.html#personio_py.mapping.DurationFieldMapping.serialize">[docs]</a>    <span class="k">def</span> <span class="nf">serialize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">timedelta</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<div class="viewcode-block" id="DurationFieldMapping.serialize">
+<a class="viewcode-back" href="../../api.html#personio_py.mapping.DurationFieldMapping.serialize">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">serialize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">timedelta</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="n">mm</span><span class="p">,</span> <span class="n">ss</span> <span class="o">=</span> <span class="nb">divmod</span><span class="p">(</span><span class="n">value</span><span class="o">.</span><span class="n">total_seconds</span><span class="p">(),</span> <span class="mi">60</span><span class="p">)</span>
         <span class="n">hh</span><span class="p">,</span> <span class="n">mm</span> <span class="o">=</span> <span class="nb">divmod</span><span class="p">(</span><span class="n">mm</span><span class="p">,</span> <span class="mi">60</span><span class="p">)</span>
         <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="n">hh</span><span class="p">)</span><span class="si">:</span><span class="s2">02d</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="n">mm</span><span class="p">)</span><span class="si">:</span><span class="s2">02d</span><span class="si">}</span><span class="s2">&quot;</span></div>
 
-<div class="viewcode-block" id="DurationFieldMapping.deserialize"><a class="viewcode-back" href="../../api.html#personio_py.mapping.DurationFieldMapping.deserialize">[docs]</a>    <span class="k">def</span> <span class="nf">deserialize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">timedelta</span><span class="p">:</span>
+
+<div class="viewcode-block" id="DurationFieldMapping.deserialize">
+<a class="viewcode-back" href="../../api.html#personio_py.mapping.DurationFieldMapping.deserialize">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">deserialize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">timedelta</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">str_to_timedelta</span><span class="p">(</span><span class="n">value</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="DurationFieldMapping.str_to_timedelta"><a class="viewcode-back" href="../../api.html#personio_py.mapping.DurationFieldMapping.str_to_timedelta">[docs]</a>    <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">str_to_timedelta</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">s</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">timedelta</span><span class="p">:</span>
+
+<div class="viewcode-block" id="DurationFieldMapping.str_to_timedelta">
+<a class="viewcode-back" href="../../api.html#personio_py.mapping.DurationFieldMapping.str_to_timedelta">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">str_to_timedelta</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">s</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">timedelta</span><span class="p">:</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;expected a string, but got </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">s</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
         <span class="n">trimmed</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
         <span class="k">if</span> <span class="bp">cls</span><span class="o">.</span><span class="n">pattern</span><span class="o">.</span><span class="n">fullmatch</span><span class="p">(</span><span class="n">trimmed</span><span class="p">):</span>
-            <span class="n">hh</span><span class="p">,</span> <span class="n">mm</span> <span class="o">=</span> <span class="n">trimmed</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;:&#39;</span><span class="p">)</span>
+            <span class="n">hh</span><span class="p">,</span> <span class="n">mm</span> <span class="o">=</span> <span class="n">trimmed</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;:&quot;</span><span class="p">)</span>
             <span class="k">return</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">hours</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">hh</span><span class="p">),</span> <span class="n">minutes</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">mm</span><span class="p">))</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;the string &#39;</span><span class="si">{</span><span class="n">s</span><span class="si">}</span><span class="s2">&#39; does not represent a valid duration. &quot;</span>
-                             <span class="sa">f</span><span class="s2">&quot;Expected format is &#39;hh:mm&#39;, e.g. &#39;06:30&#39;.&quot;</span><span class="p">)</span></div></div>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;the string &#39;</span><span class="si">{</span><span class="n">s</span><span class="si">}</span><span class="s2">&#39; does not represent a valid duration. &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;Expected format is &#39;hh:mm&#39;, e.g. &#39;06:30&#39;.&quot;</span>
+            <span class="p">)</span></div>
+</div>
 
 
-<div class="viewcode-block" id="MultiTagFieldMapping"><a class="viewcode-back" href="../../api.html#personio_py.mapping.MultiTagFieldMapping">[docs]</a><span class="k">class</span> <span class="nc">MultiTagFieldMapping</span><span class="p">(</span><span class="n">FieldMapping</span><span class="p">):</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">api_field</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">class_field</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<div class="viewcode-block" id="MultiTagFieldMapping">
+<a class="viewcode-back" href="../../api.html#personio_py.mapping.MultiTagFieldMapping">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">MultiTagFieldMapping</span><span class="p">(</span><span class="n">FieldMapping</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">api_field</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">class_field</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">api_field</span><span class="p">,</span> <span class="n">class_field</span><span class="p">,</span> <span class="n">field_type</span><span class="o">=</span><span class="nb">list</span><span class="p">)</span>
 
-<div class="viewcode-block" id="MultiTagFieldMapping.serialize"><a class="viewcode-back" href="../../api.html#personio_py.mapping.MultiTagFieldMapping.serialize">[docs]</a>    <span class="k">def</span> <span class="nf">serialize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">values</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<div class="viewcode-block" id="MultiTagFieldMapping.serialize">
+<a class="viewcode-back" href="../../api.html#personio_py.mapping.MultiTagFieldMapping.serialize">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">serialize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">values</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="k">for</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">values</span><span class="p">:</span>
-            <span class="k">if</span> <span class="s1">&#39;,&#39;</span> <span class="ow">in</span> <span class="n">value</span><span class="p">:</span>
+            <span class="k">if</span> <span class="s2">&quot;,&quot;</span> <span class="ow">in</span> <span class="n">value</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
                     <span class="sa">f</span><span class="s2">&quot;Due to a restrictions at Personio, no commas are allowed in &quot;</span>
-                    <span class="sa">f</span><span class="s2">&quot;multi selection fields, please adjust &#39;</span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">)</span>
-        <span class="k">return</span> <span class="s1">&#39;,&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">values</span><span class="p">)</span></div>
-
-<div class="viewcode-block" id="MultiTagFieldMapping.deserialize"><a class="viewcode-back" href="../../api.html#personio_py.mapping.MultiTagFieldMapping.deserialize">[docs]</a>    <span class="k">def</span> <span class="nf">deserialize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
-        <span class="k">return</span> <span class="p">[</span><span class="n">s</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">value</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">)]</span> <span class="k">if</span> <span class="n">value</span> <span class="k">else</span> <span class="p">[]</span></div></div>
+                    <span class="sa">f</span><span class="s2">&quot;multi selection fields, please adjust &#39;</span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="s2">&#39;&quot;</span>
+                <span class="p">)</span>
+        <span class="k">return</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">values</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="ObjectFieldMapping"><a class="viewcode-back" href="../../api.html#personio_py.mapping.ObjectFieldMapping">[docs]</a><span class="k">class</span> <span class="nc">ObjectFieldMapping</span><span class="p">(</span><span class="n">FieldMapping</span><span class="p">):</span>
+<div class="viewcode-block" id="MultiTagFieldMapping.deserialize">
+<a class="viewcode-back" href="../../api.html#personio_py.mapping.MultiTagFieldMapping.deserialize">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">deserialize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">s</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">value</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">)]</span> <span class="k">if</span> <span class="n">value</span> <span class="k">else</span> <span class="p">[]</span></div>
+</div>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">api_field</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">class_field</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">field_type</span><span class="p">:</span> <span class="n">Type</span><span class="p">[</span><span class="s1">&#39;PersonioResourceType&#39;</span><span class="p">]):</span>
+
+
+<div class="viewcode-block" id="ObjectFieldMapping">
+<a class="viewcode-back" href="../../api.html#personio_py.mapping.ObjectFieldMapping">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">ObjectFieldMapping</span><span class="p">(</span><span class="n">FieldMapping</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">api_field</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">class_field</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">field_type</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="s2">&quot;PersonioResourceType&quot;</span><span class="p">]):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">api_field</span><span class="p">,</span> <span class="n">class_field</span><span class="p">,</span> <span class="n">field_type</span><span class="p">)</span>
 
-<div class="viewcode-block" id="ObjectFieldMapping.serialize"><a class="viewcode-back" href="../../api.html#personio_py.mapping.ObjectFieldMapping.serialize">[docs]</a>    <span class="k">def</span> <span class="nf">serialize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="s1">&#39;PersonioResourceType&#39;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
+<div class="viewcode-block" id="ObjectFieldMapping.serialize">
+<a class="viewcode-back" href="../../api.html#personio_py.mapping.ObjectFieldMapping.serialize">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">serialize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="s2">&quot;PersonioResourceType&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">field_type</span><span class="o">.</span><span class="n">_flat_dict</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">value</span><span class="o">.</span><span class="n">to_dict</span><span class="p">(</span><span class="n">nested</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="p">{</span>
-                <span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">field_type</span><span class="o">.</span><span class="n">_api_type_name</span><span class="p">,</span>
-                <span class="s1">&#39;attributes&#39;</span><span class="p">:</span> <span class="n">value</span><span class="o">.</span><span class="n">to_dict</span><span class="p">(</span><span class="n">nested</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">field_type</span><span class="o">.</span><span class="n">_api_type_name</span><span class="p">,</span>
+                <span class="s2">&quot;attributes&quot;</span><span class="p">:</span> <span class="n">value</span><span class="o">.</span><span class="n">to_dict</span><span class="p">(</span><span class="n">nested</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
             <span class="p">}</span></div>
 
-<div class="viewcode-block" id="ObjectFieldMapping.deserialize"><a class="viewcode-back" href="../../api.html#personio_py.mapping.ObjectFieldMapping.deserialize">[docs]</a>    <span class="k">def</span> <span class="nf">deserialize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">client</span><span class="p">:</span> <span class="s1">&#39;Personio&#39;</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> \
-            <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="s1">&#39;PersonioResourceType&#39;</span><span class="p">]:</span>
+
+<div class="viewcode-block" id="ObjectFieldMapping.deserialize">
+<a class="viewcode-back" href="../../api.html#personio_py.mapping.ObjectFieldMapping.deserialize">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">deserialize</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">client</span><span class="p">:</span> <span class="s2">&quot;Personio&quot;</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="s2">&quot;PersonioResourceType&quot;</span><span class="p">]:</span>
         <span class="k">if</span> <span class="n">value</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">field_type</span><span class="o">.</span><span class="n">_flat_dict</span><span class="p">:</span>
-                <span class="n">value</span> <span class="o">=</span> <span class="n">value</span><span class="p">[</span><span class="s1">&#39;attributes&#39;</span><span class="p">]</span>
+                <span class="n">value</span> <span class="o">=</span> <span class="n">value</span><span class="p">[</span><span class="s2">&quot;attributes&quot;</span><span class="p">]</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">field_type</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">client</span><span class="o">=</span><span class="n">client</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">return</span> <span class="kc">None</span></div></div>
+            <span class="k">return</span> <span class="kc">None</span></div>
+</div>
 
 
-<div class="viewcode-block" id="ListFieldMapping"><a class="viewcode-back" href="../../api.html#personio_py.mapping.ListFieldMapping">[docs]</a><span class="k">class</span> <span class="nc">ListFieldMapping</span><span class="p">(</span><span class="n">FieldMapping</span><span class="p">):</span>
+
+<div class="viewcode-block" id="ListFieldMapping">
+<a class="viewcode-back" href="../../api.html#personio_py.mapping.ListFieldMapping">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">ListFieldMapping</span><span class="p">(</span><span class="n">FieldMapping</span><span class="p">):</span>
     <span class="c1"># wraps another field mapping, to handle list types</span>
     <span class="c1"># e.g. ``ListFieldMapping(ObjectFieldMapping(&#39;cost_centers&#39;, &#39;cost_centers&#39;, CostCenter))``</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item_mapping</span><span class="p">:</span> <span class="n">FieldMapping</span><span class="p">):</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">item_mapping</span><span class="o">.</span><span class="n">api_field</span><span class="p">,</span> <span class="n">item_mapping</span><span class="o">.</span><span class="n">class_field</span><span class="p">,</span> <span class="n">field_type</span><span class="o">=</span><span class="n">List</span><span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item_mapping</span><span class="p">:</span> <span class="n">FieldMapping</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">item_mapping</span><span class="o">.</span><span class="n">api_field</span><span class="p">,</span> <span class="n">item_mapping</span><span class="o">.</span><span class="n">class_field</span><span class="p">,</span> <span class="n">field_type</span><span class="o">=</span><span class="nb">list</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">item_mapping</span> <span class="o">=</span> <span class="n">item_mapping</span>
 
-<div class="viewcode-block" id="ListFieldMapping.serialize"><a class="viewcode-back" href="../../api.html#personio_py.mapping.ListFieldMapping.serialize">[docs]</a>    <span class="k">def</span> <span class="nf">serialize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">values</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Any</span><span class="p">]:</span>
+<div class="viewcode-block" id="ListFieldMapping.serialize">
+<a class="viewcode-back" href="../../api.html#personio_py.mapping.ListFieldMapping.serialize">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">serialize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">values</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">Any</span><span class="p">]:</span>
         <span class="k">return</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">item_mapping</span><span class="o">.</span><span class="n">serialize</span><span class="p">(</span><span class="n">item</span><span class="p">)</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">values</span><span class="p">]</span></div>
 
-<div class="viewcode-block" id="ListFieldMapping.deserialize"><a class="viewcode-back" href="../../api.html#personio_py.mapping.ListFieldMapping.deserialize">[docs]</a>    <span class="k">def</span> <span class="nf">deserialize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">values</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Any</span><span class="p">],</span> <span class="n">client</span><span class="p">:</span> <span class="s1">&#39;Personio&#39;</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Any</span><span class="p">]:</span>
-        <span class="k">return</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">item_mapping</span><span class="o">.</span><span class="n">deserialize</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="n">client</span><span class="o">=</span><span class="n">client</span><span class="p">)</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">values</span><span class="p">]</span></div></div>
+
+<div class="viewcode-block" id="ListFieldMapping.deserialize">
+<a class="viewcode-back" href="../../api.html#personio_py.mapping.ListFieldMapping.deserialize">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">deserialize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">values</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Any</span><span class="p">],</span> <span class="n">client</span><span class="p">:</span> <span class="s2">&quot;Personio&quot;</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">Any</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">item_mapping</span><span class="o">.</span><span class="n">deserialize</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="n">client</span><span class="o">=</span><span class="n">client</span><span class="p">)</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">values</span><span class="p">]</span></div>
+</div>
 
 
-<span class="n">FieldMappingType</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s1">&#39;FieldMappingType&#39;</span><span class="p">,</span> <span class="n">bound</span><span class="o">=</span><span class="n">FieldMapping</span><span class="p">)</span>
+
+<span class="n">FieldMappingType</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;FieldMappingType&quot;</span><span class="p">,</span> <span class="n">bound</span><span class="o">=</span><span class="n">FieldMapping</span><span class="p">)</span>
 
 
-<div class="viewcode-block" id="DynamicMapping"><a class="viewcode-back" href="../../api.html#personio_py.mapping.DynamicMapping">[docs]</a><span class="k">class</span> <span class="nc">DynamicMapping</span><span class="p">(</span><span class="n">NamedTuple</span><span class="p">):</span>
+<div class="viewcode-block" id="DynamicMapping">
+<a class="viewcode-back" href="../../api.html#personio_py.mapping.DynamicMapping">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">DynamicMapping</span><span class="p">(</span><span class="n">NamedTuple</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Defines a mapping from a dynamic field to a more memorable name and its actual data type,</span>
 <span class="sd">    so that it may be converted into a proper python type, if possible.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="n">field_id</span><span class="p">:</span> <span class="nb">int</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;the id number of the dynamic field, e.g. for &#39;dynamic_123456&#39;, field_id=123456&quot;&quot;&quot;</span>
     <span class="n">alias</span><span class="p">:</span> <span class="nb">str</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;a more memorable name than the field_id, will be used as dictionary key&quot;&quot;&quot;</span>
-    <span class="n">data_type</span><span class="p">:</span> <span class="n">Type</span><span class="p">[</span><span class="n">T</span><span class="p">]</span>
+    <span class="n">data_type</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">T</span><span class="p">]</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;the data type of the field, for automatic conversion (e.g. str to datetime)&quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="DynamicMapping.get_field_mapping"><a class="viewcode-back" href="../../api.html#personio_py.mapping.DynamicMapping.get_field_mapping">[docs]</a>    <span class="k">def</span> <span class="nf">get_field_mapping</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FieldMappingType</span><span class="p">:</span>
-        <span class="n">api_field</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;dynamic_</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">field_id</span><span class="si">}</span><span class="s1">&#39;</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_type</span> <span class="o">==</span> <span class="nb">str</span><span class="p">:</span>
+<div class="viewcode-block" id="DynamicMapping.get_field_mapping">
+<a class="viewcode-back" href="../../api.html#personio_py.mapping.DynamicMapping.get_field_mapping">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_field_mapping</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FieldMappingType</span><span class="p">:</span>
+        <span class="n">api_field</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;dynamic_</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">field_id</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_type</span> <span class="ow">is</span> <span class="nb">str</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">FieldMapping</span><span class="p">(</span><span class="n">api_field</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">alias</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span>
         <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_type</span> <span class="ow">in</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="n">Decimal</span><span class="p">):</span>
             <span class="k">return</span> <span class="n">NumericFieldMapping</span><span class="p">(</span><span class="n">api_field</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">alias</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_type</span><span class="p">)</span>
@@ -285,11 +378,13 @@
             <span class="k">return</span> <span class="n">DateTimeFieldMapping</span><span class="p">(</span><span class="n">api_field</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">alias</span><span class="p">)</span>
         <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_type</span> <span class="o">==</span> <span class="n">timedelta</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">DurationFieldMapping</span><span class="p">(</span><span class="n">api_field</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">alias</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_type</span> <span class="ow">in</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="n">List</span><span class="p">):</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_type</span> <span class="ow">is</span> <span class="nb">list</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">MultiTagFieldMapping</span><span class="p">(</span><span class="n">api_field</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">alias</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;unexpected type </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">data_type</span><span class="si">}</span><span class="s2"> for dynamic field </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">field_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-            <span class="k">return</span> <span class="n">FieldMapping</span><span class="p">(</span><span class="n">api_field</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">alias</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_type</span><span class="p">)</span></div></div>
+            <span class="k">return</span> <span class="n">FieldMapping</span><span class="p">(</span><span class="n">api_field</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">alias</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_type</span><span class="p">)</span></div>
+</div>
+
 </pre></div>
 
            </div>

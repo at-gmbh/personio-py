@@ -1,20 +1,22 @@
+
+
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<html class="writer-html5" lang="en" data-content_root="./">
 <head>
-  <meta charset="utf-8" />
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>personio-py &mdash; personio-py  documentation</title>
-      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-    <link rel="canonical" href="https://at-gmbh.github.io/personio-py/index.html"/>
-  <!--[if lt IE 9]>
-    <script src="_static/js/html5shiv.min.js"></script>
-  <![endif]-->
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
+
   
-        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
-        <script src="_static/jquery.js"></script>
-        <script src="_static/underscore.js"></script>
-        <script src="_static/doctools.js"></script>
+    <link rel="canonical" href="https://at-gmbh.github.io/personio-py/index.html" />
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -26,11 +28,15 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-            <a href="#" class="icon icon-home"> personio-py
+
+          
+          
+          <a href="#" class="icon icon-home">
+            personio-py
           </a>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
@@ -41,7 +47,7 @@
 <li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="changelog.html">Changelog</a></li>
-<li class="toctree-l1"><a class="reference internal" href="api.html">API Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api.html">API</a></li>
 </ul>
 
         </div>
@@ -57,8 +63,8 @@
         <div class="rst-content style-external-links">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="#" class="icon icon-home"></a> &raquo;</li>
-      <li>personio-py</li>
+      <li><a href="#" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">personio-py</li>
       <li class="wy-breadcrumbs-aside">
               <a href="https://github.com/at-gmbh/personio-py/blob/master/docs/source/index.md" class="fa fa-github"> Edit on GitHub</a>
       </li>
@@ -68,10 +74,10 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <div class="section" id="personio-py">
-<h1>personio-py<a class="headerlink" href="#personio-py" title="Permalink to this headline"></a></h1>
+  <section id="personio-py">
+<h1>personio-py<a class="headerlink" href="#personio-py" title="Link to this heading"></a></h1>
 <p><strong>personio-py</strong> is a lightweight Personio API client library for Python. Also, it’s pretty intuitive to use. But don’t take my word for it, please have a look:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">personio_py</span> <span class="kn">import</span> <span class="n">Personio</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">personio_py</span><span class="w"> </span><span class="kn">import</span> <span class="n">Personio</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">p</span> <span class="o">=</span> <span class="n">Personio</span><span class="p">(</span><span class="n">client_id</span><span class="o">=</span><span class="s1">&#39;***&#39;</span><span class="p">,</span> <span class="n">client_secret</span><span class="o">=</span><span class="s1">&#39;***&#39;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">ada</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">search_first</span><span class="p">(</span><span class="s2">&quot;Ada&quot;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">ada</span><span class="o">.</span><span class="n">last_name</span>
@@ -85,38 +91,67 @@
 </div>
 <p><strong>personio-py</strong> aims to provide Python function wrappers and object mappings for all endpoints of the <a class="reference external" href="https://developer.personio.de/reference">Personio REST API</a>. Because personio-py is a third party library, and the REST API may change from time to time, we cannot guarantee that all functions are covered, but we try our best.</p>
 <p>If something appears to be broken, please have a look at the <a class="reference external" href="https://github.com/at-gmbh/personio-py/issues">open issues</a> and vote for an existing issue or create a new one, if you can’t find an issue that describes your problem.</p>
-<div class="section" id="index">
-<h2>Index<a class="headerlink" href="#index" title="Permalink to this headline"></a></h2>
+<section id="index">
+<h2>Index<a class="headerlink" href="#index" title="Link to this heading"></a></h2>
 <div class="toctree-wrapper compound">
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="guide.html">User Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="guide.html">User Guide</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="guide.html#installation">Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="guide.html#first-steps">First Steps</a></li>
+<li class="toctree-l2"><a class="reference internal" href="guide.html#employees">Employees</a></li>
+<li class="toctree-l2"><a class="reference internal" href="guide.html#attendances">Attendances</a></li>
+<li class="toctree-l2"><a class="reference internal" href="guide.html#absences">Absences</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a></li>
-<li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing</a></li>
-<li class="toctree-l1"><a class="reference internal" href="changelog.html">Changelog</a></li>
-<li class="toctree-l1"><a class="reference internal" href="api.html">API Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="contributing.html#we-develop-with-github">We develop with Github</a></li>
+<li class="toctree-l2"><a class="reference internal" href="contributing.html#any-contributions-you-make-will-be-under-the-apache-software-license">Any contributions you make will be under the Apache Software License</a></li>
+<li class="toctree-l2"><a class="reference internal" href="contributing.html#report-bugs-using-github-issues">Report bugs using Github Issues</a></li>
+<li class="toctree-l2"><a class="reference internal" href="contributing.html#write-bug-reports-with-detail-background-and-sample-code">Write bug reports with detail, background, and sample code</a></li>
+<li class="toctree-l2"><a class="reference internal" href="contributing.html#use-a-consistent-coding-style">Use a Consistent Coding Style</a></li>
+<li class="toctree-l2"><a class="reference internal" href="contributing.html#references">References</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="changelog.html">Changelog</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="changelog.html#unreleased">Unreleased</a></li>
+<li class="toctree-l2"><a class="reference internal" href="changelog.html#id1">0.2.3 - 2023-05-05</a></li>
+<li class="toctree-l2"><a class="reference internal" href="changelog.html#id2">0.2.2 - 2022-07-04</a></li>
+<li class="toctree-l2"><a class="reference internal" href="changelog.html#id3">0.2.1 - 2021-04-09</a></li>
+<li class="toctree-l2"><a class="reference internal" href="changelog.html#id4">0.2.0 - 2021-03-10</a></li>
+<li class="toctree-l2"><a class="reference internal" href="changelog.html#id5">0.1.1 - 2020-08-19</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="api.html">API</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="api.html#personio">Personio</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api.html#module-personio_py.models">models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api.html#module-personio_py.mapping">mapping</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api.html#errors">Errors</a></li>
+</ul>
+</li>
 </ul>
 </div>
-</div>
-<div class="section" id="features">
-<h2>Features<a class="headerlink" href="#features" title="Permalink to this headline"></a></h2>
+</section>
+<section id="features">
+<h2>Features<a class="headerlink" href="#features" title="Link to this heading"></a></h2>
 <ul class="simple">
 <li><p>Aims to cover all functions of the Personio API (work in progress)</p></li>
-<li><p>Python function wrappers for all API endpoints as part of the <a class="reference external" href="api.html#personio_py.Personio">Personio</a> class</p></li>
-<li><p>Object mappings for all API resources, e.g. an <a class="reference external" href="api.html#personio_py.models.Employee">Employee</a> is an object with properties for all the information that is provided by the REST API.</p></li>
+<li><p>Python function wrappers for all API endpoints as part of the <a class="reference internal" href="api.html#personio_py.Personio" title="personio_py.Personio"><code class="xref py py-class docutils literal notranslate"><span class="pre">Personio</span></code></a> class</p></li>
+<li><p>Object mappings for all API resources, e.g. an <a class="reference internal" href="api.html#personio_py.models.Employee" title="personio_py.models.Employee"><code class="xref py py-class docutils literal notranslate"><span class="pre">Employee</span></code></a> is an object with properties for all the information that is provided by the REST API.</p></li>
 <li><p>Completely transparent handling of authentication and key rotation</p></li>
 <li><p>Support for Type Hints</p></li>
 <li><p>Only one dependency: <a class="reference external" href="https://pypi.org/project/requests/">requests</a></p></li>
 </ul>
-</div>
-<div class="section" id="getting-started">
-<h2>Getting Started<a class="headerlink" href="#getting-started" title="Permalink to this headline"></a></h2>
+</section>
+<section id="getting-started">
+<h2>Getting Started<a class="headerlink" href="#getting-started" title="Link to this heading"></a></h2>
 <p>The package is available on <a class="reference external" href="https://pypi.org/project/personio-py/">PyPI</a> and can be installed with</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="n">personio</span><span class="o">-</span><span class="n">py</span>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>pip install personio-py
 </pre></div>
 </div>
-<p>Now you can <code class="docutils literal notranslate"><span class="pre">import</span> <span class="pre">personio_py</span></code> and start coding. Please have a look at the <a class="reference internal" href="guide.html"><span class="doc">User Guide</span></a> and the <a class="reference internal" href="examples.html"><span class="doc">Examples</span></a> section for more details.</p>
-</div>
-</div>
+<p>Now you can <code class="docutils literal notranslate"><span class="pre">import</span> <span class="pre">personio_py</span></code> and start coding. Please have a look at the <a class="reference internal" href="guide.html"><span class="std std-doc">User Guide</span></a> and the <a class="reference internal" href="examples.html"><span class="std std-doc">Examples</span></a> section for more details.</p>
+</section>
+</section>
 
 
            </div>
