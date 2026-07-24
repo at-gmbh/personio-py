@@ -1,3 +1,4 @@
+from copy import deepcopy
 from datetime import date
 
 from personio_py import Absence
@@ -46,3 +47,16 @@ def test_serialize_absence():
     absence = Absence.from_dict(absence_dict)
     d = absence.to_dict()
     assert d == absence_dict
+
+
+def test_empty_object_field_deserializes_to_none():
+    # Personio may return "" or [] (instead of null) for an empty object field. Such empty values
+    # must become None, otherwise to_dict() crashes when serializing the raw str/list as an object.
+    # Absence uses PersonioResource._map_fields (unlike Employee's LabeledAttributesMixin path).
+    for empty_value in ('', []):
+        d = deepcopy(absence_dict)
+        d['attributes']['certificate'] = empty_value
+        absence = Absence.from_dict(d)
+        assert absence.certificate is None
+        serialized = absence.to_dict()
+        assert 'certificate' not in serialized['attributes']
