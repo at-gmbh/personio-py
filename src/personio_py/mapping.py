@@ -1,19 +1,20 @@
 """
 mappings from Personio API fields to Python data types and vice versa are defined in this module
 """
+
 import logging
 import re
 from datetime import date, datetime, timedelta
 from decimal import Decimal
-from typing import Any, Dict, List, NamedTuple, Optional, TYPE_CHECKING, Type, TypeVar, Union
+from typing import Any, NamedTuple, Optional, TYPE_CHECKING, TypeVar
 
 if TYPE_CHECKING:
     from personio_py import Personio
     from personio_py.models import PersonioResourceType
 
-logger = logging.getLogger('personio_py')
+logger = logging.getLogger("personio_py")
 
-T = TypeVar('T')
+T = TypeVar("T")
 
 
 class FieldMapping:
@@ -27,12 +28,12 @@ class FieldMapping:
     :param field_type: data type of the field
     """
 
-    def __init__(self, api_field: str, class_field: str, field_type: Type[T]):
+    def __init__(self, api_field: str, class_field: str, field_type: type[T]):
         self.api_field = api_field
         self.class_field = class_field
         self.field_type = field_type
 
-    def serialize(self, value: T) -> Union[str, Dict]:
+    def serialize(self, value: T) -> str | dict:
         """
         Serialize the parsed value to the format that the Personio API expects.
 
@@ -41,7 +42,7 @@ class FieldMapping:
         """
         return str(value)
 
-    def deserialize(self, value: Union[str, Dict], **kwargs) -> T:
+    def deserialize(self, value: str | dict, **kwargs) -> T:
         """
         Deserialize the Personio API value to a more useful Python data type.
 
@@ -61,15 +62,14 @@ class NumericFieldMapping(FieldMapping):
     def __init__(self, api_field: str, class_field: str, field_type=float):
         super().__init__(api_field, class_field, field_type=field_type)
 
-    def serialize(self, value: Union[int, float, str]) -> Union[int, float, str]:
+    def serialize(self, value: int | float | str) -> int | float | str:
         return value
 
-    def deserialize(self, value: Union[int, float, str], **kwargs) -> Union[int, float, str]:
+    def deserialize(self, value: int | float | str, **kwargs) -> int | float | str:
         return self.field_type(value) if isinstance(value, str) else value
 
 
 class BooleanFieldMapping(FieldMapping):
-
     def __init__(self, api_field: str, class_field: str):
         super().__init__(api_field, class_field, field_type=bool)
 
@@ -81,7 +81,6 @@ class BooleanFieldMapping(FieldMapping):
 
 
 class DateTimeFieldMapping(FieldMapping):
-
     def __init__(self, api_field: str, class_field: str):
         super().__init__(api_field, class_field, field_type=datetime)
 
@@ -93,7 +92,6 @@ class DateTimeFieldMapping(FieldMapping):
 
 
 class DateFieldMapping(FieldMapping):
-
     def __init__(self, api_field: str, class_field: str):
         super().__init__(api_field, class_field, field_type=date)
 
@@ -105,7 +103,6 @@ class DateFieldMapping(FieldMapping):
 
 
 class DurationFieldMapping(FieldMapping):
-
     pattern = re.compile(r"\d\d?:\d\d")
 
     def __init__(self, api_field: str, class_field: str):
@@ -125,49 +122,51 @@ class DurationFieldMapping(FieldMapping):
             raise TypeError(f"expected a string, but got {type(s)}")
         trimmed = s.strip()
         if cls.pattern.fullmatch(trimmed):
-            hh, mm = trimmed.split(':')
+            hh, mm = trimmed.split(":")
             return timedelta(hours=int(hh), minutes=int(mm))
         else:
-            raise ValueError(f"the string '{s}' does not represent a valid duration. "
-                             f"Expected format is 'hh:mm', e.g. '06:30'.")
+            raise ValueError(
+                f"the string '{s}' does not represent a valid duration. "
+                f"Expected format is 'hh:mm', e.g. '06:30'."
+            )
 
 
 class MultiTagFieldMapping(FieldMapping):
-
     def __init__(self, api_field: str, class_field: str):
         super().__init__(api_field, class_field, field_type=list)
 
-    def serialize(self, values: List[str]) -> str:
+    def serialize(self, values: list[str]) -> str:
         for value in values:
-            if ',' in value:
+            if "," in value:
                 raise ValueError(
                     f"Due to a restrictions at Personio, no commas are allowed in "
-                    f"multi selection fields, please adjust '{value}'")
-        return ','.join(values)
+                    f"multi selection fields, please adjust '{value}'"
+                )
+        return ",".join(values)
 
-    def deserialize(self, value: str, **kwargs) -> List[str]:
-        return [s.strip() for s in value.split(',')] if value else []
+    def deserialize(self, value: str, **kwargs) -> list[str]:
+        return [s.strip() for s in value.split(",")] if value else []
 
 
 class ObjectFieldMapping(FieldMapping):
-
-    def __init__(self, api_field: str, class_field: str, field_type: Type['PersonioResourceType']):
+    def __init__(self, api_field: str, class_field: str, field_type: type["PersonioResourceType"]):
         super().__init__(api_field, class_field, field_type)
 
-    def serialize(self, value: 'PersonioResourceType') -> Dict:
+    def serialize(self, value: "PersonioResourceType") -> dict:
         if self.field_type._flat_dict:
             return value.to_dict(nested=True)
         else:
             return {
-                'type': self.field_type._api_type_name,
-                'attributes': value.to_dict(nested=True)
+                "type": self.field_type._api_type_name,
+                "attributes": value.to_dict(nested=True),
             }
 
-    def deserialize(self, value: Dict, client: 'Personio' = None) \
-            -> Optional['PersonioResourceType']:
+    def deserialize(
+        self, value: dict, client: "Personio" = None
+    ) -> Optional["PersonioResourceType"]:
         if value and isinstance(value, dict):
             if not self.field_type._flat_dict:
-                value = value['attributes']
+                value = value["attributes"]
             return self.field_type.from_dict(value, client=client)
         else:
             return None
@@ -178,17 +177,17 @@ class ListFieldMapping(FieldMapping):
     # e.g. ``ListFieldMapping(ObjectFieldMapping('cost_centers', 'cost_centers', CostCenter))``
 
     def __init__(self, item_mapping: FieldMapping):
-        super().__init__(item_mapping.api_field, item_mapping.class_field, field_type=List)
+        super().__init__(item_mapping.api_field, item_mapping.class_field, field_type=list)
         self.item_mapping = item_mapping
 
-    def serialize(self, values: List[Any]) -> List[Any]:
+    def serialize(self, values: list[Any]) -> list[Any]:
         return [self.item_mapping.serialize(item) for item in values]
 
-    def deserialize(self, values: List[Any], client: 'Personio' = None) -> List[Any]:
+    def deserialize(self, values: list[Any], client: "Personio" = None) -> list[Any]:
         return [self.item_mapping.deserialize(item, client=client) for item in values]
 
 
-FieldMappingType = TypeVar('FieldMappingType', bound=FieldMapping)
+FieldMappingType = TypeVar("FieldMappingType", bound=FieldMapping)
 
 
 class DynamicMapping(NamedTuple):
@@ -196,16 +195,17 @@ class DynamicMapping(NamedTuple):
     Defines a mapping from a dynamic field to a more memorable name and its actual data type,
     so that it may be converted into a proper python type, if possible.
     """
+
     field_id: int
     """the id number of the dynamic field, e.g. for 'dynamic_123456', field_id=123456"""
     alias: str
     """a more memorable name than the field_id, will be used as dictionary key"""
-    data_type: Type[T]
+    data_type: type[T]
     """the data type of the field, for automatic conversion (e.g. str to datetime)"""
 
     def get_field_mapping(self) -> FieldMappingType:
-        api_field = f'dynamic_{self.field_id}'
-        if self.data_type == str:
+        api_field = f"dynamic_{self.field_id}"
+        if self.data_type is str:
             return FieldMapping(api_field, self.alias, str)
         elif self.data_type in (int, float, Decimal):
             return NumericFieldMapping(api_field, self.alias, self.data_type)
@@ -215,7 +215,7 @@ class DynamicMapping(NamedTuple):
             return DateTimeFieldMapping(api_field, self.alias)
         elif self.data_type == timedelta:
             return DurationFieldMapping(api_field, self.alias)
-        elif self.data_type in (list, List):
+        elif self.data_type is list:
             return MultiTagFieldMapping(api_field, self.alias)
         else:
             logger.warning(f"unexpected type {self.data_type} for dynamic field {self.field_id}")

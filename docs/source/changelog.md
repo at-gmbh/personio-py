@@ -1,3 +1,3 @@
-```eval_rst
-.. mdinclude:: ../../CHANGELOG.md
+```{include} ../../CHANGELOG.md
+:parser: myst
 ```

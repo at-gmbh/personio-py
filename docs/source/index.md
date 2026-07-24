@@ -21,17 +21,21 @@ If something appears to be broken, please have a look at the [open issues](https
 
 ## Index
 
-* [User Guide](guide.md)
-* [Examples](examples.md)
-* [Contributing](contributing.md)
-* [Changelog](changelog.md)
-* [API Documentation](api.md)
+```{toctree}
+:maxdepth: 2
+
+guide
+examples
+contributing
+changelog
+api
+```
 
 ## Features
 
 * Aims to cover all functions of the Personio API (work in progress)
-* Python function wrappers for all API endpoints as part of the [Personio](api.html#personio_py.Personio) class
-* Object mappings for all API resources, e.g. an [Employee](api.html#personio_py.models.Employee) is an object with properties for all the information that is provided by the REST API.
+* Python function wrappers for all API endpoints as part of the {py:class}`Personio <personio_py.Personio>` class
+* Object mappings for all API resources, e.g. an {py:class}`Employee <personio_py.models.Employee>` is an object with properties for all the information that is provided by the REST API.
 * Completely transparent handling of authentication and key rotation
 * Support for Type Hints
 * Only one dependency: [requests](https://pypi.org/project/requests/)

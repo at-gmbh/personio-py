@@ -1,6 +1,6 @@
 import logging
 import time
-from typing import Dict, List, Optional, TYPE_CHECKING
+from typing import TYPE_CHECKING
 
 from personio_py import Employee
 
@@ -58,11 +58,11 @@ class SearchIndex:
         super().__init__()
         self.client = client
         self.index_timeout = index_timeout
-        self.index: Optional[Dict[Employee, str]] = None
+        self.index: dict[Employee, str] | None = None
         self.last_update = 0.0
         self.valid = False
 
-    def search(self, query: str, active_only=True) -> List[Employee]:
+    def search(self, query: str, active_only=True) -> list[Employee]:
         """
         Execute a search on the search index.
 
@@ -98,7 +98,7 @@ class SearchIndex:
         # full matches first, then partial matches
         return full_match + partial_match
 
-    def search_first(self, query: str, active_only=True) -> Optional[Employee]:
+    def search_first(self, query: str, active_only=True) -> Employee | None:
         """
         Execute a search on the search index and return the first result (if there is one) or None.
 
@@ -145,7 +145,7 @@ class SearchIndex:
         self.valid = True
 
     @classmethod
-    def _build_index(cls, employees: List[Employee]) -> Dict[Employee, str]:
+    def _build_index(cls, employees: list[Employee]) -> dict[Employee, str]:
         """
         Build a search index from the specified list of employees
 

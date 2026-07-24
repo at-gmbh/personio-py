@@ -1,0 +1,12 @@
+line-length = 100
+extend-exclude = ["tests", "setup.py"]
+
+[lint]
+select = ["E", "F", "W", "C901"]
+
+[lint.mccabe]
+max-complexity = 10
+
+[lint.per-file-ignores]
+# re-exports in the package __init__ are intentional (F401 = imported but unused)
+"__init__.py" = ["F401"]

@@ -2,10 +2,9 @@ import os
 import shutil
 import subprocess
 import sys
-from distutils.cmd import Command
 from runpy import run_path
 
-from setuptools import find_packages, setup
+from setuptools import Command, find_packages, setup
 
 # read the program version from version.py (without loading the module)
 __version__ = run_path('src/personio_py/version.py')['__version__']
@@ -91,7 +90,7 @@ setup(
         'testcov': TestCovCommand,
     },
     platforms='any',
-    python_requires='>=3.7',
+    python_requires='>=3.10',
     license='Apache 2.0',
     classifiers=[
         # Full list: https://pypi.python.org/pypi?%3Aaction=list_classifiers
@@ -105,8 +104,8 @@ setup(
         'Programming Language :: Python',
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3 :: Only',
-        'Programming Language :: Python :: 3.7',
-        'Programming Language :: Python :: 3.8',
-        'Programming Language :: Python :: 3.9',
+        'Programming Language :: Python :: 3.10',
+        'Programming Language :: Python :: 3.11',
+        'Programming Language :: Python :: 3.12',
     ],
 )
