@@ -94,6 +94,12 @@
 <li><p>raise the <code class="docutils literal notranslate"><span class="pre">requests</span></code> requirement to a modern version (<code class="docutils literal notranslate"><span class="pre">requests~=2.32</span></code>) (<a class="reference external" href="https://github.com/at-gmbh/personio-py/pull/46">#39</a></p></li>
 <li><p>modernize the development tooling: replace flake8 with ruff, add pip-audit and bandit to
 pre-commit, bump all pre-commit hooks, and migrate the Sphinx docs to myst-parser (<a class="reference external" href="https://github.com/at-gmbh/personio-py/pull/46">#39</a></p></li>
+<li><p>send auth credentials in the request body instead of the query string, as required by
+the Personio API security update effective 2025-12-01 (query-string credentials return
+a 403 Forbidden from that date on) (<a class="reference external" href="https://github.com/at-gmbh/personio-py/pull/45">#45</a></p></li>
+<li><p>fix <code class="docutils literal notranslate"><span class="pre">PersonioError:</span> <span class="pre">Missing</span> <span class="pre">Authorization</span> <span class="pre">Header</span> <span class="pre">in</span> <span class="pre">response</span></code> for the attendances and
+projects endpoints, which do not return a rotating auth token (disable auth rotation for
+those requests, consistent with the existing image endpoints)</p></li>
 <li><p>add support for providing a custom <code class="docutils literal notranslate"><span class="pre">requests.Session</span></code> in client
 (<a class="reference external" href="https://github.com/at-gmbh/personio-py/pull/39">#39</a></p></li>
 </ul>
