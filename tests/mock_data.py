@@ -1054,7 +1054,7 @@ json_string_absence_create_no_halfdays = """
             "type":"TimeOffType",
             "attributes":{
                "id":243402,
-               "name": "Unpaid vacation",
+               "name": "Unbezahlte Freistellung",
                "category": "unpaid_vacation"
             }
          },
@@ -1113,7 +1113,7 @@ json_string_get_absence = """
             "type":"TimeOffType",
             "attributes":{
                "id":243402,
-               "name":"Unpaid vacation",
+               "name":"Unbezahlte Freistellung",
                "category":"unpaid_vacation"
             }
          },

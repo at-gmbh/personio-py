@@ -1,3 +1,4 @@
+import json
 import re
 from datetime import date, timedelta
 from typing import Any, Dict
@@ -11,6 +12,14 @@ from tests.mock_data import *
 
 iso_date_match = re.compile(r'\d\d\d\d-\d\d-\d\d')
 
+
+def assert_credentials_in_body(request):
+    # the credentials must be in the request body (Personio API security update 2025-12-01),
+    # never in the query string, where they would return a 403 Forbidden
+    assert 'client_id' not in (request.url.split('?', 1)[1] if '?' in request.url else '')
+    assert json.loads(request.body) == {"client_id": "test", "client_secret": "test"}
+
+
 @responses.activate
 def test_authenticate_ok_with_custom_requests_session():
     # mock a successful authentication response
@@ -22,6 +31,8 @@ def test_authenticate_ok_with_custom_requests_session():
     # validate
     assert personio.authenticated is True
     assert personio.headers['Authorization'] == "Bearer dummy_token"
+    # credentials must be sent in the request body, not as query string parameters
+    assert_credentials_in_body(responses.calls[0].request)
 
 
 @responses.activate
@@ -35,6 +46,8 @@ def test_authenticate_ok():
     # validate
     assert personio.authenticated is True
     assert personio.headers['Authorization'] == "Bearer dummy_token"
+    # credentials must be sent in the request body, not as query string parameters
+    assert_credentials_in_body(responses.calls[0].request)
 
 
 @responses.activate

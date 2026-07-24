@@ -8,9 +8,9 @@ from tests.apitest_shared import *
 def test_get_attendances():
     employee = get_test_employee_for_attendances()
     attendances = personio.get_attendances(employee)
-    assert len(attendances) == 11
+    assert len(attendances) == 13
     assert isinstance(attendances[0], Attendance)
-    assert attendances[0].id_ == 162804610
+    assert attendances[0].id_ == 850841588
     assert attendances[0].employee_id == employee.id_
     assert attendances[0]._client == personio
 
