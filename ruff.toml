@@ -2,7 +2,6 @@ line-length = 100
 extend-exclude = ["tests", "setup.py"]
 
 [lint]
-# flake8-equivalent rule set: pycodestyle errors/warnings, pyflakes, mccabe complexity
 select = ["E", "F", "W", "C901"]
 
 [lint.mccabe]
