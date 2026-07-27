@@ -14,9 +14,7 @@ from .errors import (
     PersonioApiError,
     UnsupportedMethodError,
 )
-from .mapping import (
-    DynamicMapping
-)
+from .mapping import DynamicMapping
 from .models import (
     Absence,
     AbsenceEntitlement,
@@ -31,6 +29,6 @@ from .models import (
     ShortEmployee,
     Team,
     WorkSchedule,
-    Project
+    Project,
 )
 from personio_py.client import Personio

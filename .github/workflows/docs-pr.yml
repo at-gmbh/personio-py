@@ -21,13 +21,19 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
+      - name: Install Poetry
+        run: pipx install poetry
+      - name: Load cached venv
+        uses: actions/cache@v4
+        with:
+          path: .venv
+          key: venv-${{ github.job }}-${{ runner.os }}-3.12-${{ hashFiles('**/poetry.lock') }}
       - name: Install dependencies
         run: |
-          pip install -r requirements-dev.txt
+          poetry install --only main,docs
       - name: Generate Sphinx Documentation
         run: |
-          cd docs
-          make html SPHINXOPTS="-W --keep-going"
+          poetry run make -C docs html SPHINXOPTS="-W --keep-going"
       - uses: actions/upload-artifact@v4
         with:
           name: sphinx-docs
