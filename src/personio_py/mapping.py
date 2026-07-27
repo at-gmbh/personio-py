@@ -2,11 +2,12 @@
 mappings from Personio API fields to Python data types and vice versa are defined in this module
 """
 
+import json
 import logging
 import re
 from datetime import date, datetime, timedelta
 from decimal import Decimal
-from typing import Any, NamedTuple, Optional, TYPE_CHECKING, TypeVar
+from typing import TYPE_CHECKING, Any, NamedTuple, Optional, TypeVar
 
 if TYPE_CHECKING:
     from personio_py import Personio
@@ -145,7 +146,13 @@ class MultiTagFieldMapping(FieldMapping):
         return ",".join(values)
 
     def deserialize(self, value: str, **kwargs) -> list[str]:
-        return [s.strip() for s in value.split(",")] if value else []
+        if not value:
+            return []
+        # Personio sometimes returns multi-select fields as a JSON-encoded list string
+        # (e.g. '["AT Power-Point","CI/CD"]') instead of a plain comma-separated string.
+        if value.startswith("[") and value.endswith("]"):
+            return json.loads(value)
+        return [s.strip() for s in value.split(",")]
 
 
 class ObjectFieldMapping(FieldMapping):

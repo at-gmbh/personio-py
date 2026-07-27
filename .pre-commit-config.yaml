@@ -1,4 +1,9 @@
 repos:
+  - repo: https://github.com/floatingpurr/sync_with_poetry
+    rev: 1.1.0
+    hooks:
+      - id: sync_with_poetry
+        args: ["--all", "--db", ".pre-commit-repos.yaml"]
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v6.0.0
     hooks:
@@ -11,27 +16,35 @@ repos:
       - id: end-of-file-fixer
       - id: mixed-line-ending
       - id: trailing-whitespace
+      - id: pretty-format-json
+        args: ["--autofix", "--no-sort-keys"]
+      - id: name-tests-test
+        args: ["--pytest-test-first"]
+        exclude: ^tests/(testing_.*|apitest_shared\.py|mock_data\.py)$
   - repo: https://github.com/asottile/pyupgrade
     rev: v3.21.2
     hooks:
       - id: pyupgrade
-        args: [ --py310-plus ]
+        args: [--py310-plus]
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.15.22
+    rev: v0.8.6
     hooks:
       - id: ruff
+      - id: ruff-format
   - repo: https://github.com/PyCQA/bandit
     rev: 1.9.4
     hooks:
       - id: bandit
-        pass_filenames: false
-        args: [ "-r", "src" ]
+        language: python
+        language_version: python3
+        types: [python]
+        additional_dependencies: ["bandit[toml]"]
+        args: ["-c", "pyproject.toml", "-r", "."]
   - repo: local
     hooks:
       - id: pip-audit
         name: pip-audit
-        entry: pip-audit
-        language: python
-        additional_dependencies: [ "pip-audit" ]
+        entry: poetry run pip-audit
+        language: system
         pass_filenames: false
-        args: [ "-r", "requirements.txt", "-r", "requirements-dev.txt" ]
+        args: []

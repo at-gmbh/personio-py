@@ -3,34 +3,41 @@ name: coverage
 on:
   push:
     branches:
-    - master
+      - master
     paths-ignore:
-    - 'docs/**'
-    - '*.md'
+      - "docs/**"
+      - "*.md"
   pull_request:
     branches:
-    - master
+      - master
     paths-ignore:
-    - 'docs/**'
-    - '*.md'
+      - "docs/**"
+      - "*.md"
 
 jobs:
   coverage:
     name: Coverage Reports on codecov.io
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
-    - uses: actions/setup-python@v5
-      with:
-        python-version: '3.12'
-    - name: Generate coverage report
-      run: |
-        pip install setuptools wheel pytest pytest-cov responses
-        python setup.py testcov
-    - name: Upload coverage to Codecov
-      uses: codecov/codecov-action@v5
-      with:
-        files: ./coverage.xml
-        directory: ./junit/
-        fail_ci_if_error: true
-        token: ${{ secrets.CODECOV_TOKEN }}
+      - uses: actions/checkout@v4
+      - name: Install Poetry
+        uses: snok/install-poetry@v1
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Load cached venv
+        uses: actions/cache@v4
+        with:
+          path: .venv
+          key: venv-${{ github.job }}-${{ runner.os }}-3.12-${{ hashFiles('**/poetry.lock') }}
+      - name: Generate coverage report
+        run: |
+          poetry install --with test
+          poetry run pytest tests --doctest-modules --junitxml=junit/test-results.xml --cov=src --cov-report=xml --cov-report=html
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v5
+        with:
+          files: ./coverage.xml
+          directory: ./junit/
+          fail_ci_if_error: true
+          token: ${{ secrets.CODECOV_TOKEN }}

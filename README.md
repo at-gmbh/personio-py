@@ -19,7 +19,7 @@
 >>> absences = p.get_absences(ada)
 >>> len(absences)
 12
->>> absences[0].to_dict()
+>>> dict(absences[0])
 {'id': 42, 'status': 'approved', 'start_date': '2020-08-01', 'end_date': '2020-08-16', ...}
 ```
 
@@ -50,21 +50,23 @@ Now you can `import personio_py` and start coding. Please have a look at the [Us
 
 Contributions are very welcome! For our contribution guidelines, please have a look at [CONTRIBUTING.md](./CONTRIBUTING.md).
 
-To set up your local development environment, please use a fresh virtual environment, then run
+This project uses [Poetry](https://python-poetry.org/) for dependency management and packaging. To set up your local development environment, please install Poetry, then run
 
-    pip install -r requirements.txt -r requirements-dev.txt
+    poetry install
+
+This installs the package together with all development dependencies (test, linter and docs groups).
 
 This project is intended to be used as library, so there is no command line interface or stuff like that.
 
 We use `pytest` as test framework. To execute the tests, please run
 
-    python setup.py test
+    poetry run pytest tests
 
-To build a distribution package (wheel), please use
+To build a distribution package (sdist & wheel), please use
 
-    python setup.py dist
+    poetry build
 
-this will clean up the build folder and then run the `bdist_wheel` command.
+this will create the source distribution and wheel in the `dist` folder.
 
 Before contributing code, please set up the pre-commit hooks to reduce errors and ensure consistency
 
@@ -74,7 +76,7 @@ Before contributing code, please set up the pre-commit hooks to reduce errors an
 
 This project is released on [PyPI](https://pypi.org/project/personio-py/). Most of the tedious steps that are required to test & publish your release are automated by [CI pipelines](https://github.com/at-gmbh/personio-py/actions). All you have to do is to write your code and when the time comes to make a release, please follow these steps:
 
-* update the program version in [`src/personio_py/version.py`](./src/personio_py/version.py)
+* update the program version in [`pyproject.toml`](./pyproject.toml) (the `[tool.poetry] version` field)
 * write a summary of your changes in [`CHANGELOG.md`](./CHANGELOG.md)
 * add a tag on the master branch with the new version number preceded by the letter `v`, e.g. for version 1.0.0 the tag would be `v1.0.0`. To tag the head of the current branch, use `git tag v1.0.0`
 * push your changes to github and don't forget to push the tag with `git push origin v1.0.0`

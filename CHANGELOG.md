@@ -6,8 +6,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## [Unreleased](https://github.com/at-gmbh/personio-py/compare/v0.2.3...HEAD)
 
+* migrate build & dependency management to [Poetry](https://python-poetry.org/): replace
+  `setup.py` and `requirements*.txt` with a single `pyproject.toml` (PEP 621) plus committed
+  `poetry.lock` and `test`/`linter`/`docs`/`dev` dependency groups; CI now builds, tests and
+  publishes via Poetry (with `.venv` caching)
+* fix parsing of multi-select (tags) custom attributes when the Personio API returns them as a
+  JSON-encoded list string (e.g. `'["A","B"]'`) instead of a comma-separated string
 * drop support for Python 3.7-3.9 (all end-of-life); personio-py now requires Python >= 3.10 ([#46](https://github.com/at-gmbh/personio-py/pull/46)
-* raise the `requests` requirement to a modern version (`requests~=2.32`) ([#46](https://github.com/at-gmbh/personio-py/pull/46)
+* raise the `requests` requirement to a modern version ([#46](https://github.com/at-gmbh/personio-py/pull/46)
 * modernize the development tooling: replace flake8 with ruff, add pip-audit and bandit to
   pre-commit, bump all pre-commit hooks, and migrate the Sphinx docs to myst-parser ([#46](https://github.com/at-gmbh/personio-py/pull/46)
 * send auth credentials in the request body instead of the query string, as required by

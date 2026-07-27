@@ -1,6 +1,7 @@
 """
 Types of Errors specified by personio-py
 """
+
 from typing import Any
 
 from requests import Response
@@ -26,8 +27,14 @@ class PersonioApiError(PersonioError):
     :param response: the HTTP response
     """
 
-    def __init__(self, status_code: int, message: str, error_code: int = None,
-                 errors: dict[str, Any] = None, response: Response = None):
+    def __init__(
+        self,
+        status_code: int,
+        message: str,
+        error_code: int = None,
+        errors: dict[str, Any] = None,
+        response: Response = None,
+    ):
         super().__init__()
         self.status_code = status_code
         self.message = message
@@ -45,29 +52,29 @@ class PersonioApiError(PersonioError):
         """
         try:
             data: dict = response.json()
-            error = data.get('error', {})
-            code = error.get('code')
-            message = error.get('message')
-            error_dict: dict = error.get('errors')
+            error = data.get("error", {})
+            code = error.get("code")
+            message = error.get("message")
+            error_dict: dict = error.get("errors")
             return PersonioApiError(
                 status_code=response.status_code,
                 message=message,
                 error_code=code,
                 errors=error_dict,
-                response=response)
+                response=response,
+            )
         except ValueError:
             return PersonioApiError(
-                status_code=response.status_code,
-                message=response.text,
-                response=response)
+                status_code=response.status_code, message=response.text, response=response
+            )
 
     def __str__(self):
         message = f"request failed with HTTP status code {self.status_code}: {self.message}"
         if self.error_code:
             message += f" (error code {self.error_code})"
         if self.errors:
-            if message[-1] != '.':
-                message += '.'
+            if message[-1] != ".":
+                message += "."
             message += f" Details: {self.errors}"
         return message
 

@@ -7,7 +7,7 @@ from personio_py import Employee
 if TYPE_CHECKING:
     from personio_py import Personio
 
-logger = logging.getLogger('personio_py')
+logger = logging.getLogger("personio_py")
 
 
 class SearchIndex:
@@ -54,7 +54,7 @@ class SearchIndex:
     DEFAULT_INDEX_TIMEOUT = 6 * 60 * 60
     """the default timeout for the search index (6 hours)"""
 
-    def __init__(self, client: 'Personio', index_timeout: int = DEFAULT_INDEX_TIMEOUT):
+    def __init__(self, client: "Personio", index_timeout: int = DEFAULT_INDEX_TIMEOUT):
         super().__init__()
         self.client = client
         self.index_timeout = index_timeout
@@ -87,7 +87,7 @@ class SearchIndex:
         partial_match = []
         # run the actual search
         for employee, text in self.index.items():
-            if active_only and employee.status == 'inactive':
+            if active_only and employee.status == "inactive":
                 continue
             if query_norm in text:
                 full_match.append(employee)
@@ -131,8 +131,10 @@ class SearchIndex:
             logger.debug("updating search index because it was invalidated")
             self._update()
         elif time.time() > self.last_update + self.index_timeout:
-            logger.debug(f"updating search index because it has not been updated "
-                         f"for more than {self.index_timeout} seconds")
+            logger.debug(
+                f"updating search index because it has not been updated "
+                f"for more than {self.index_timeout} seconds"
+            )
             self._update()
 
     def _update(self):
@@ -168,19 +170,12 @@ class SearchIndex:
         :return: the keywords for this employee as normalized string
                  with tokens separated by whitespace
         """
-        keywords = [
-            e.first_name,
-            e.last_name,
-            e.position,
-            e.email,
-            e.status,
-            e.subcompany
-        ]
+        keywords = [e.first_name, e.last_name, e.position, e.email, e.status, e.subcompany]
         if e.office:
             keywords.append(e.office.name)
         if e.department:
             keywords.append(e.department.name)
         if e.team:
             keywords.append(e.team.name)
-        keyword_string = ' '.join(t for t in keywords if t).lower()
+        keyword_string = " ".join(t for t in keywords if t).lower()
         return keyword_string

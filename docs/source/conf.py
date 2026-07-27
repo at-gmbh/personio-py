@@ -11,14 +11,15 @@
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 import os
 import sys
-sys.path.insert(0, os.path.abspath(os.path.join(__file__, '../../../src')))
+
+sys.path.insert(0, os.path.abspath(os.path.join(__file__, "../../../src")))
 
 
 # -- Project information -----------------------------------------------------
 
-project = 'personio-py'
-copyright = '2020, Alexander Thamm GmbH'
-author = 'Sebastian Straub'
+project = "personio-py"
+copyright = "2020, Alexander Thamm GmbH"
+author = "Sebastian Straub"
 
 
 # -- General configuration ---------------------------------------------------
@@ -27,12 +28,12 @@ author = 'Sebastian Straub'
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
-    'sphinx.ext.autosectionlabel',
-    'sphinx.ext.autodoc',
-    'sphinx.ext.doctest',
-    'sphinx.ext.duration',
-    'sphinx.ext.viewcode',
-    'myst_parser',
+    "sphinx.ext.autosectionlabel",
+    "sphinx.ext.autodoc",
+    "sphinx.ext.doctest",
+    "sphinx.ext.duration",
+    "sphinx.ext.viewcode",
+    "myst_parser",
 ]
 
 # extension config
@@ -56,20 +57,20 @@ exclude_patterns = []
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-html_theme = 'sphinx_rtd_theme'
+html_theme = "sphinx_rtd_theme"
 
 # base URL of the published docs (replaces the removed `canonical_url` theme option)
-html_baseurl = 'https://at-gmbh.github.io/personio-py/'
+html_baseurl = "https://at-gmbh.github.io/personio-py/"
 
 html_theme_options = {
-    'prev_next_buttons_location': 'bottom',
-    'style_external_links': True,
+    "prev_next_buttons_location": "bottom",
+    "style_external_links": True,
     # Toc options
-    'collapse_navigation': True,
-    'sticky_navigation': True,
-    'navigation_depth': 4,
-    'includehidden': True,
-    'titles_only': False,
+    "collapse_navigation": True,
+    "sticky_navigation": True,
+    "navigation_depth": 4,
+    "includehidden": True,
+    "titles_only": False,
 }
 
 html_context = {

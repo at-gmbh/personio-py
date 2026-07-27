@@ -1,0 +1,87 @@
+[project]
+name = "personio-py"
+version = "0.2.3"
+description = "A lightweight Personio API client"
+authors = [
+    { name = "Sebastian Straub", email = "sebastian.straub@alexanderthamm.com" },
+    { name = "Richard Bachmaier", email = "richard.bachmaier@alexanderthamm.com" },
+]
+license = "Apache-2.0"
+readme = "README.md"
+requires-python = ">=3.10,<4.0"
+classifiers = [
+    # Full list: https://pypi.python.org/pypi?%3Aaction=list_classifiers
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Topic :: Internet :: WWW/HTTP",
+    "Topic :: Office/Business",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Typing :: Typed",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+]
+dependencies = ["requests>=2.21.0,<3.0.0"]
+
+[project.urls]
+Homepage = "https://github.com/at-gmbh/personio-py"
+Repository = "https://github.com/at-gmbh/personio-py"
+Documentation = "https://at-gmbh.github.io/personio-py/"
+Tracker = "https://github.com/at-gmbh/personio-py/issues"
+
+[tool.poetry]
+packages = [{ include = "personio_py", from = "src" }]
+
+[tool.poetry.group.test.dependencies]
+pytest = "^9.0.3"
+pytest-cov = ">=5.0"
+responses = "^0.25"
+
+[tool.poetry.group.linter.dependencies]
+ruff = "^0.8"
+bandit = "^1.8"
+pip-audit = "^2.7"
+
+[tool.poetry.group.docs.dependencies]
+Sphinx = "^8.1"
+sphinx-rtd-theme = "^3.0"
+myst-parser = "^4.0"
+
+[tool.poetry.group.dev.dependencies]
+pre-commit = "^4.0"
+
+[tool.ruff]
+target-version = "py310"
+line-length = 100
+indent-width = 4
+fix = true
+show-fixes = true
+extend-exclude = ["tests"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "C901", "I"]
+
+[tool.ruff.lint.mccabe]
+max-complexity = 10
+
+[tool.ruff.lint.per-file-ignores]
+# re-exports in the package __init__ are intentional (F401 = imported but unused);
+# import order there is deliberate, so skip isort (I001) as well
+"__init__.py" = ["F401", "I001"]
+
+[tool.bandit]
+exclude_dirs = ["tests", ".venv", "docs"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+log_cli = true
+log_cli_level = "DEBUG"
+log_cli_format = "%(asctime)s.%(msecs)03d [%(levelname)s]: %(message)s (%(filename)s:%(lineno)s)"
+log_cli_date_format = "%Y-%m-%d %H:%M:%S"
+
+[build-system]
+requires = ["poetry-core>=2.0.0"]
+build-backend = "poetry.core.masonry.api"
