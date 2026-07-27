@@ -76,6 +76,7 @@
 <span></span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">Types of Errors specified by personio-py</span>
 <span class="sd">&quot;&quot;&quot;</span>
+
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">requests</span><span class="w"> </span><span class="kn">import</span> <span class="n">Response</span>
@@ -109,8 +110,14 @@
 <span class="sd">    :param response: the HTTP response</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">status_code</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">error_code</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-                 <span class="n">errors</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">response</span><span class="p">:</span> <span class="n">Response</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">status_code</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">message</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">error_code</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">errors</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">response</span><span class="p">:</span> <span class="n">Response</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">status_code</span> <span class="o">=</span> <span class="n">status_code</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">message</span> <span class="o">=</span> <span class="n">message</span>
@@ -130,21 +137,21 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">data</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
-            <span class="n">error</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;error&#39;</span><span class="p">,</span> <span class="p">{})</span>
-            <span class="n">code</span> <span class="o">=</span> <span class="n">error</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;code&#39;</span><span class="p">)</span>
-            <span class="n">message</span> <span class="o">=</span> <span class="n">error</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;message&#39;</span><span class="p">)</span>
-            <span class="n">error_dict</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="n">error</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;errors&#39;</span><span class="p">)</span>
+            <span class="n">error</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;error&quot;</span><span class="p">,</span> <span class="p">{})</span>
+            <span class="n">code</span> <span class="o">=</span> <span class="n">error</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;code&quot;</span><span class="p">)</span>
+            <span class="n">message</span> <span class="o">=</span> <span class="n">error</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;message&quot;</span><span class="p">)</span>
+            <span class="n">error_dict</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="n">error</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;errors&quot;</span><span class="p">)</span>
             <span class="k">return</span> <span class="n">PersonioApiError</span><span class="p">(</span>
                 <span class="n">status_code</span><span class="o">=</span><span class="n">response</span><span class="o">.</span><span class="n">status_code</span><span class="p">,</span>
                 <span class="n">message</span><span class="o">=</span><span class="n">message</span><span class="p">,</span>
                 <span class="n">error_code</span><span class="o">=</span><span class="n">code</span><span class="p">,</span>
                 <span class="n">errors</span><span class="o">=</span><span class="n">error_dict</span><span class="p">,</span>
-                <span class="n">response</span><span class="o">=</span><span class="n">response</span><span class="p">)</span>
+                <span class="n">response</span><span class="o">=</span><span class="n">response</span><span class="p">,</span>
+            <span class="p">)</span>
         <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">PersonioApiError</span><span class="p">(</span>
-                <span class="n">status_code</span><span class="o">=</span><span class="n">response</span><span class="o">.</span><span class="n">status_code</span><span class="p">,</span>
-                <span class="n">message</span><span class="o">=</span><span class="n">response</span><span class="o">.</span><span class="n">text</span><span class="p">,</span>
-                <span class="n">response</span><span class="o">=</span><span class="n">response</span><span class="p">)</span></div>
+                <span class="n">status_code</span><span class="o">=</span><span class="n">response</span><span class="o">.</span><span class="n">status_code</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="n">response</span><span class="o">.</span><span class="n">text</span><span class="p">,</span> <span class="n">response</span><span class="o">=</span><span class="n">response</span>
+            <span class="p">)</span></div>
 
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -152,8 +159,8 @@
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">error_code</span><span class="p">:</span>
             <span class="n">message</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot; (error code </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">error_code</span><span class="si">}</span><span class="s2">)&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">errors</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">message</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="s1">&#39;.&#39;</span><span class="p">:</span>
-                <span class="n">message</span> <span class="o">+=</span> <span class="s1">&#39;.&#39;</span>
+            <span class="k">if</span> <span class="n">message</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="s2">&quot;.&quot;</span><span class="p">:</span>
+                <span class="n">message</span> <span class="o">+=</span> <span class="s2">&quot;.&quot;</span>
             <span class="n">message</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot; Details: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">errors</span><span class="si">}</span><span class="s2">&quot;</span>
         <span class="k">return</span> <span class="n">message</span></div>
 
