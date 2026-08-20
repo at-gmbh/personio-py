@@ -721,6 +721,7 @@ class Attendance(WritablePersonioResource):
         FieldMapping("comment", "comment", str),
         BooleanFieldMapping("is_holiday", "is_holiday"),
         BooleanFieldMapping("is_on_time_off", "is_on_time_off"),
+        ObjectFieldMapping("project", "project", Project),
     ]
 
     def __init__(
@@ -737,6 +738,7 @@ class Attendance(WritablePersonioResource):
         comment: str = None,
         is_holiday: bool = None,
         is_on_time_off: bool = None,
+        project: Project = None,
         **kwargs,
     ):
         super().__init__(client=client, dynamic=dynamic, dynamic_raw=dynamic_raw, **kwargs)
@@ -749,6 +751,7 @@ class Attendance(WritablePersonioResource):
         self.comment = comment
         self.is_holiday = is_holiday
         self.is_on_time_off = is_on_time_off
+        self.project = project
 
     def to_dict(self, nested=False) -> dict[str, Any]:
         # yes, this is weird an unnecessary, but that's how the api works
@@ -790,9 +793,11 @@ class Attendance(WritablePersonioResource):
                 body_dict["break"] = self.break_duration
             if self.comment is not None:
                 body_dict["comment"] = self.comment
+            if self.project is not None:
+                body_dict["project_id"] = self.project.id_
             return body_dict
         else:
-            return {
+            body_dict = {
                 "employee": self.employee_id,
                 "date": self.date.strftime("%Y-%m-%d"),
                 "start_time": self.start_time,
@@ -800,6 +805,9 @@ class Attendance(WritablePersonioResource):
                 "break": self.break_duration or 0,
                 "comment": self.comment or "",
             }
+            if self.project is not None:
+                body_dict["project_id"] = self.project.id_
+            return body_dict
 
 
 class Employee(WritablePersonioResource, LabeledAttributesMixin):

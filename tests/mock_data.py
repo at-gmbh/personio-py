@@ -770,6 +770,55 @@ json_string_attendance_rms = """
 """
 json_dict_attendance_rms = json.loads(json_string_attendance_rms)
 
+json_string_attendance_project = """
+{
+  "success": true,
+  "metadata":{
+        "total_elements": 2,
+        "current_page":0,
+        "total_pages":1
+    },
+  "data": [{
+      "id": 33479713,
+      "type": "AttendancePeriod",
+      "attributes": {
+        "employee": 2116365,
+        "date": "1985-03-20",
+        "start_time": "09:00",
+        "end_time": "10:30",
+        "break": 0,
+        "comment": "",
+        "is_holiday": false,
+        "is_on_time_off": false,
+        "project": {
+          "type": "Project",
+          "id": 238751,
+          "attributes": {
+            "name": "a project",
+            "active": true
+          }
+        }
+      }
+    }, {
+      "id": 33479714,
+      "type": "AttendancePeriod",
+      "attributes": {
+        "employee": 2116365,
+        "date": "1985-03-20",
+        "start_time": "11:00",
+        "end_time": "12:00",
+        "break": 0,
+        "comment": "",
+        "is_holiday": false,
+        "is_on_time_off": false,
+        "project": null
+      }
+    }
+    ]
+}
+"""
+json_dict_attendance_project = json.loads(json_string_attendance_project)
+
 json_string_absence_alan = """
 {
   "success": true,

@@ -145,6 +145,34 @@ def test_get_attendance():
     compare_labeled_attributes(source_dict, target_dict)
 
 
+@responses.activate
+def test_get_attendance_with_project():
+    # mock the get attendances endpoint
+    responses.add(
+        responses.GET, re.compile('https://api.personio.de/v1/company/attendances?.*offset=*'),
+        status=200, json=json_dict_attendance_project,
+        adding_headers={'Authorization': 'Bearer foo'})
+    # configure personio & get attendances
+    personio = mock_personio()
+    attendances = personio.get_attendances(2116365)
+    # the project is deserialized as a Project object, including its id
+    # (which the API provides outside of the attributes dict)
+    with_project = attendances[0]
+    assert with_project.project.id_ == 238751
+    assert with_project.project.name == 'a project'
+    assert with_project.project.active is True
+    # the project is serialized as project_id in the request body,
+    # for the create body as well as for the patch body
+    assert with_project.to_body_params()['project_id'] == 238751
+    patch_body = with_project.to_body_params(patch_existing_attendance=True)
+    assert patch_body['project_id'] == 238751
+    # attendances without a project are unaffected
+    without_project = attendances[1]
+    assert without_project.project is None
+    assert 'project_id' not in without_project.to_body_params()
+    assert 'project_id' not in without_project.to_body_params(patch_existing_attendance=True)
+
+
 def mock_personio():
     # mock the authentication endpoint, or all no requests will get through
     resp_json = {'success': True, 'data': {'token': 'dummy_token'}}

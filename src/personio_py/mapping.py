@@ -172,8 +172,10 @@ class ObjectFieldMapping(FieldMapping):
         self, value: dict, client: "Personio" = None
     ) -> Optional["PersonioResourceType"]:
         if value and isinstance(value, dict):
-            if not self.field_type._flat_dict:
-                value = value["attributes"]
+            # pass the full nested dict to from_dict, which handles the
+            # 'type'/'attributes' wrapper itself and preserves a top-level
+            # 'id' (e.g. the project of an attendance carries its id outside
+            # of the attributes dict)
             return self.field_type.from_dict(value, client=client)
         else:
             return None
