@@ -809,6 +809,7 @@ class Employee(WritablePersonioResource, LabeledAttributesMixin):
         NumericFieldMapping("id", "id_", int),
         FieldMapping("first_name", "first_name", str),
         FieldMapping("last_name", "last_name", str),
+        FieldMapping("preferred_name", "preferred_name", str),
         FieldMapping("email", "email", str),
         FieldMapping("gender", "gender", str),
         FieldMapping("status", "status", str),
@@ -850,6 +851,7 @@ class Employee(WritablePersonioResource, LabeledAttributesMixin):
         id_: int = None,
         first_name: str = None,
         last_name: str = None,
+        preferred_name: str = None,
         email: str = None,
         gender: str = None,
         status: str = None,
@@ -885,6 +887,7 @@ class Employee(WritablePersonioResource, LabeledAttributesMixin):
         self.id_ = id_
         self.first_name = first_name
         self.last_name = last_name
+        self.preferred_name = preferred_name
         self.email = email
         self.gender = gender
         self.status = status
