@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## [Unreleased](https://github.com/at-gmbh/personio-py/compare/v0.2.3...HEAD)
 
+* add the `include_pending` parameter to `get_attendances()` to also retrieve pending
+  attendance records (`includePending` API parameter) ([#49](https://github.com/at-gmbh/personio-py/pull/49))
 * migrate build & dependency management to [Poetry](https://python-poetry.org/): replace
   `setup.py` and `requirements*.txt` with a single `pyproject.toml` (PEP 621) plus committed
   `poetry.lock` and `test`/`linter`/`docs`/`dev` dependency groups; CI now builds, tests and

@@ -326,6 +326,7 @@ class Personio:
         employees: int | list[int] | Employee | list[Employee],
         start_date: datetime = None,
         end_date: datetime = None,
+        include_pending: bool = False,
     ) -> list[Attendance]:
         """
         Get a list of all attendance records for the employees with the specified IDs
@@ -339,10 +340,16 @@ class Personio:
                Attendance records for all matching employees will be retrieved.
         :param start_date: only return attendance records from this date (inclusive, optional)
         :param end_date: only return attendance records up to this date (inclusive, optional)
+        :param include_pending: if True, include pending attendances
         :return: list of ``Attendance`` records for the specified employees
         """
         attendances = self._get_employee_metadata(
-            self.ATTENDANCE_URL, Attendance, employees, start_date, end_date
+            self.ATTENDANCE_URL,
+            Attendance,
+            employees,
+            start_date,
+            end_date,
+            include_pending=include_pending,
         )
         for attendance in attendances:
             attendance._client = self
@@ -622,6 +629,7 @@ class Personio:
         employees: int | list[int] | Employee | list[Employee],
         start_date: datetime = None,
         end_date: datetime = None,
+        include_pending: bool = False,
     ) -> list[PersonioResourceType]:
         # resolve params to match API requirements
         employees, start_date, end_date = self._normalize_timeframe_params(
@@ -630,6 +638,7 @@ class Personio:
         params = {
             "start_date": start_date.isoformat()[:10],
             "end_date": end_date.isoformat()[:10],
+            "includePending": "true" if include_pending else "false",
         }
         # request in batches of up to 50 employees (keeps URL length well below 2000 chars)
         data_acc = []

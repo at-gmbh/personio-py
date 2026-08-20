@@ -145,6 +145,21 @@ def test_get_attendance():
     compare_labeled_attributes(source_dict, target_dict)
 
 
+@responses.activate
+def test_get_attendance_include_pending():
+    # mock the get attendances endpoint
+    responses.add(
+        responses.GET, re.compile('https://api.personio.de/v1/company/attendances?.*offset=*'),
+        status=200, json=json_dict_attendance_rms, adding_headers={'Authorization': 'Bearer foo'})
+    # by default, only confirmed attendances are requested
+    personio = mock_personio()
+    personio.get_attendances(2116366)
+    assert 'includePending=false' in responses.calls[-1].request.url
+    # with include_pending, pending attendances are requested as well
+    personio.get_attendances(2116366, include_pending=True)
+    assert 'includePending=true' in responses.calls[-1].request.url
+
+
 def mock_personio():
     # mock the authentication endpoint, or all no requests will get through
     resp_json = {'success': True, 'data': {'token': 'dummy_token'}}
