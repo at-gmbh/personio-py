@@ -15,13 +15,6 @@ If you'd like to make a contribution, please join the project [on GitHub](https:
 
 ```{eval-rst}
 .. automodule:: personio_py.models
-    :exclude-members: log_once
-```
-
-## mapping
-
-```{eval-rst}
-.. automodule:: personio_py.mapping
 ```
 
 ## Errors

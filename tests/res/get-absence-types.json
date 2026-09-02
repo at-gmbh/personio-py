@@ -1,0 +1,30 @@
+{
+  "success": true,
+  "metadata": {
+    "current_page": 1,
+    "total_pages": 1
+  },
+  "data": [
+    {
+      "type": "TimeOffType",
+      "attributes": {
+        "id": 195824,
+        "name": "vacation"
+      }
+    },
+    {
+      "type": "TimeOffType",
+      "attributes": {
+        "id": 195825,
+        "name": "paid leave"
+      }
+    },
+    {
+      "type": "TimeOffType",
+      "attributes": {
+        "id": 195826,
+        "name": "sick"
+      }
+    }
+  ]
+}

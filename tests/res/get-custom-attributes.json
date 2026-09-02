@@ -1,0 +1,239 @@
+{
+  "success": true,
+  "data": [
+    {
+      "key": "first_name",
+      "label": "First name",
+      "type": "standard",
+      "universal_id": "first_name"
+    },
+    {
+      "key": "last_name",
+      "label": "Last name",
+      "type": "standard",
+      "universal_id": "last_name"
+    },
+    {
+      "key": "email",
+      "label": "Email",
+      "type": "standard",
+      "universal_id": "email"
+    },
+    {
+      "key": "gender",
+      "label": "Gender",
+      "type": "standard",
+      "universal_id": "gender"
+    },
+    {
+      "key": "status",
+      "label": "Status",
+      "type": "standard",
+      "universal_id": "status"
+    },
+    {
+      "key": "position",
+      "label": "Position",
+      "type": "standard",
+      "universal_id": "position"
+    },
+    {
+      "key": "supervisor",
+      "label": "Supervisor",
+      "type": "standard",
+      "universal_id": "supervisor"
+    },
+    {
+      "key": "employment_type",
+      "label": "Employment type",
+      "type": "standard",
+      "universal_id": "employment_type"
+    },
+    {
+      "key": "weekly_working_hours",
+      "label": "Weekly hours",
+      "type": "standard",
+      "universal_id": "weekly_working_hours"
+    },
+    {
+      "key": "hire_date",
+      "label": "Hire date",
+      "type": "date",
+      "universal_id": "hire_date"
+    },
+    {
+      "key": "contract_end_date",
+      "label": "Contract ends",
+      "type": "date",
+      "universal_id": "contract_end_date"
+    },
+    {
+      "key": "termination_date",
+      "label": "Termination date",
+      "type": "date",
+      "universal_id": "termination_date"
+    },
+    {
+      "key": "termination_type",
+      "label": "Termination type",
+      "type": "standard",
+      "universal_id": "termination_type"
+    },
+    {
+      "key": "termination_reason",
+      "label": "Termination reason",
+      "type": "standard",
+      "universal_id": "termination_reason"
+    },
+    {
+      "key": "probation_period_end",
+      "label": "Probation period end",
+      "type": "date",
+      "universal_id": "probation_period_end"
+    },
+    {
+      "key": "created_at",
+      "label": "Created at",
+      "type": "date",
+      "universal_id": "created_at"
+    },
+    {
+      "key": "last_modified_at",
+      "label": "Last modified",
+      "type": "date",
+      "universal_id": "last_modified_at"
+    },
+    {
+      "key": "subcompany",
+      "label": "Subcompany",
+      "type": "standard",
+      "universal_id": "subcompany"
+    },
+    {
+      "key": "office",
+      "label": "Office",
+      "type": "standard",
+      "universal_id": "office"
+    },
+    {
+      "key": "department",
+      "label": "Department",
+      "type": "standard",
+      "universal_id": "department"
+    },
+    {
+      "key": "cost_centers",
+      "label": "Cost center",
+      "type": "standard",
+      "universal_id": "cost_centers"
+    },
+    {
+      "key": "holiday_calendar",
+      "label": "Public holidays",
+      "type": "standard",
+      "universal_id": "holiday_calendar"
+    },
+    {
+      "key": "absence_entitlement",
+      "label": "Absence entitlement",
+      "type": "standard",
+      "universal_id": "absence_entitlement"
+    },
+    {
+      "key": "work_schedule",
+      "label": "Work schedule",
+      "type": "standard",
+      "universal_id": "work_schedule"
+    },
+    {
+      "key": "fix_salary",
+      "label": "Fix salary",
+      "type": "decimal",
+      "universal_id": "fix_salary"
+    },
+    {
+      "key": "fix_salary_interval",
+      "label": "Salary interval",
+      "type": "standard",
+      "universal_id": "fix_salary_interval"
+    },
+    {
+      "key": "hourly_salary",
+      "label": "Hourly salary",
+      "type": "decimal",
+      "universal_id": "hourly_salary"
+    },
+    {
+      "key": "vacation_day_balance",
+      "label": "Vacation day balance",
+      "type": "decimal",
+      "universal_id": "vacation_day_balance"
+    },
+    {
+      "key": "last_working_day",
+      "label": "Last day of work",
+      "type": "date",
+      "universal_id": "last_working_day"
+    },
+    {
+      "key": "profile_picture",
+      "label": "Profile Picture",
+      "type": "standard",
+      "universal_id": "profile_picture"
+    },
+    {
+      "key": "team",
+      "label": "Team",
+      "type": "standard",
+      "universal_id": "team"
+    },
+    {
+      "key": "dynamic_1146666",
+      "label": "Geburtstag",
+      "type": "date",
+      "universal_id": "date_of_birth"
+    },
+    {
+      "key": "dynamic_1146702",
+      "label": "Geburtsland",
+      "type": "standard",
+      "universal_id": null
+    },
+    {
+      "key": "dynamic_1146692",
+      "label": "Stra\u00dfe und Hausnummer",
+      "type": "standard",
+      "universal_id": null
+    },
+    {
+      "key": "dynamic_1146693",
+      "label": "Postleitzahl",
+      "type": "standard",
+      "universal_id": null
+    },
+    {
+      "key": "dynamic_1146694",
+      "label": "Stadt",
+      "type": "standard",
+      "universal_id": null
+    },
+    {
+      "key": "dynamic_1146670",
+      "label": "Lohnsteuerklasse",
+      "type": "list",
+      "universal_id": null
+    },
+    {
+      "key": "dynamic_1146674",
+      "label": "Krankenversicherung",
+      "type": "standard",
+      "universal_id": null
+    },
+    {
+      "key": "dynamic_1146716",
+      "label": "Geplante Schulungen",
+      "type": "tags",
+      "universal_id": null
+    }
+  ]
+}

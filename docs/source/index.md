@@ -11,8 +11,8 @@
 >>> absences = p.get_absences(ada)
 >>> len(absences)
 12
->>> absences[0].to_dict()
-{'id': 42, 'status': 'approved', 'start_date': '2020-08-01', 'end_date': '2020-08-16', ...}
+>>> absences[0].model_dump()
+{'id': 42, 'status': 'approved', 'start_date': datetime.date(2020, 8, 1), 'end_date': datetime.date(2020, 8, 16), ...}
 ```
 
 **personio-py** aims to provide Python function wrappers and object mappings for all endpoints of the [Personio REST API](https://developer.personio.de/reference). Because personio-py is a third party library, and the REST API may change from time to time, we cannot guarantee that all functions are covered, but we try our best.
@@ -38,7 +38,7 @@ api
 * Object mappings for all API resources, e.g. an {py:class}`Employee <personio_py.models.Employee>` is an object with properties for all the information that is provided by the REST API.
 * Completely transparent handling of authentication and key rotation
 * Support for Type Hints
-* Only one dependency: [requests](https://pypi.org/project/requests/)
+* Two lightweight dependencies: [requests](https://pypi.org/project/requests/) and [pydantic](https://docs.pydantic.dev/) (v2)
 
 ## Getting Started
 

@@ -4,7 +4,47 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased](https://github.com/at-gmbh/personio-py/compare/v0.2.3...HEAD)
+## [1.0.0](https://github.com/at-gmbh/personio-py/compare/v0.2.3...v1.0.0) - 2026-07-27
+
+This is a major release that rewrites the object models on top of [pydantic](https://docs.pydantic.dev/) v2. It contains **breaking changes** — please read the migration notes below before upgrading.
+
+### Breaking Changes
+
+* the object models (`Employee`, `Absence`, `Attendance`, `Project`, ...) are now
+  [pydantic](https://docs.pydantic.dev/) v2 models. This adds a second runtime dependency
+  (`pydantic >=2.1,<3`); the previous "only one dependency: requests" no longer holds.
+* renamed the `id_` field back to `id` on all models (e.g. `employee.id_` → `employee.id`)
+* serialization/deserialization now use pydantic: `to_dict()` / `from_dict()` are replaced by
+  `model_dump()` / `model_validate()` / `model_dump_json()`, plus the API-specific helpers
+  `to_api_dict()` (employees, absences) and `to_body_params()` (attendances, projects)
+* records are now created through the client rather than through unbound model objects: use
+  `client.create_absence(absence)`, `client.create_project(project)` and
+  `client.create_attendances([attendance])`. Convenience methods (`.update()`, `.delete()`,
+  `.resolve()`, `.picture()`, ...) remain available on objects that were returned by a client.
+* the client no longer relies on a global singleton (`g.client`) and no longer reassigns the
+  module-level `Employee` class or patches `sys.modules`. Each `Personio` instance is fully
+  independent, so multiple clients — even for different accounts with different custom
+  attributes — can be used at the same time. The module-level `Employee` (`BaseEmployee`) no
+  longer carries custom attributes; use `client.employee_class` to construct employees that
+  include the account's custom attributes. The `g` module and `update_model()` were removed.
+* the `Personio` constructor parameter `dynamic_fields` was removed; custom attributes are now
+  discovered automatically from the account. Use the new optional `employee_aliases` parameter
+  to override the auto-generated attribute names.
+* removed the hand-written mapping layer (`mapping.py`, `DynamicMapping`, `DynamicAttr`,
+  `FieldMapping` and friends); custom attribute types are now derived from the Personio
+  custom-attributes endpoint.
+
+### Added
+
+* custom ("dynamic") employee attributes are discovered from the account and exposed as typed
+  attributes on a per-client `Employee` subclass, including auto-generated, ascii-normalized
+  aliases (e.g. a "Phone (office)" label becomes `phone_office`)
+* `Personio.get_absence_balance()` / `Employee.absence_balance()`: retrieve an employee's
+  absence balance
+* `Personio.get_custom_attributes()`: list the account's custom (dynamic) employee attributes
+* full support for creating and updating employees (`create_employee`, `update_employee`)
+
+### Changed & Fixed
 
 * migrate build & dependency management to [Poetry](https://python-poetry.org/): replace
   `setup.py` and `requirements*.txt` with a single `pyproject.toml` (PEP 621) plus committed

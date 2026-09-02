@@ -1,0 +1,10 @@
+{
+  "success": true,
+  "metadata": {
+    "current_page": 1,
+    "total_pages": 1
+  },
+  "data": {
+    "message": "The absence period was deleted."
+  }
+}

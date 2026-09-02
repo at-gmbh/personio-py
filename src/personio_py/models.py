@@ -1,137 +1,83 @@
 """
-Definition of ORMs for objects that are available in the Personio API
+Definition of ORMs for objects that are available in the Personio API.
+
+The models are `pydantic <https://docs.pydantic.dev/>`_ models: parsing, validation and
+serialization are handled by pydantic. Objects that are returned by a :class:`Personio` client
+are bound to that client instance (see :meth:`PersonioResource._bind_client`), which enables the
+convenience methods like ``employee.update()`` or ``absence.create()`` to make API calls without
+requiring an explicit client reference.
 """
 
+import inspect
 import json
 import logging
-from collections import namedtuple
-from datetime import datetime, timedelta
-from functools import total_ordering
-from typing import TYPE_CHECKING, Any, NamedTuple, TypeVar
+import operator
+import unicodedata
+from datetime import date, datetime, time, timedelta
+from typing import TYPE_CHECKING, Annotated, Any, ClassVar, Optional, TypeVar, get_args
 
-from personio_py import PersonioError, UnsupportedMethodError
-from personio_py.mapping import (
-    BooleanFieldMapping,
-    DateFieldMapping,
-    DateTimeFieldMapping,
-    DurationFieldMapping,
-    DynamicMapping,
-    FieldMapping,
-    ListFieldMapping,
-    NumericFieldMapping,
-    ObjectFieldMapping,
+from pydantic import (
+    BaseModel,
+    BeforeValidator,
+    ConfigDict,
+    Field,
+    PrivateAttr,
+    create_model,
+    field_validator,
 )
-from personio_py.util import log_once
+
+from personio_py.errors import PersonioError
+from personio_py.util import ReadOnlyDict, log_once
 
 if TYPE_CHECKING:
-    # only type checkers may import Personio, otherwise we get an evil circular import error
-    from personio_py import Personio
+    # the Personio client is only imported for type checkers to avoid a circular import
+    from personio_py.client import Personio
 
 logger = logging.getLogger("personio_py")
+PersonioResourceType = TypeVar("PersonioResourceType", bound="PersonioResource", covariant=True)
 
 
-class DynamicAttr(NamedTuple):
-    field_id: int
-    label: str
-    value: Any
-
-    @classmethod
-    def from_attributes(cls, d: dict[str, dict[str, Any]]) -> list["DynamicAttr"]:
-        return [DynamicAttr.from_dict(k, v) for k, v in d.items() if k.startswith("dynamic_")]
-
-    @classmethod
-    def to_attributes(cls, dyn_attrs: list["DynamicAttr"]) -> dict[str, dict[str, Any]]:
-        return {f"dynamic_{d.field_id}": d.to_dict() for d in dyn_attrs}
-
-    @classmethod
-    def from_dict(cls, key: str, d: dict[str, Any]) -> "DynamicAttr":
-        if key.startswith("dynamic_"):
-            _, field_id = key.split("_", maxsplit=1)
-            return DynamicAttr(field_id=int(field_id), label=d["label"], value=d["value"])
-        else:
-            raise ValueError(f"dynamic attribute '{key}' does not start with 'dynamic_'")
-
-    def to_dict(self) -> dict[str, Any]:
-        return {"label": self.label, "value": self.value}
-
-    def clone(self, new_value: Any | None = None):
-        return DynamicAttr(
-            field_id=self.field_id,
-            label=self.label,
-            value=self.value if new_value is None else new_value,
-        )
-
-
-@total_ordering
-class PersonioResource:
-    _api_type_name: str = None
+class PersonioResource(BaseModel):
+    # for class vars & private attributes, see
+    # https://docs.pydantic.dev/latest/concepts/models/#private-model-attributes
+    _api_type_name: ClassVar[str | None] = None
     """the name of this resource type in the Personio API"""
-    _field_mapping_list: list[FieldMapping] = []
-    """all known API fields and their type definitions that are mapped to this PersonioResource"""
-    __field_mapping: dict[str, FieldMapping] = None
-    """see ``_field_mapping()``"""
-    __label_mapping: dict[str, str] = None
-    """see ``_label_mapping()``"""
-    __namedtuple: type[tuple] = None
-    """see ``_namedtuple()``"""
-    _flat_dict = False
-    """set this to True, if this class has a flat dictionary representation in the Personio API"""
+    _flat_dict: ClassVar[bool] = True
+    """Indicates if this class has a flat dictionary representation in the Personio API"""
 
-    def __init__(self, client: "Personio" = None, **kwargs):
-        super().__init__()
-        self._client = client
+    # Model Config https://docs.pydantic.dev/latest/concepts/config/
+    model_config = ConfigDict(extra="ignore", str_strip_whitespace=True, populate_by_name=True)
 
-    @classmethod
-    def _field_mapping(cls) -> dict[str, FieldMapping]:
-        # the field mapping as dictionary
-        if cls.__field_mapping is None:
-            cls.__field_mapping = {fm.api_field: fm for fm in cls._field_mapping_list}
-        return cls.__field_mapping
+    _client: "Personio | None" = PrivateAttr(default=None)
+    """the Personio client this object is bound to (set by the client for objects it returns)"""
+
+    def __init__(self, **kwargs):
+        if self._is_api_dict(kwargs):
+            # smells like a parsed Personio API dict -> extract data
+            kwargs = self._get_kwargs_from_api_dict(kwargs)
+        super().__init__(**kwargs)
 
     @classmethod
-    def _label_mapping(cls) -> dict[str, str]:
-        # mapping from api field name to pretty label name
-        if cls.__label_mapping is None:
-            cls.__label_mapping = {}
-        return cls.__label_mapping
+    def _is_api_dict(cls, d: dict) -> bool:
+        """Detect parsed Personio API data.
 
-    @classmethod
-    def from_dict(
-        cls: type["PersonioResourceType"], d: dict[str, Any], client: "Personio" = None
-    ) -> "PersonioResourceType":
+        If this smells like a Personio API response, return True, otherwise False.
+        We assume it is a Personio API response, if we have only two keys: "type" and "attributes"
+
+        :param d: the dict to inspect
+        :return: True, iff the dict has just the keys "type" and "attributes"
         """
-        Create an instance of this PersonioResource from the specified dictionary data,
-        which is parsed version of the json data from the Personio API.
+        return "type" in d and "attributes" in d and (len(d) == 2 or (len(d) == 3 and "id" in d))
 
-        :param d: create an instance from this data
-        :param client: the Personio API client (optional). Used to provide additional operations
-               on this resource, when available (e.g. request more data or write changes back
-               to Personio)
-        :return: a new instance of this class based on the provided data
-        """
+    @classmethod
+    def _get_kwargs_from_api_dict(cls, d: dict) -> dict:
         # handle 'type' & 'attributes', if available
         if "type" in d and "attributes" in d:
             cls._check_api_type(d)
             d = d["attributes"]
-        # map the dictionary contents to the constructor's parameter names
-        kwargs = cls._map_fields(d, client)
-        return cls(client=client, **kwargs)
-
-    def to_dict(self, nested=False) -> dict[str, Any]:
-        """
-        Convert this PersonioResource to a dictionary that has the same structure as the
-        json data from the Personio API.
-
-        :param nested: indicate that this resource is part of a nested dictionary
-               (Personio resources can have a different serialization when they are part of
-               a nested dictionary...)
-        :return: the Personio resource as dictionary (same structure as in the Personio API)
-        """
-        d = {}
-        for mapping in self._field_mapping_list:
-            value = getattr(self, mapping.class_field)
-            if value is not None:
-                d[mapping.api_field] = mapping.serialize(value)
+        # transform the non-flat form of the input dictionary to a simple key-value dict
+        if not cls._flat_dict:
+            d = {k: v["value"] for k, v in d.items()}
         return d
 
     @classmethod
@@ -145,643 +91,366 @@ class PersonioResource:
             )
 
     @classmethod
-    def _namedtuple(cls) -> type[tuple]:
-        if cls.__namedtuple is None:
-            fields = [m.class_field for m in cls._field_mapping_list] + ["dynamic", "class_name"]
-            cls.__namedtuple = namedtuple(f"{cls.__name__}Tuple", fields)
-        return cls.__namedtuple
+    def _add_api_dict_field(
+        cls,
+        resource: "PersonioResource",
+        d: dict,
+        field: str | tuple[str, str],
+        required=False,
+    ):
+        if isinstance(field, tuple):
+            key_get, key_set = field
+        else:
+            key_get = key_set = field
+        try:
+            value = operator.attrgetter(key_get)(resource)
+        except AttributeError:
+            value = None
+        if value is not None:
+            if isinstance(value, (datetime, date)):
+                value = value.isoformat()[:10]
+            d[key_set] = value
+        elif required:
+            raise PersonioError(f"required field {field} has no value")
 
-    def to_tuple(self) -> tuple:
-        values = [getattr(self, m.class_field) for m in self._field_mapping_list] + [
-            getattr(self, "dynamic"),
-            str(self.__class__),
-        ]
-        return self._namedtuple()(*values)
+    @field_validator("*", mode="before")
+    @classmethod
+    def _empty_to_none(cls, v, info):
+        """Convert empty values from the Personio API to None.
+
+        The Personio API sometimes returns an empty string ``""`` or an empty list ``[]`` instead
+        of ``null`` for a field that has no value. Empty strings are always mapped to None. Empty
+        lists are only mapped to None for *object* fields (e.g. an empty ``work_schedule`` returned
+        as ``[]``); for genuine list fields (e.g. ``cost_centers``) an empty list is preserved.
+        Without this, validation of the target type (or serialization) would fail.
+        """
+        if v == "":
+            return None
+        if v == [] and cls._is_object_field(info.field_name):
+            return None
+        return v
 
     @classmethod
-    def _map_fields(cls, d: dict[str, dict[str, Any]], client: "Personio" = None) -> dict[str, Any]:
-        kwargs = {}
-        field_mapping_dict = cls._field_mapping()
-        for key, value in d.items():
-            if key in field_mapping_dict:
-                field_mapping = field_mapping_dict[key]
-                if not cls._is_empty(value):
-                    value = field_mapping.deserialize(value, client=client)
-                elif isinstance(field_mapping, ObjectFieldMapping):
-                    # empty object fields ("" or []) are not valid objects -> None
-                    value = None
-                kwargs[field_mapping.class_field] = value
+    def _is_object_field(cls, field_name: str) -> bool:
+        """Return True if the given field holds a single nested :class:`PersonioResource`.
+
+        List fields (e.g. ``list[CostCenter]``) and scalar fields return False; only fields typed
+        as an (optional) nested resource object return True.
+        """
+        field = cls.model_fields.get(field_name)
+        if field is None:
+            return False
+        ann = field.annotation
+        args = get_args(ann)
+        if args:
+            # unwrap Optional[...] (a Union that contains NoneType) to its single non-None type;
+            # anything else (a real Union or a generic like list[...]) is not a plain object field
+            non_none = [a for a in args if a is not type(None)]
+            if len(non_none) == 1 and type(None) in args:
+                ann = non_none[0]
             else:
-                log_once(logging.WARNING, f"unexpected field '{key}' in class {cls.__name__}")
-        return kwargs
+                return False
+        return isinstance(ann, type) and issubclass(ann, PersonioResource)
 
-    @classmethod
-    def _is_empty(cls, value: Any):
-        # determine if this Personio API value is "empty".
-        # empty values are: None, "", []
-        # not empty values are: 0, False, "foo", [1,2,3], 42
-        return value is None or value == "" or value == []
+    def _bind_client(self, client: "Personio") -> "PersonioResource":
+        """Attach a Personio client to this resource and all nested resources.
 
-    def __hash__(self):
-        return hash(json.dumps(self.to_tuple(), sort_keys=True, default=str))
+        The client sets itself on every object it returns, so that convenience methods like
+        ``create()``/``update()``/``delete()``/``resolve()`` can make API calls. The binding is
+        applied recursively to nested :class:`PersonioResource` fields (e.g. ``absence.employee``).
+
+        :param client: the Personio client to bind
+        :return: this object (to allow ``return Employee(**d)._bind_client(self)``)
+        """
+        self._client = client
+        for value in self.__dict__.values():
+            if isinstance(value, PersonioResource):
+                value._bind_client(client)
+            elif isinstance(value, (list, tuple)):
+                for item in value:
+                    if isinstance(item, PersonioResource):
+                        item._bind_client(client)
+        return self
+
+    def _get_client(self) -> "Personio":
+        """Return the bound Personio client or raise a helpful error if there is none."""
+        if self._client is None:
+            raise PersonioError(
+                "This object is not bound to a Personio client. Convenience methods like "
+                "create()/update()/delete() are only available on objects that were returned by "
+                "a Personio client. Use the corresponding method on the client instead."
+            )
+        return self._client
 
     def __eq__(self, other):
-        if isinstance(other, PersonioResource):
-            return self.to_tuple() == other.to_tuple()
+        """Two resources are equal if they have the same type and the same field values.
+
+        The bound client (``_client``, a private attribute) is intentionally ignored, so that two
+        objects with identical data compare equal regardless of which client fetched them (or
+        whether they are bound to a client at all).
+        """
+        if self is other:
+            return True
+        if not isinstance(other, PersonioResource):
+            return NotImplemented
+        return type(self) is type(other) and self.__dict__ == other.__dict__
+
+    def __hash__(self):
+        list_fields = [(k, tuple(v)) for k, v in self.__dict__.items() if isinstance(v, list)]
+        if list_fields:
+            list_field_keys, list_field_values = zip(*list_fields)
+            other_values = [v for k, v in self.__dict__.items() if k not in list_field_keys]
+            field_tuple = tuple(list_field_values) + tuple(other_values)
         else:
-            return False
-
-    def __lt__(self, other):
-        if isinstance(other, PersonioResource):
-            return self.to_tuple() < other.to_tuple()
-        else:
-            return False
-
-    def __repr__(self) -> str:
-        return f"{self.__class__.__name__} {self.__dict__}"
-
-    def __str__(self) -> str:
-        fields = ", ".join(f"{k}={v}" for k, v in self.__dict__.items() if not k.startswith("_"))
-        return f"{self.__class__.__name__}({fields})"
-
-
-PersonioResourceType = TypeVar("PersonioResourceType", bound=PersonioResource)
-
-
-class WritablePersonioResource(PersonioResource):
-    _can_create = True
-    _can_update = True
-    _can_delete = True
-
-    def __init__(
-        self,
-        client: "Personio" = None,
-        dynamic: list["DynamicAttr"] = None,
-        dynamic_fields: list[DynamicMapping] = None,
-        **kwargs,
-    ):
-        super().__init__(client, **kwargs)
-        self.dynamic_fields = dynamic_fields
-        self.dynamic_raw: dict[int, DynamicAttr] = {d.field_id: d for d in dynamic or []}
-        self.dynamic = self._map_dynamic_values(dynamic, dynamic_fields, client)
-
-    @classmethod
-    def _map_dynamic_values(
-        cls,
-        dynamic_raw: list["DynamicAttr"],
-        dynamic_fields: list[DynamicMapping] = None,
-        client: "Personio" = None,
-    ) -> dict[str, Any]:
-        dynamic = {}
-        if not dynamic_raw or not dynamic_fields:
-            return dynamic
-        dynamic_mapping_dict = {dm.field_id: dm for dm in dynamic_fields or []}
-        for dyn in dynamic_raw:
-            if dyn.field_id in dynamic_mapping_dict:
-                # we have a dynamic field mapping -> parse the value
-                dm: DynamicMapping = dynamic_mapping_dict[dyn.field_id]
-                field_mapping = dm.get_field_mapping()
-                value = dyn.value
-                if not cls._is_empty(value):
-                    value = field_mapping.deserialize(value, client=client)
-                dynamic[field_mapping.class_field] = value
-        return dynamic
-
-    @classmethod
-    def from_dict(
-        cls: type["PersonioResourceType"],
-        d: dict[str, Any],
-        client: "Personio" = None,
-        dynamic_fields: list[DynamicMapping] = None,
-    ) -> "PersonioResourceType":
-        cls._check_api_type(d)
-        kwargs = cls._map_fields(d["attributes"], client)
-        if "id" in d:
-            kwargs["id_"] = d["id"]
-        dynamic_fields = dynamic_fields or (client.dynamic_fields if client else None)
-        return cls(client=client, dynamic_fields=dynamic_fields, **kwargs)
-
-    def to_dict(self, nested=False) -> dict[str, Any]:
-        # we prefer typed values from the dynamic dict over the raw values
-        # (because they might have been changed by the user)
-        attr = super().to_dict(nested)
-        dynamic_mapping_dict = {dyn.field_id: dyn for dyn in self.dynamic_fields or []}
-        for dyn in self.dynamic_raw.values():
-            if dyn.field_id in dynamic_mapping_dict:
-                raw_value = dyn.value
-                dm: DynamicMapping = dynamic_mapping_dict[dyn.field_id]
-                rich_value = self.dynamic[dm.alias]
-                if raw_value != rich_value:
-                    field_mapping = dm.get_field_mapping()
-                    serialized = field_mapping.serialize(rich_value)
-                    if raw_value != serialized:
-                        dyn = dyn.clone(new_value=serialized)
-            attr[f"dynamic_{dyn.field_id}"] = dyn.to_dict()
-        return {
-            "type": self._api_type_name,
-            "attributes": attr,
-        }
-
-    def create(self, client: "Personio" = None):
-        if self._can_create:
-            client = self._check_client(client)
-            return self._create(client)
-        else:
-            raise UnsupportedMethodError("create", self.__class__)
-
-    def _create(self, client: "Personio"):
-        raise UnsupportedMethodError("create", self.__class__)
-
-    def update(self, client: "Personio" = None):
-        if self._can_update:
-            client = self._check_client(client)
-            return self._update(client)
-        else:
-            raise UnsupportedMethodError("update", self.__class__)
-
-    def _update(self, client: "Personio"):
-        UnsupportedMethodError("update", self.__class__)
-
-    def delete(self, client: "Personio" = None):
-        if self._can_delete:
-            client = self._check_client(client)
-            return self._delete(client)
-        else:
-            raise UnsupportedMethodError("delete", self.__class__)
-
-    def _delete(self, client: "Personio"):
-        UnsupportedMethodError("delete", self.__class__)
-
-    def _check_client(self, client: "Personio" = None) -> "Personio":
-        client = client or self._client
-        if not client:
-            raise PersonioError()
-        if not client.authenticated:
-            client.authenticate()
-        return client
-
-
-class LabeledAttributesMixin(PersonioResource):
-    """
-    Personio Resources that use the ``LabeledAttributesMixin`` expect data in a different format
-    than the regular key-value pattern. Example::
-
-        "first_name": {
-          "label": "First name",
-          "value": "Richard"
-        }
-
-    Instead of ``"first_name": "Richard"`` we get a dictionary where the label of the field and
-    its value are attributes of another dictionary.
-
-    This format is currently used by ``Employee`` and ``ShortEmployee`` and was probably chosen
-    because Personio allows to specify custom fields for employees with custom label names.
-    """
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-    def to_dict(self, nested=False) -> dict[str, Any]:
-        d = {}
-        label_mapping = self._label_mapping()
-        for mapping in self._field_mapping_list:
-            value = getattr(self, mapping.class_field)
-            if value is not None:
-                label = label_mapping.get(mapping.api_field)
-                d[mapping.api_field] = {"label": label, "value": mapping.serialize(value)}
-        return d
-
-    @classmethod
-    def _map_fields(cls, d: dict[str, dict[str, Any]], client: "Personio" = None) -> dict[str, Any]:
-        kwargs = {}
-        dynamic = []
-        field_mapping_dict = cls._field_mapping()
-        label_mapping = cls._label_mapping()
-        for key, data in d.items():
-            label_mapping[key] = data["label"]
-            if key in field_mapping_dict:
-                field_mapping = field_mapping_dict[key]
-                value = data["value"]
-                if not cls._is_empty(value):
-                    value = field_mapping.deserialize(value, client=client)
-                elif isinstance(field_mapping, ObjectFieldMapping):
-                    # empty object fields ("" or []) are not valid objects -> None
-                    value = None
-                kwargs[field_mapping.class_field] = value
-            elif key.startswith("dynamic_"):
-                dyn = DynamicAttr.from_dict(key, data)
-                dynamic.append(dyn)
-            else:
-                log_once(logging.WARNING, f"unexpected field '{key}' in class {cls.__name__}")
-        if dynamic:
-            kwargs["dynamic"] = dynamic
-        return kwargs
+            field_tuple = tuple(self.__dict__.values())
+        return hash((type(self),) + field_tuple)
 
 
 class AbsenceEntitlement(PersonioResource):
     _api_type_name = "TimeOffType"
-    _field_mapping_list = [
-        NumericFieldMapping("id", "id_", int),
-        FieldMapping("name", "name", str),
-        NumericFieldMapping("entitlement", "entitlement", float),
-    ]
 
-    def __init__(self, id_: int = None, name: str = None, entitlement: float = None, **kwargs):
-        super().__init__(**kwargs)
-        self.id_ = id_
-        self.name = name
-        self.entitlement = entitlement
+    id: int | None = None
+    name: str | None = None
+    entitlement: float | None = None
 
 
 class AbsenceType(PersonioResource):
     _api_type_name = "TimeOffType"
-    _field_mapping_list = [
-        NumericFieldMapping("id", "id_", int),
-        FieldMapping("name", "name", str),
-        FieldMapping("category", "category", str),
-    ]
 
-    def __init__(self, id_: int = None, name: str = None, category: str = None, **kwargs):
-        super().__init__(**kwargs)
-        self.id_ = id_
-        self.name = name
-        self.category = category
-
-    def to_dict(self, nested=False) -> dict[str, Any]:
-        if nested:
-            return super().to_dict()
-        else:
-            return {
-                "type": self._api_type_name,
-                "attributes": super().to_dict(),
-            }
+    id: int | None = None
+    name: str | None = None
+    unit: str | None = None
+    category: str | None = None
+    half_day_requests_enabled: bool | None = None
+    certification_required: bool | None = None
+    certification_submission_timeframe: int | None = None
+    substitute_option: str | None = None
+    approval_required: bool | None = None
 
 
 class Certificate(PersonioResource):
-    _field_mapping_list = [
-        FieldMapping("status", "status", str),
-    ]
-    _flat_dict = True
-
-    def __init__(self, status: str = None, **kwargs):
-        super().__init__(**kwargs)
-        self.status = status
+    status: str | None = None
 
 
 class CostCenter(PersonioResource):
     _api_type_name = "CostCenter"
-    _field_mapping_list = [
-        NumericFieldMapping("id", "id_", int),
-        FieldMapping("name", "name", str),
-        NumericFieldMapping("percentage", "percentage", float),
-    ]
 
-    def __init__(self, id_: int = None, name: str = None, percentage: float = None, **kwargs):
-        super().__init__(**kwargs)
-        self.id_ = id_
-        self.name = name
-        self.percentage = percentage
+    id: int | None = None
+    name: str | None = None
+    percentage: float | None = None
 
 
 class Department(PersonioResource):
     _api_type_name = "Department"
-    _field_mapping_list = [
-        NumericFieldMapping("id", "id_", int),
-        FieldMapping("name", "name", str),
-    ]
 
-    def __init__(self, id_: int = None, name: str = None, **kwargs):
-        super().__init__(**kwargs)
-        self.id_ = id_
-        self.name = name
+    id: int | None = None
+    name: str | None = None
 
 
 class HolidayCalendar(PersonioResource):
     _api_type_name = "HolidayCalendar"
-    _field_mapping_list = [
-        NumericFieldMapping("id", "id_", int),
-        FieldMapping("name", "name", str),
-        FieldMapping("country", "country", str),
-        FieldMapping("state", "state", str),
-    ]
 
-    def __init__(
-        self, id_: int = None, name: str = None, country: str = None, state: str = None, **kwargs
-    ):
-        super().__init__(**kwargs)
-        self.id_ = id_
-        self.name = name
-        self.country = country
-        self.state = state
+    id: int | None = None
+    name: str | None = None
+    country: str | None = None
+    state: str | None = None
 
 
 class Office(PersonioResource):
     _api_type_name = "Office"
-    _field_mapping_list = [
-        NumericFieldMapping("id", "id_", int),
-        FieldMapping("name", "name", str),
-    ]
 
-    def __init__(self, id_: int = None, name: str = None, **kwargs):
-        super().__init__(**kwargs)
-        self.id_ = id_
-        self.name = name
+    id: int | None = None
+    name: str | None = None
 
 
-class ShortEmployee(LabeledAttributesMixin):
+class ShortEmployee(PersonioResource):
     _api_type_name = "Employee"
-    _field_mapping_list = [
-        NumericFieldMapping("id", "id_", int),
-        FieldMapping("first_name", "first_name", str),
-        FieldMapping("last_name", "last_name", str),
-        FieldMapping("email", "email", str),
-    ]
+    _flat_dict = False
 
-    def __init__(
-        self,
-        client: "Personio" = None,
-        id_: int = None,
-        first_name: str = None,
-        last_name: str = None,
-        email: str = None,
-        **kwargs,
-    ):
-        super().__init__(**kwargs)
-        self._client = client
-        self.id_ = id_
-        self.first_name = first_name
-        self.last_name = last_name
-        self.email = email
+    id: int | None = None
+    first_name: str | None = None
+    last_name: str | None = None
+    email: str | None = None
 
-    def resolve(self, client: "Personio" = None) -> "Employee":
-        client = client or self._client
-        if client:
-            return client.get_employee(self.id_)
-        else:
-            raise PersonioError(
-                f"no Personio client is is available in this {self.__class__.__name__} instance "
-                f"to make a request for the full employee profile of "
-                f"{self.first_name} {self.last_name} ({self.id_})"
-            )
+    def resolve(self) -> "Employee":
+        return self._get_client().get_employee(self.id)
 
 
 class Team(PersonioResource):
     _api_type_name = "Team"
-    _field_mapping_list = [
-        NumericFieldMapping("id", "id_", int),
-        FieldMapping("name", "name", str),
-    ]
 
-    def __init__(self, id_: int = None, name: str = None, **kwargs):
-        super().__init__(**kwargs)
-        self.id_ = id_
-        self.name = name
+    id: int | None = None
+    name: str | None = None
 
 
 class WorkSchedule(PersonioResource):
     _api_type_name = "WorkSchedule"
-    _field_mapping_list = [
-        NumericFieldMapping("id", "id_", int),
-        FieldMapping("name", "name", str),
-        DateFieldMapping("valid_from", "valid_from"),
-        DurationFieldMapping("monday", "monday"),
-        DurationFieldMapping("tuesday", "tuesday"),
-        DurationFieldMapping("wednesday", "wednesday"),
-        DurationFieldMapping("thursday", "thursday"),
-        DurationFieldMapping("friday", "friday"),
-        DurationFieldMapping("saturday", "saturday"),
-        DurationFieldMapping("sunday", "sunday"),
-    ]
 
-    def __init__(
-        self,
-        id_: int = None,
-        name: str = None,
-        valid_from: datetime = None,
-        monday: timedelta = None,
-        tuesday: timedelta = None,
-        wednesday: timedelta = None,
-        thursday: timedelta = None,
-        friday: timedelta = None,
-        saturday: timedelta = None,
-        sunday: timedelta = None,
-        **kwargs,
-    ):
-        super().__init__(**kwargs)
-        self.id_ = id_
-        self.name = name
-        self.valid_from = valid_from
-        self.monday = monday
-        self.tuesday = tuesday
-        self.wednesday = wednesday
-        self.thursday = thursday
-        self.friday = friday
-        self.saturday = saturday
-        self.sunday = sunday
+    id: int | None = None
+    name: str | None = None
+    valid_from: date | None = None
+    monday: timedelta | None = None
+    tuesday: timedelta | None = None
+    wednesday: timedelta | None = None
+    thursday: timedelta | None = None
+    friday: timedelta | None = None
+    saturday: timedelta | None = None
+    sunday: timedelta | None = None
+
+    @field_validator(
+        "monday",
+        "tuesday",
+        "wednesday",
+        "thursday",
+        "friday",
+        "saturday",
+        "sunday",
+        mode="before",
+    )
+    @classmethod
+    def _fix_time_format(cls, v):
+        """The Personio API provides working hours as ``HH:MM`` strings (e.g. ``"08:00"``).
+
+        pydantic's timedelta parser expects the seconds component (``HH:MM:SS``), so we append
+        ``:00`` if it is missing.
+        """
+        if isinstance(v, str) and v.count(":") == 1:
+            return v + ":00"
+        return v
 
 
-class Absence(WritablePersonioResource):
+class Absence(PersonioResource):
     _api_type_name = "TimeOffPeriod"
-    _can_update = False
-    _field_mapping_list = [
-        NumericFieldMapping("id", "id_", int),
-        FieldMapping("status", "status", str),
-        FieldMapping("comment", "comment", str),
-        DateFieldMapping("start_date", "start_date"),
-        DateFieldMapping("end_date", "end_date"),
-        NumericFieldMapping("days_count", "days_count", float),
-        NumericFieldMapping("half_day_start", "half_day_start", int),
-        NumericFieldMapping("half_day_end", "half_day_end", int),
-        ObjectFieldMapping("time_off_type", "time_off_type", AbsenceType),
-        ObjectFieldMapping("employee", "employee", ShortEmployee),
-        FieldMapping("created_by", "created_by", str),
-        ObjectFieldMapping("certificate", "certificate", Certificate),
-        DateTimeFieldMapping("created_at", "created_at"),
-        DateTimeFieldMapping("updated_at", "updated_at"),
+    _api_fields_required: ClassVar[list] = [
+        ("employee.id", "employee_id"),
+        ("time_off_type.id", "time_off_type_id"),
+        "start_date",
+        "end_date",
+        "half_day_start",
+        "half_day_end",
     ]
+    _api_fields_optional: ClassVar[list] = ["comment"]
 
-    def __init__(
-        self,
-        client: "Personio" = None,
-        dynamic: dict[str, Any] = None,
-        dynamic_raw: list["DynamicAttr"] = None,
-        id_: int = None,
-        status: str = None,
-        comment: str = None,
-        start_date: datetime = None,
-        end_date: datetime = None,
-        days_count: float = None,
-        half_day_start: bool = False,
-        half_day_end: bool = False,
-        time_off_type: AbsenceType = None,
-        employee: ShortEmployee = None,
-        created_by: str = None,
-        certificate: Certificate = None,
-        created_at: datetime = None,
-        updated_at: datetime = None,
-        **kwargs,
-    ):
-        super().__init__(client=client, dynamic=dynamic, dynamic_raw=dynamic_raw, **kwargs)
-        self.id_ = id_
-        self.status = status
-        self.comment = comment
-        self.start_date = start_date
-        self.end_date = end_date
-        self.days_count = days_count
-        self.half_day_start = bool(half_day_start)
-        self.half_day_end = bool(half_day_end)
-        self.time_off_type = time_off_type
-        self.employee = employee
-        self.created_by = created_by
-        self.certificate = certificate
-        self.created_at = created_at
-        self.updated_at = updated_at
+    id: int | None = None
+    status: str | None = None
+    comment: str | None = None
+    start_date: date | None = None
+    end_date: date | None = None
+    days_count: float | None = None
+    half_day_start: bool | None = None
+    half_day_end: bool | None = None
+    time_off_type: AbsenceType | None = None
+    employee: ShortEmployee | None = None
+    certificate: Certificate | None = None
+    created_by: str | None = None
+    created_at: datetime | None = None
+    updated_at: datetime | None = None
 
-    def _create(self, client: "Personio" = None):
-        return get_client(self, client).create_absence(self)
+    @field_validator("start_date", "end_date", mode="before")
+    @classmethod
+    def _datetime_to_date(cls, v):
+        if v and isinstance(v, str):
+            return v[:10]
+        return v
 
-    def _delete(self, client: "Personio" = None):
-        return get_client(self, client).delete_absence(self)
+    @field_validator("employee", mode="before")
+    @classmethod
+    def short_employee_conversion(cls, v):
+        if isinstance(v, BaseEmployee):
+            return v.to_short_employee()
+        return v
 
-    def to_body_params(self):
-        data = {
-            "employee_id": self.employee.id_,
-            "time_off_type_id": self.time_off_type.id_,
-            "start_date": self.start_date.strftime("%Y-%m-%d"),
-            "end_date": self.end_date.strftime("%Y-%m-%d"),
-            "half_day_start": self.half_day_start,
-            "half_day_end": self.half_day_end,
-        }
-        if self.comment is not None:
-            data["comment"] = self.comment
+    def create(self) -> "Absence":
+        return self._get_client().create_absence(self)
+
+    def delete(self):
+        return self._get_client().delete_absence(self)
+
+    def get_employee(self) -> "Employee":
+        return self.employee.resolve()
+
+    def to_api_dict(self) -> dict:
+        data = {}
+        for field in self._api_fields_required:
+            self._add_api_dict_field(self, data, field, required=True)
+        for field in self._api_fields_optional:
+            self._add_api_dict_field(self, data, field, required=False)
         return data
 
 
-class Project(WritablePersonioResource):
+class Project(PersonioResource):
     _api_type_name = "Project"
-    _field_mapping_list = [
-        # note: the id is actually not in the attributes dict, but one level higher
-        NumericFieldMapping("id", "id_", int),
-        FieldMapping("name", "name", str),
-        BooleanFieldMapping("active", "active"),
-        DateTimeFieldMapping("created_at", "created_at"),
-        DateTimeFieldMapping("updated_at", "updated_at"),
-    ]
 
-    def __init__(
-        self,
-        client: "Personio" = None,
-        dynamic: dict[str, Any] = None,
-        dynamic_raw: list["DynamicAttr"] = None,
-        id_: int = None,
-        name: str = None,
-        active: bool = None,
-        created_at: datetime = None,
-        updated_at: datetime = None,
-        **kwargs,
-    ):
-        super().__init__(client=client, dynamic=dynamic, dynamic_raw=dynamic_raw, **kwargs)
-        self.id_ = id_
-        self.name = name
-        self.active = active
-        self.created_at = created_at
-        self.updated_at = updated_at
+    id: int | None = None
+    name: str | None = None
+    active: bool | None = None
+    created_at: datetime | None = None
+    updated_at: datetime | None = None
 
-    def _create(self, client: "Personio" = None):
-        return get_client(self, client).create_project(self)
+    def create(self) -> "Project":
+        return self._get_client().create_project(self)
 
-    def _delete(self, client: "Personio" = None):
-        return get_client(self, client).delete_project(self)
+    def delete(self):
+        return self._get_client().delete_project(self)
 
-    def _update(self, client: "Personio" = None):
-        return get_client(self, client).update_project(self)
+    def update(self) -> "Project":
+        return self._get_client().update_project(self)
 
-    def to_dict(self, nested=False) -> dict[str, Any]:
-        # yes, this is weird an unnecessary, but that's how the api works
-        d = super().to_dict()
-        d["id"] = self.id_
-        del d["attributes"]["id"]
+    def to_body_params(self) -> dict:
+        return {"name": self.name, "active": self.active}
+
+    @classmethod
+    def _get_kwargs_from_api_dict(cls, d: dict) -> dict:
+        # unlike most resources, the project id lives at the top level and must be preserved
+        id_ = d.get("id")
+        if "type" in d and "attributes" in d:
+            cls._check_api_type(d)
+            d = d["attributes"]
+            d["id"] = id_
+        if not cls._flat_dict:
+            d = {k: v["value"] for k, v in d.items()}
         return d
 
-    def to_body_params(self):
-        data = {"name": self.name, "active": self.active}
-        return data
 
-
-class Attendance(WritablePersonioResource):
+class Attendance(PersonioResource):
     _api_type_name = "AttendancePeriod"
-    _field_mapping_list = [
-        # note: the id is actually not in the attributes dict, but one level higher
-        NumericFieldMapping("id", "id_", int),
-        NumericFieldMapping("employee", "employee_id", int),
-        DateFieldMapping("date", "date"),
-        DurationFieldMapping("start_time", "start_time"),
-        DurationFieldMapping("end_time", "end_time"),
-        NumericFieldMapping("break", "break_duration", int),
-        FieldMapping("comment", "comment", str),
-        BooleanFieldMapping("is_holiday", "is_holiday"),
-        BooleanFieldMapping("is_on_time_off", "is_on_time_off"),
-    ]
 
-    def __init__(
-        self,
-        client: "Personio" = None,
-        dynamic: dict[str, Any] = None,
-        dynamic_raw: list["DynamicAttr"] = None,
-        id_: int = None,
-        employee_id: int = None,
-        date: datetime = None,
-        start_time: str = None,
-        end_time: str = None,
-        break_duration: int = None,
-        comment: str = None,
-        is_holiday: bool = None,
-        is_on_time_off: bool = None,
-        **kwargs,
-    ):
-        super().__init__(client=client, dynamic=dynamic, dynamic_raw=dynamic_raw, **kwargs)
-        self.id_ = id_
-        self.employee_id = employee_id
-        self.date = date
-        self.start_time = start_time
-        self.end_time = end_time
-        self.break_duration = break_duration
-        self.comment = comment
-        self.is_holiday = is_holiday
-        self.is_on_time_off = is_on_time_off
+    id: int | None = None
+    employee: int | None = None
+    day: date | None = Field(None, alias="date")
+    start_time: time | None = None
+    end_time: time | None = None
+    break_duration: int | None = Field(None, alias="break")
+    comment: str | None = None
 
-    def to_dict(self, nested=False) -> dict[str, Any]:
-        # yes, this is weird an unnecessary, but that's how the api works
-        d = super().to_dict()
-        d["id"] = self.id_
-        del d["attributes"]["id"]
-        return d
+    def create(self):
+        return self._get_client().create_attendances([self])
 
-    def _create(self, client: "Personio"):
-        get_client(self, client).create_attendances([self])
+    def update(self):
+        return self._get_client().update_attendance(self)
 
-    def _update(self, client: "Personio"):
-        get_client(self, client).update_attendance(self)
+    def delete(self):
+        return self._get_client().delete_attendance(self)
 
-    def _delete(self, client: "Personio"):
-        get_client(self, client).delete_attendance(self)
+    def get_employee(self) -> "Employee":
+        return self._get_client().get_employee(self.employee)
 
-    def to_body_params(self, patch_existing_attendance=False):
+    def to_body_params(self, patch_existing_attendance=False) -> dict:
         """
         Return the Attendance object in the representation expected by the Personio API
 
-        For an attendance record to be created all_values_required needs to be True.
+        For an attendance record to be created all values are required.
         For patch operations only the attendance id is required, but it is not
         included into the body params.
 
-        :param patch_existing_attendance Get patch body. If False a create body is returned.
+        :param patch_existing_attendance: Get patch body. If False a create body is returned.
         """
         if patch_existing_attendance:
-            if self.id_ is None:
+            if self.id is None:
                 raise ValueError("An attendance id is required")
             body_dict = {}
-            if self.date is not None:
-                body_dict["date"] = self.date.strftime("%Y-%m-%d")
+            if self.day is not None:
+                body_dict["date"] = self.day.strftime("%Y-%m-%d")
             if self.start_time is not None:
                 body_dict["start_time"] = str(self.start_time)
             if self.end_time is not None:
@@ -793,152 +462,406 @@ class Attendance(WritablePersonioResource):
             return body_dict
         else:
             return {
-                "employee": self.employee_id,
-                "date": self.date.strftime("%Y-%m-%d"),
-                "start_time": self.start_time,
-                "end_time": self.end_time,
+                "employee": self.employee,
+                "date": self.day.strftime("%Y-%m-%d"),
+                "start_time": str(self.start_time),
+                "end_time": str(self.end_time),
                 "break": self.break_duration or 0,
                 "comment": self.comment or "",
             }
 
+    @classmethod
+    def _get_kwargs_from_api_dict(cls, d: dict) -> dict:
+        # unlike most resources, the attendance id lives at the top level and must be preserved
+        id_ = d.get("id")
+        if "type" in d and "attributes" in d:
+            cls._check_api_type(d)
+            d = d["attributes"]
+            d["id"] = id_
+        if not cls._flat_dict:
+            d = {k: v["value"] for k, v in d.items()}
+        return d
 
-class Employee(WritablePersonioResource, LabeledAttributesMixin):
+
+class AbsenceBalance(PersonioResource):
+    id: int | None = None
+    name: str | None = None
+    balance: float | None = None
+
+
+def _parse_tags(v: str | list[str] | None) -> list[str] | None:
+    """
+    The 'tags' type is a multiple choice field, where the user can select 0 or more fields from
+    a list of values. The personio API provides this list of values as a single string with
+    comma separated values. When we serialize this type, we store it as list of strings.
+    Therefore we need this parsing function so that we can handle both the comma separated string
+    and the list of string.
+
+    :param v: value of the tags field (string, list of strings, or None)
+    :return: the parsed tags value, as list of strings, or None
+    """
+    if isinstance(v, str):
+        if v.startswith("[") and v.endswith("]"):
+            # this is a json list, stored as string. Personio does that sometimes, apparently
+            return json.loads(v)
+        else:
+            # otherwise Personio usually provides a comma-separated list of strings
+            return [tag.strip() for tag in v.split(",")]
+    elif isinstance(v, list):
+        return v
+    elif not v:
+        return None
+    else:
+        raise ValueError(f"unexpected input type {type(v)}")
+
+
+PersonioTags = Annotated[list[str], BeforeValidator(_parse_tags)]
+"""The Personio 'tags' type, which is basically a multiple choice field"""
+
+
+class CustomAttribute(BaseModel):
+    _type_mapping: ClassVar[dict[str, Any]] = {
+        # standard text field, no line breaks
+        "standard": str,
+        # a date field. the API provides date and time information as ISO 8601 string
+        "date": datetime,
+        # an integer field
+        "integer": int,
+        # a float field (limited precision)
+        "decimal": float,
+        # "list" refers to an option field, where only one item can be selected.
+        # only the selected item is provided by the API, therefore this is a string.
+        "list": str,
+        # a hyperlink
+        "link": str,
+        # "tags" refers to a multiple choice field, where you can select 0 or more items from a
+        # predefined list of items. The list of all selected items is provided by the API.
+        "tags": PersonioTags,
+        # a multiline text field, can contain line breaks
+        "multiline": str,
+    }
+
+    key: str | None = None
+    label: str | None = None
+    type: str | None = None
+    universal_id: str | None = None
+
+    @property
+    def py_type(self) -> Any:
+        type_str = str(self.type).lower()
+        if type_str in self._type_mapping:
+            return self._type_mapping[type_str]
+        else:
+            raise PersonioError(f"unexpected custom attribute type {self.type}")
+
+
+class BaseEmployee(PersonioResource):
     _api_type_name = "Employee"
-    _can_delete = False
-    _field_mapping_list = [
-        NumericFieldMapping("id", "id_", int),
-        FieldMapping("first_name", "first_name", str),
-        FieldMapping("last_name", "last_name", str),
-        FieldMapping("email", "email", str),
-        FieldMapping("gender", "gender", str),
-        FieldMapping("status", "status", str),
-        FieldMapping("position", "position", str),
-        ObjectFieldMapping("supervisor", "supervisor", ShortEmployee),
-        FieldMapping("employment_type", "employment_type", str),
-        FieldMapping("weekly_working_hours", "weekly_working_hours", str),
-        DateFieldMapping("hire_date", "hire_date"),
-        DateFieldMapping("contract_end_date", "contract_end_date"),
-        DateFieldMapping("termination_date", "termination_date"),
-        FieldMapping("termination_type", "termination_type", str),
-        FieldMapping("termination_reason", "termination_reason", str),
-        DateFieldMapping("probation_period_end", "probation_period_end"),
-        DateTimeFieldMapping("created_at", "created_at"),
-        DateTimeFieldMapping("last_modified_at", "last_modified_at"),
-        FieldMapping("subcompany", "subcompany", str),
-        ObjectFieldMapping("office", "office", Office),
-        ObjectFieldMapping("department", "department", Department),
-        ListFieldMapping(ObjectFieldMapping("cost_centers", "cost_centers", CostCenter)),
-        NumericFieldMapping("fix_salary", "fix_salary", float),
-        FieldMapping("fix_salary_interval", "fix_salary_interval", str),
-        NumericFieldMapping("hourly_salary", "hourly_salary", float),
-        NumericFieldMapping("vacation_day_balance", "vacation_day_balance", float),
-        DateFieldMapping("last_working_day", "last_working_day"),
-        ObjectFieldMapping("holiday_calendar", "holiday_calendar", HolidayCalendar),
-        ObjectFieldMapping("work_schedule", "work_schedule", WorkSchedule),
-        ListFieldMapping(
-            ObjectFieldMapping("absence_entitlement", "absence_entitlement", AbsenceEntitlement)
-        ),
-        FieldMapping("profile_picture", "profile_picture", str),
-        ObjectFieldMapping("team", "team", Team),
+    _flat_dict = False
+    _custom_attribute_keys: ClassVar[list[str]] = []
+    """the names of all known custom attributes (usually starting with 'dynamic_')"""
+    _custom_attribute_aliases: ClassVar[dict[str, str]] = {}
+    """mapping from all custom attribute names (starting with 'dynamic_') to their aliases"""
+    _property_setters: ClassVar[dict[str, property]] = {}
+    """a cache of setter functions for all custom attributes"""
+    _picture: dict[int | None, bytes] = PrivateAttr(default_factory=dict)
+    """the Employee's picture is cached in this attribute on first request
+    (mapping from image width to image bytes)"""
+    _api_fields_required: ClassVar[list] = ["email", "first_name", "last_name"]
+    """these are the standard fields that are required by the Employee create/update API"""
+    _api_fields_optional: ClassVar[list] = [
+        "gender",
+        "position",
+        "subcompany",
+        ("department.name", "department"),
+        ("office.name", "office"),
+        "hire_date",
+        "weekly_working_hours",
     ]
+    """these are the standard fields that are supported by the Employee create/update API,
+    but optional. Any other standard fields besides those defined in `_api_fields_required` are
+    not supported and will by ignored by the Personio API"""
 
-    def __init__(
-        self,
-        client: "Personio" = None,
-        dynamic: dict[str, Any] = None,
-        dynamic_raw: list["DynamicAttr"] = None,
-        id_: int = None,
-        first_name: str = None,
-        last_name: str = None,
-        email: str = None,
-        gender: str = None,
-        status: str = None,
-        position: str = None,
-        supervisor: ShortEmployee = None,
-        employment_type: str = None,
-        weekly_working_hours: str = None,
-        hire_date: datetime = None,
-        contract_end_date: datetime = None,
-        termination_date: datetime = None,
-        termination_type: str = None,
-        termination_reason: str = None,
-        probation_period_end: datetime = None,
-        created_at: datetime = None,
-        last_modified_at: datetime = None,
-        subcompany: str = None,
-        office: Office = None,
-        department: Department = None,
-        cost_centers: list[CostCenter] = None,
-        holiday_calendar: HolidayCalendar = None,
-        absence_entitlement: list[AbsenceEntitlement] = None,
-        work_schedule: WorkSchedule = None,
-        fix_salary: float = None,
-        fix_salary_interval: str = None,
-        hourly_salary: float = None,
-        vacation_day_balance: float = None,
-        last_working_day: datetime = None,
-        profile_picture: str = None,
-        team: Team = None,
-        **kwargs,
-    ):
-        super().__init__(client=client, dynamic=dynamic, dynamic_raw=dynamic_raw, **kwargs)
-        self.id_ = id_
-        self.first_name = first_name
-        self.last_name = last_name
-        self.email = email
-        self.gender = gender
-        self.status = status
-        self.position = position
-        self.supervisor = supervisor
-        self.employment_type = employment_type
-        self.weekly_working_hours = weekly_working_hours
-        self.hire_date = hire_date
-        self.contract_end_date = contract_end_date
-        self.termination_date = termination_date
-        self.termination_type = termination_type
-        self.termination_reason = termination_reason
-        self.probation_period_end = probation_period_end
-        self.created_at = created_at
-        self.last_modified_at = last_modified_at
-        self.subcompany = subcompany
-        self.office = office
-        self.department = department
-        self.cost_centers = cost_centers
-        self.holiday_calendar = holiday_calendar
-        self.absence_entitlement = absence_entitlement
-        self.work_schedule = work_schedule
-        self.fix_salary = fix_salary
-        self.fix_salary_interval = fix_salary_interval
-        self.hourly_salary = hourly_salary
-        self.vacation_day_balance = vacation_day_balance
-        self.last_working_day = last_working_day
-        self.profile_picture = profile_picture
-        self.team = team
-        self._picture = None
+    id: int | None = None
+    """unique identifier by which Personio refers to this employee"""
+    first_name: str | None = None
+    """first name / given name of the employee"""
+    last_name: str | None = None
+    """last name / surname / family name of the employee"""
+    email: str | None = None
+    """the employee's email address"""
+    gender: str | None = None
+    """the employee's gender"""
+    status: str | None = None
+    """the employee's employment status (active, inactive, ...)"""
+    position: str | None = None
+    """the employee's position / job title"""
+    supervisor: ShortEmployee | None = None
+    """the employee's current supervisor"""
+    employment_type: str | None = None
+    """the employee's employment type (internal, external)"""
+    weekly_working_hours: str | None = None
+    """the employee's weekly working hours, as contracted"""
+    hire_date: date | None = None
+    """the date when this employee was hired"""
+    contract_end_date: date | None = None
+    """when specified, this employee's contract will end at this date"""
+    termination_date: date | None = None
+    """date when this employee's contract has been terminated"""
+    termination_type: str | None = None
+    """choice from a list of reasons for termination (retirement, temporary contract, etc.)"""
+    termination_reason: str | None = None
+    """free-text field where details about the termination can be stored"""
+    probation_period_end: date | None = None
+    """date at which this employee's probation period ends"""
+    created_at: datetime | None = None
+    """date at which this employee profile was created in Personio"""
+    last_modified_at: datetime | None = None
+    """date at which this employee profile was last updated in Personio"""
+    subcompany: str | None = None
+    """name of the subcompany this employee is working for"""
+    office: Office | None = None
+    """the office this employee is typically working from"""
+    department: Department | None = None
+    """the department this employee belongs to"""
+    cost_centers: list[CostCenter] | None = None
+    """list of cost centers this employee is assigned to"""
+    holiday_calendar: HolidayCalendar | None = None
+    """the holiday calender which is valid for this employee"""
+    absence_entitlement: list[AbsenceEntitlement] | None = None
+    """the list of absences this employee is entitled to (vacations, parental leave, etc.)"""
+    work_schedule: WorkSchedule | None = None
+    """the employee's work schedule (expected working hours per week day)"""
+    fix_salary: float | None = None
+    """the employee's fixed salary (without bonus payments)"""
+    fix_salary_interval: str | None = None
+    """the interval at which the fixed salary is paid (monthly, weekly, etc.)"""
+    hourly_salary: float | None = None
+    """the employee's hourly salary (as alternative to the fixed salary)"""
+    vacation_day_balance: float | None = None
+    """the employee's current vacation day balance (can be negative)"""
+    last_working_day: date | None = None
+    """the employee's last working day, in case the contract was terminated"""
+    profile_picture: str | None = None
+    """URL to this employee's profile picture"""
+    team: Team | None = None
+    """the team this employee is assigned to"""
 
-    def _create(self, client: "Personio" = None):
-        pass
+    @field_validator(
+        "hire_date",
+        "contract_end_date",
+        "termination_date",
+        "probation_period_end",
+        "last_working_day",
+        mode="before",
+    )
+    @classmethod
+    def _datetime_to_date(cls, v):
+        if v and isinstance(v, str):
+            return v[:10]
+        return v
 
-    def _update(self, client: "Personio" = None):
-        pass
+    def create(self, refresh=True) -> "Employee":
+        return self._get_client().create_employee(self, refresh=refresh)
 
-    def picture(self, client: "Personio" = None, width: int = None) -> bytes:
-        if self._picture is None:
-            client = get_client(self, client)
-            self._picture = client.get_employee_picture(self, width=width)
-        return self._picture
+    def update(self, refresh=True) -> "Employee":
+        return self._get_client().update_employee(self, refresh=refresh)
 
-    def __str__(self):
-        return (
-            f"{self.__class__.__name__}: {self.first_name} {self.last_name}, "
-            f"{self.position or 'position undefined'} ({self.id_})"
+    def absence_balance(self) -> list[AbsenceBalance]:
+        return self._get_client().get_absence_balance(self)
+
+    def picture(self, width: int = None) -> bytes | None:
+        """
+        Get the profile picture of this employee as image file (usually png or jpg).
+        The data will be cached locally, so subsequent requests of a profile picture
+        of the same size will be fast.
+
+        :param width: optionally scale the profile picture to this width.
+               Defaults to the original width of the profile picture.
+        :return: the profile picture as png or jpg file (bytes)
+        """
+        if width not in self._picture:
+            self._picture[width] = self._get_client().get_employee_picture(self, width=width)
+        return self._picture[width]
+
+    def to_api_dict(self) -> dict:
+        """
+        Convert this Employee instance to a dictionary in the format expected by the Personio API
+        endpoints to create a new employee or update an existing employee.
+
+        Please note that only a subset of all Employee fields is supported by the create/update API
+        of Personio. These are the fields defined in `Employee._api_fields_required`,
+        `Employee._api_fields_optional` as well as all custom attributes.
+
+        :return: the Employee object as dict, in the format expected by the Personio
+                 create/update API
+        """
+        data = {}
+        custom_attributes = {}
+        for field in self._api_fields_required:
+            self._add_api_dict_field(self, data, field, required=True)
+        for field in self._api_fields_optional:
+            self._add_api_dict_field(self, data, field, required=False)
+        for field in self._custom_attribute_keys:
+            self._add_api_dict_field(self, custom_attributes, field, required=False)
+        if custom_attributes:
+            data["custom_attributes"] = custom_attributes
+        return {"employee": data}
+
+    def __setattr__(self, name, value):
+        """
+        Workaround that allows the use of property setters (used for custom attribute aliases).
+
+        We override pydantic's ``BaseModel.__setattr__`` and catch the error that occurs when we
+        try to set an attribute that is not one of pydantic's known fields. We then check if the
+        field name is actually a property that has a setter function and make use of it. Otherwise
+        we re-raise the original error. The property setters are discovered with python's
+        ``inspect`` module and cached on the class.
+
+        :param name: name of the attribute
+        :param value: the value to set
+        """
+        try:
+            super().__setattr__(name, value)
+        except (ValueError, AttributeError) as e:
+            if name not in self._property_setters:
+                self.__cache_property_setters()
+            if name in self._property_setters:
+                object.__setattr__(self, name, value)
+            else:
+                raise e
+
+    @classmethod
+    def __cache_property_setters(cls):
+        """
+        Gets all properties of this class that have a setter function and stores them
+        as dictionary (property name -> instance) in `cls._property_setters`
+        """
+        setters = inspect.getmembers(
+            cls, predicate=lambda x: isinstance(x, property) and x.fset is not None
+        )
+        cls._property_setters = {name: prop for name, prop in setters}
+
+    @property
+    def _custom_fields(self) -> dict[str, Any]:
+        # return dynamic fields (keys and values) as ReadOnlyDict
+        # to assign new values, use employee.dynamic_X directly
+        return ReadOnlyDict((k, getattr(self, k)) for k in self._custom_attribute_keys)
+
+    @classmethod
+    def _get_subclass_for_client(
+        cls, client: "Personio", aliases: dict[str, str] = None
+    ) -> type["BaseEmployee"]:
+        """Generate a new subclass of BaseEmployee that contains all custom attributes.
+
+        The subclass will contain:
+
+        * all custom attributes, as defined in the Personio "custom-attributes" endpoint,
+          as well as their types for automatic type conversion with pydantic
+        * aliases for all custom attributes as property functions. Aliases are preferred from
+          the specified aliases dict, but if not provided, names are automatically generated
+          from the labels of the custom attributes. Label names are reduced to latin characters
+          and digits and whitespace replaced with underscores, e.g. a label like "Phone (office)"
+          would become "phone_office".
+        * label names for all attributes (pydantic Field metadata)
+        * class variables that describe the custom attributes and their aliases
+
+        Learn more about dynamic model creation:
+        https://docs.pydantic.dev/latest/concepts/models/#dynamic-model-creation
+
+        Note: this returns a fresh subclass; it does not mutate any global state. Each Personio
+        client keeps its own subclass, so multiple clients with different custom attributes can
+        be used at the same time.
+
+        :param client: the Personio client instance to generate a dynamic model for
+        :param aliases: custom aliases provided by the user (optional)
+        :return: the class definition of the new Employee subclass
+        """
+        # get custom attributes, generate subclass
+        attributes = client.get_custom_attributes()
+        dynamic_attributes = [a for a in attributes if a.key.startswith("dynamic_")]
+        # Optional[...] (rather than `py_type | None`) is used deliberately: py_type may be an
+        # Annotated alias (e.g. the tags type), and Optional handles that robustly.
+        pydantic_fields = {a.key: (Optional[a.py_type], None) for a in dynamic_attributes}
+        employee_cls = create_model(
+            "Employee",
+            __base__=BaseEmployee,
+            __module__="personio_py.models",
+            **pydantic_fields,
+        )
+        # set class variables on the new subclass (not on BaseEmployee, to keep clients isolated)
+        aliases = aliases or {}
+        employee_cls._custom_attribute_keys = [a.key for a in dynamic_attributes]
+        employee_cls._custom_attribute_aliases = {
+            a.key: aliases.get(a.key) or cls._get_attribute_name_for(a.label)
+            for a in dynamic_attributes
+        }
+        # add metadata to pydantic fields
+        attributes_dict = {a.key: a for a in attributes}
+        for key, field in employee_cls.model_fields.items():
+            if key in attributes_dict:
+                field.title = attributes_dict[key].label
+        # add aliases as properties
+        for attribute in dynamic_attributes:
+            key = attribute.key
+            alias = employee_cls._custom_attribute_aliases[key]
+            if not alias:
+                continue
+            if hasattr(employee_cls, alias):
+                logger.warning(
+                    f"cannot add alias '{alias}' for '{key}' to the Employee class, because "
+                    f"there is already an attribute with this name."
+                )
+            else:
+                cls.__set_alias_property(employee_cls, key, alias, attribute.label)
+        return employee_cls
+
+    @staticmethod
+    def __set_alias_property(cls: type, attr: str, alias: str, label: str):
+        """Add a new property to a class which serves as an alias to an existing attribute.
+
+        :param cls: add the new property to this class
+        :param attr: the original attribute to reference
+        :param alias: the alias for the original attribute
+        :param label: a properly formatted name/label/title for the alias (used in the docstring)
+        """
+        prop = property(
+            fget=lambda self: getattr(self, attr),
+            fset=lambda self, value: setattr(self, attr, value),
+            doc=f"{alias} ({label}) is an alias for {attr}",
+        )
+        setattr(cls, alias, prop)
+
+    @classmethod
+    def _get_attribute_name_for(cls, name: str) -> str | None:
+        if not name or not name.strip():
+            return None
+        # we want a lowercase attribute name
+        result = name.lower()
+        # special handling of German non-ascii letters, because Personio is a German company ;)
+        table = str.maketrans({"ä": "ae", "ö": "oe", "ü": "ue", "ß": "ss"})
+        result = result.translate(table)
+        # convert unicode chars to their closest ascii equivalents, ignoring the rest
+        result = unicodedata.normalize("NFKD", result).encode("ascii", "ignore").decode()
+        # keep only letters, digits and whitespace
+        result = "".join(c for c in result if c.isalnum() or c.isspace())
+        # remove consecutive whitespace and join tokens with underscores
+        result = "_".join(result.split())
+        # remove leading digits, since they are not allowed in python attribute names
+        result = result.lstrip("0123456789_")
+        return result
+
+    def to_short_employee(self) -> ShortEmployee:
+        return ShortEmployee(
+            id=self.id,
+            first_name=self.first_name,
+            last_name=self.last_name,
+            email=self.email,
         )
 
 
-def get_client(resource: PersonioResource, client: "Personio" = None):
-    if resource._client or client:
-        return resource._client or client
-    raise PersonioError(
-        f"no Personio client reference is available, please provide it to "
-        f"your {type(resource).__name__} or as function parameter"
-    )
+# Employee is an alias for BaseEmployee until a client generates a subclass that contains the
+# custom attributes of the connected Personio account. Unlike the previous implementation, this
+# alias is NOT reassigned at runtime and sys.modules is NOT patched: each Personio client keeps
+# its own Employee subclass (client.Employee), which keeps multiple clients fully independent.
+Employee = BaseEmployee

@@ -20,7 +20,7 @@ repos:
         args: ["--autofix", "--no-sort-keys"]
       - id: name-tests-test
         args: ["--pytest-test-first"]
-        exclude: ^tests/(testing_.*|apitest_shared\.py|mock_data\.py)$
+        exclude: ^tests/(testing_.*|apitest_shared\.py|mock_data\.py|connection\.py)$
   - repo: https://github.com/asottile/pyupgrade
     rev: v3.21.2
     hooks:

@@ -19,8 +19,8 @@
 >>> absences = p.get_absences(ada)
 >>> len(absences)
 12
->>> dict(absences[0])
-{'id': 42, 'status': 'approved', 'start_date': '2020-08-01', 'end_date': '2020-08-16', ...}
+>>> absences[0].model_dump()
+{'id': 42, 'status': 'approved', 'start_date': datetime.date(2020, 8, 1), 'end_date': datetime.date(2020, 8, 16), ...}
 ```
 
 **personio-py** aims to provide Python function wrappers and object mappings for all endpoints of the [Personio REST API](https://developer.personio.de/reference). Because personio-py is a third party library, and the REST API may change from time to time, we cannot guarantee that all functions are covered, but we try our best.
@@ -33,10 +33,10 @@ If something appears to be broken, please have a look at the [open issues](https
 
 * Aims to cover all functions of the Personio API (work in progress)
 * Python function wrappers for all API endpoints as part of the Personio class
-* Object mappings for all API resources, e.g. an Employee is an object with properties for all the information that is provided by the REST API.
+* Object mappings for all API resources based on [pydantic](https://docs.pydantic.dev/), e.g. an Employee is a validated, typed model with properties for all the information that is provided by the REST API. Custom ("dynamic") attributes are discovered from your account and exposed as typed attributes.
 * Completely transparent handling of authentication and key rotation
 * Support for Type Hints
-* Only one dependency: [requests](https://pypi.org/project/requests/)
+* Two lightweight dependencies: [requests](https://pypi.org/project/requests/) and [pydantic](https://docs.pydantic.dev/) (v2)
 
 ## Getting Started
 
@@ -45,6 +45,8 @@ The package is available on [PyPI](https://pypi.org/project/personio-py/) and ca
     pip install personio-py
 
 Now you can `import personio_py` and start coding. Please have a look at the [User Guide](https://at-gmbh.github.io/personio-py/guide.html) and the [Examples](https://at-gmbh.github.io/personio-py/examples.html) section for more details.
+
+> **⚠️ Upgrading to 1.0.0:** version 1.0.0 rewrites the object models on top of [pydantic](https://docs.pydantic.dev/) v2 and contains **breaking changes** (e.g. `employee.id_` → `employee.id`, `to_dict()`/`from_dict()` → `model_dump()`/`to_api_dict()`/`to_body_params()`, and creating records now goes through the client, e.g. `client.create_absence(absence)`). See the [CHANGELOG](./CHANGELOG.md) for the full migration guide.
 
 ## Contributing
 
@@ -99,7 +101,10 @@ Employees
 * [`GET /company/employees`](https://developer.personio.de/reference/get_company-employees): list all employees
 * [`POST /company/employees`](https://developer.personio.de/reference/post_company-employees): create a new employee
 * [`GET /company/employees/{id}`](https://developer.personio.de/reference/get_company-employees-employee-id): get the employee with the specified ID
+* [`PATCH /company/employees/{id}`](https://developer.personio.de/reference/patch_company-employees-employee-id): update an existing employee entry
 * [`GET /company/employees/{id}/profile-picture/{width}`](https://developer.personio.de/reference/get_company-employees-employee-id-profile-picture-width): get the profile picture of the specified employee
+* [`GET /company/employees/{employee_id}/absences/balance`](https://developer.personio.de/reference/get_company-employees-employee-id-absences-balance): retrieve the absence balance for a specific employee
+* [`GET /company/employees/custom-attributes`](https://developer.personio.de/reference/get_company-employees-custom-attributes): list all custom (dynamic) employee attributes
 
 Attendances
 
@@ -125,9 +130,6 @@ Absences
 
 ### Not yet implemented
 
-* [`PATCH /company/employees/{id}`](https://developer.personio.de/reference/patch_company-employees-employee-id): update an existing employee entry
-* [`GET /company/employees/{employee_id}/absences/balance`](https://developer.personio.de/reference/get_company-employees-employee-id-absences-balance): retrieve the absence balance for a specific employee
-* [`GET /company/employees/custom-attributes`](https://developer.personio.de/reference/get_company-employees-custom-attributes): this endpoint is an alias for /company/employees/attributes
 * [`GET /company/employees/attributes`](https://developer.personio.de/reference/get_company-employees-attributes): lists all the allowed attributes per API credentials including custom (dynamic) attributes.
 * [`GET /company/absence-periods`](https://developer.personio.de/reference/get_company-absence-periods)
 * [`POST /company/absence-periods`](https://developer.personio.de/reference/post_company-absence-periods)

@@ -14,21 +14,25 @@ from .errors import (
     PersonioApiError,
     UnsupportedMethodError,
 )
-from .mapping import DynamicMapping
 from .models import (
     Absence,
+    AbsenceBalance,
     AbsenceEntitlement,
     AbsenceType,
     Attendance,
+    BaseEmployee,
     CostCenter,
+    CustomAttribute,
     Department,
-    DynamicAttr,
     Employee,
     HolidayCalendar,
     Office,
+    PersonioResource,
+    PersonioResourceType,
+    Project,
     ShortEmployee,
     Team,
     WorkSchedule,
-    Project,
 )
+from .search import SearchIndex
 from personio_py.client import Personio
