@@ -14,8 +14,8 @@ iso_date_match = re.compile(r'\d\d\d\d-\d\d-\d\d')
 
 
 def assert_credentials_in_body(request):
-    # the credentials must be in the request body (Personio API security update 2025-12-01),
-    # never in the query string, where they would return a 403 Forbidden
+    # the credentials must be in the request body (Personio API security update 2026-12-01),
+    # never in the query string, where they would return a 402 error
     assert 'client_id' not in (request.url.split('?', 1)[1] if '?' in request.url else '')
     assert json.loads(request.body) == {"client_id": "test", "client_secret": "test"}
 

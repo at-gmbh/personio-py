@@ -4,29 +4,31 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased](https://github.com/at-gmbh/personio-py/compare/v0.2.3...HEAD)
+## [Unreleased](https://github.com/at-gmbh/personio-py/compare/v1.0.0...HEAD)
+
+## [1.0.0](https://github.com/at-gmbh/personio-py/tree/v1.0.0) - 2026-10-16
 
 * migrate build & dependency management to [Poetry](https://python-poetry.org/): replace
   `setup.py` and `requirements*.txt` with a single `pyproject.toml` (PEP 621) plus committed
   `poetry.lock` and `test`/`linter`/`docs`/`dev` dependency groups; CI now builds, tests and
-  publishes via Poetry (with `.venv` caching) ([#48](https://github.com/at-gmbh/personio-py/pull/48)
+  publishes via Poetry (with `.venv` caching) ([#48](https://github.com/at-gmbh/personio-py/pull/48))
 * fix parsing of multi-select (tags) custom attributes when the Personio API returns them as a
-  JSON-encoded list string (e.g. `'["A","B"]'`) instead of a comma-separated string ([#48](https://github.com/at-gmbh/personio-py/pull/48)
-* drop support for Python 3.7-3.9 (all end-of-life); personio-py now requires Python >= 3.10 ([#46](https://github.com/at-gmbh/personio-py/pull/46)
-* raise the `requests` requirement to a modern version ([#46](https://github.com/at-gmbh/personio-py/pull/46)
+  JSON-encoded list string (e.g. `'["A","B"]'`) instead of a comma-separated string ([#48](https://github.com/at-gmbh/personio-py/pull/48))
+* drop support for Python 3.7-3.9 (all end-of-life); personio-py now requires Python >= 3.10 ([#46](https://github.com/at-gmbh/personio-py/pull/46))
+* raise the `requests` requirement to a modern version ([#46](https://github.com/at-gmbh/personio-py/pull/46))
 * modernize the development tooling: replace flake8 with ruff, add pip-audit and bandit to
-  pre-commit, bump all pre-commit hooks, and migrate the Sphinx docs to myst-parser ([#46](https://github.com/at-gmbh/personio-py/pull/46)
+  pre-commit, bump all pre-commit hooks, and migrate the Sphinx docs to myst-parser ([#46](https://github.com/at-gmbh/personio-py/pull/46))
 * send auth credentials in the request body instead of the query string, as required by
-  the Personio API security update effective 2025-12-01 (query-string credentials return
-  a 403 Forbidden from that date on) ([#45](https://github.com/at-gmbh/personio-py/pull/45)
+  the Personio API security update effective 2026-12-01 (query-string credentials return
+  a 402 error from that date on) ([#45](https://github.com/at-gmbh/personio-py/pull/45))
 * fix `PersonioError: Missing Authorization Header in response` for the attendances and
   projects endpoints, which do not return a rotating auth token (disable auth rotation for
   those requests, consistent with the existing image endpoints)
 * fix `AttributeError` in `to_dict()` when an object field is returned
   empty (`""` or `[]`) instead of `null` by the Personio API; such empty object fields are now
-  deserialized to `None` ([#47](https://github.com/at-gmbh/personio-py/pull/47)
+  deserialized to `None` ([#47](https://github.com/at-gmbh/personio-py/pull/47))
 * add support for providing a custom `requests.Session` in client
-  ([#39](https://github.com/at-gmbh/personio-py/pull/39)
+  ([#39](https://github.com/at-gmbh/personio-py/pull/39))
 
 ## [0.2.3](https://github.com/at-gmbh/personio-py/tree/v0.2.3) - 2023-05-05
 
