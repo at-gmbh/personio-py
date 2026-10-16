@@ -1,6 +1,6 @@
 [project]
 name = "personio-py"
-version = "0.2.3"
+version = "0.3.0"
 description = "A lightweight Personio API client"
 authors = [
     { name = "Sebastian Straub", email = "sebastian.straub@alexanderthamm.com" },

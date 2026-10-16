@@ -32,6 +32,9 @@ jobs:
           key: venv-${{ github.job }}-${{ runner.os }}-3.12-${{ hashFiles('**/poetry.lock') }}
       - name: Install dependencies
         run: poetry install --only main,dev,linter
+      - name: Upgrade pip in venv
+        # pip-audit also audits the venv's own pip, which may be outdated
+        run: poetry run python -m pip install --upgrade pip
       - name: Run pre-commit hooks
         run: poetry run pre-commit run --all-files --show-diff-on-failure
 
