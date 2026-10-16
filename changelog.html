@@ -49,11 +49,12 @@
 <li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Changelog</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#unreleased">Unreleased</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#id1">0.2.3 - 2023-05-05</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#id2">0.2.2 - 2022-07-04</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#id3">0.2.1 - 2021-04-09</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#id4">0.2.0 - 2021-03-10</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#id5">0.1.1 - 2020-08-19</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id1">0.3.0 - 2026-10-16</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id2">0.2.3 - 2023-05-05</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id3">0.2.2 - 2022-07-04</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id4">0.2.1 - 2021-04-09</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id5">0.2.0 - 2021-03-10</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id6">0.1.1 - 2020-08-19</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="api.html">API</a></li>
@@ -88,54 +89,57 @@
 <p>All notable changes to this project will be documented in this file.</p>
 <p>The format is based on <a class="reference external" href="https://keepachangelog.com/en/1.0.0/">Keep a Changelog</a>, and this project adheres to <a class="reference external" href="https://semver.org/spec/v2.0.0.html">Semantic Versioning</a>.</p>
 <section id="unreleased">
-<h2><a class="reference external" href="https://github.com/at-gmbh/personio-py/compare/v0.2.3...HEAD">Unreleased</a><a class="headerlink" href="#unreleased" title="Link to this heading"></a></h2>
+<h2><a class="reference external" href="https://github.com/at-gmbh/personio-py/compare/v0.3.0...HEAD">Unreleased</a><a class="headerlink" href="#unreleased" title="Link to this heading"></a></h2>
+</section>
+<section id="id1">
+<h2><a class="reference external" href="https://github.com/at-gmbh/personio-py/tree/v0.3.0">0.3.0</a> - 2026-10-16<a class="headerlink" href="#id1" title="Link to this heading"></a></h2>
 <ul class="simple">
 <li><p>migrate build &amp; dependency management to <a class="reference external" href="https://python-poetry.org/">Poetry</a>: replace
 <code class="docutils literal notranslate"><span class="pre">setup.py</span></code> and <code class="docutils literal notranslate"><span class="pre">requirements*.txt</span></code> with a single <code class="docutils literal notranslate"><span class="pre">pyproject.toml</span></code> (PEP 621) plus committed
 <code class="docutils literal notranslate"><span class="pre">poetry.lock</span></code> and <code class="docutils literal notranslate"><span class="pre">test</span></code>/<code class="docutils literal notranslate"><span class="pre">linter</span></code>/<code class="docutils literal notranslate"><span class="pre">docs</span></code>/<code class="docutils literal notranslate"><span class="pre">dev</span></code> dependency groups; CI now builds, tests and
-publishes via Poetry (with <code class="docutils literal notranslate"><span class="pre">.venv</span></code> caching) (<a class="reference external" href="https://github.com/at-gmbh/personio-py/pull/48">#48</a></p></li>
+publishes via Poetry (with <code class="docutils literal notranslate"><span class="pre">.venv</span></code> caching) (<a class="reference external" href="https://github.com/at-gmbh/personio-py/pull/48">#48</a>)</p></li>
 <li><p>fix parsing of multi-select (tags) custom attributes when the Personio API returns them as a
-JSON-encoded list string (e.g. <code class="docutils literal notranslate"><span class="pre">'[&quot;A&quot;,&quot;B&quot;]'</span></code>) instead of a comma-separated string (<a class="reference external" href="https://github.com/at-gmbh/personio-py/pull/48">#48</a></p></li>
-<li><p>drop support for Python 3.7-3.9 (all end-of-life); personio-py now requires Python &gt;= 3.10 (<a class="reference external" href="https://github.com/at-gmbh/personio-py/pull/46">#46</a></p></li>
-<li><p>raise the <code class="docutils literal notranslate"><span class="pre">requests</span></code> requirement to a modern version (<a class="reference external" href="https://github.com/at-gmbh/personio-py/pull/46">#46</a></p></li>
+JSON-encoded list string (e.g. <code class="docutils literal notranslate"><span class="pre">'[&quot;A&quot;,&quot;B&quot;]'</span></code>) instead of a comma-separated string (<a class="reference external" href="https://github.com/at-gmbh/personio-py/pull/48">#48</a>)</p></li>
+<li><p>drop support for Python 3.7-3.9 (all end-of-life); personio-py now requires Python &gt;= 3.10 (<a class="reference external" href="https://github.com/at-gmbh/personio-py/pull/46">#46</a>)</p></li>
+<li><p>raise the <code class="docutils literal notranslate"><span class="pre">requests</span></code> requirement to a modern version (<a class="reference external" href="https://github.com/at-gmbh/personio-py/pull/46">#46</a>)</p></li>
 <li><p>modernize the development tooling: replace flake8 with ruff, add pip-audit and bandit to
-pre-commit, bump all pre-commit hooks, and migrate the Sphinx docs to myst-parser (<a class="reference external" href="https://github.com/at-gmbh/personio-py/pull/46">#46</a></p></li>
+pre-commit, bump all pre-commit hooks, and migrate the Sphinx docs to myst-parser (<a class="reference external" href="https://github.com/at-gmbh/personio-py/pull/46">#46</a>)</p></li>
 <li><p>send auth credentials in the request body instead of the query string, as required by
-the Personio API security update effective 2025-12-01 (query-string credentials return
-a 403 Forbidden from that date on) (<a class="reference external" href="https://github.com/at-gmbh/personio-py/pull/45">#45</a></p></li>
+the Personio API security update effective 2026-12-01 (query-string credentials return
+a 403 error from that date on) (<a class="reference external" href="https://github.com/at-gmbh/personio-py/pull/45">#45</a>)</p></li>
 <li><p>fix <code class="docutils literal notranslate"><span class="pre">PersonioError:</span> <span class="pre">Missing</span> <span class="pre">Authorization</span> <span class="pre">Header</span> <span class="pre">in</span> <span class="pre">response</span></code> for the attendances and
 projects endpoints, which do not return a rotating auth token (disable auth rotation for
 those requests, consistent with the existing image endpoints)</p></li>
 <li><p>fix <code class="docutils literal notranslate"><span class="pre">AttributeError</span></code> in <code class="docutils literal notranslate"><span class="pre">to_dict()</span></code> when an object field is returned
 empty (<code class="docutils literal notranslate"><span class="pre">&quot;&quot;</span></code> or <code class="docutils literal notranslate"><span class="pre">[]</span></code>) instead of <code class="docutils literal notranslate"><span class="pre">null</span></code> by the Personio API; such empty object fields are now
-deserialized to <code class="docutils literal notranslate"><span class="pre">None</span></code> (<a class="reference external" href="https://github.com/at-gmbh/personio-py/pull/47">#47</a></p></li>
+deserialized to <code class="docutils literal notranslate"><span class="pre">None</span></code> (<a class="reference external" href="https://github.com/at-gmbh/personio-py/pull/47">#47</a>)</p></li>
 <li><p>add support for providing a custom <code class="docutils literal notranslate"><span class="pre">requests.Session</span></code> in client
-(<a class="reference external" href="https://github.com/at-gmbh/personio-py/pull/39">#39</a></p></li>
+(<a class="reference external" href="https://github.com/at-gmbh/personio-py/pull/39">#39</a>)</p></li>
 </ul>
 </section>
-<section id="id1">
-<h2><a class="reference external" href="https://github.com/at-gmbh/personio-py/tree/v0.2.3">0.2.3</a> - 2023-05-05<a class="headerlink" href="#id1" title="Link to this heading"></a></h2>
+<section id="id2">
+<h2><a class="reference external" href="https://github.com/at-gmbh/personio-py/tree/v0.2.3">0.2.3</a> - 2023-05-05<a class="headerlink" href="#id2" title="Link to this heading"></a></h2>
 <ul class="simple">
 <li><p>add support for Projects (<a class="reference external" href="https://github.com/at-gmbh/personio-py/pull/36">#36</a>)</p></li>
 <li><p>add support for attendances, with paginated API requests (<a class="reference external" href="https://github.com/at-gmbh/personio-py/pull/35">#35</a>)</p></li>
 </ul>
 </section>
-<section id="id2">
-<h2><a class="reference external" href="https://github.com/at-gmbh/personio-py/tree/v0.2.2">0.2.2</a> - 2022-07-04<a class="headerlink" href="#id2" title="Link to this heading"></a></h2>
+<section id="id3">
+<h2><a class="reference external" href="https://github.com/at-gmbh/personio-py/tree/v0.2.2">0.2.2</a> - 2022-07-04<a class="headerlink" href="#id3" title="Link to this heading"></a></h2>
 <ul class="simple">
 <li><p>add new fields: ‘updated_at’ and ‘category’ to the Absence and AbsenceType classes (<a class="reference external" href="https://github.com/at-gmbh/personio-py/pull/26">#26</a>)</p></li>
 <li><p>Upgrade Sphinx and fix CI job (<a class="reference external" href="https://github.com/at-gmbh/personio-py/pull/27">#27</a>)</p></li>
 </ul>
 </section>
-<section id="id3">
-<h2><a class="reference external" href="https://github.com/at-gmbh/personio-py/tree/v0.2.1">0.2.1</a> - 2021-04-09<a class="headerlink" href="#id3" title="Link to this heading"></a></h2>
+<section id="id4">
+<h2><a class="reference external" href="https://github.com/at-gmbh/personio-py/tree/v0.2.1">0.2.1</a> - 2021-04-09<a class="headerlink" href="#id4" title="Link to this heading"></a></h2>
 <ul class="simple">
 <li><p>add a basic in-memory search index for employees (<a class="reference external" href="https://github.com/at-gmbh/personio-py/pull/19">#19</a>)</p></li>
 <li><p>fix pagination for absence and attencence lists (<a class="reference external" href="https://github.com/at-gmbh/personio-py/pull/20">#20</a>)</p></li>
 </ul>
 </section>
-<section id="id4">
-<h2><a class="reference external" href="https://github.com/at-gmbh/personio-py/tree/v0.2.0">0.2.0</a> - 2021-03-10<a class="headerlink" href="#id4" title="Link to this heading"></a></h2>
+<section id="id5">
+<h2><a class="reference external" href="https://github.com/at-gmbh/personio-py/tree/v0.2.0">0.2.0</a> - 2021-03-10<a class="headerlink" href="#id5" title="Link to this heading"></a></h2>
 <ul class="simple">
 <li><p>add support for new API functions: <code class="docutils literal notranslate"><span class="pre">get_absences</span></code>, <code class="docutils literal notranslate"><span class="pre">get_absence_types</span></code>, <code class="docutils literal notranslate"><span class="pre">create_absence</span></code>, <code class="docutils literal notranslate"><span class="pre">delete_absence</span></code>, <code class="docutils literal notranslate"><span class="pre">get_attendances</span></code> (thanks <a class="reference external" href="https://github.com/philipflohr">philipflohr</a>!)</p></li>
 <li><p>add support for paginated API requests (required for attendances &amp; absences)</p></li>
@@ -144,8 +148,8 @@ deserialized to <code class="docutils literal notranslate"><span class="pre">Non
 <li><p>lots of mock tests &amp; documentation</p></li>
 </ul>
 </section>
-<section id="id5">
-<h2><a class="reference external" href="https://github.com/at-gmbh/personio-py/tree/v0.1.1">0.1.1</a> - 2020-08-19<a class="headerlink" href="#id5" title="Link to this heading"></a></h2>
+<section id="id6">
+<h2><a class="reference external" href="https://github.com/at-gmbh/personio-py/tree/v0.1.1">0.1.1</a> - 2020-08-19<a class="headerlink" href="#id6" title="Link to this heading"></a></h2>
 <ul class="simple">
 <li><p>This is the first release of the Personio API client library</p></li>
 <li><p>Created Python module <code class="docutils literal notranslate"><span class="pre">personio_py</span></code></p></li>
